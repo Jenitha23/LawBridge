@@ -1,0 +1,66 @@
+# Build output
+bin/
+obj/
+
+# Visual Studio files
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+
+# Rider
+.idea/
+
+
+# VS Code
+.vscode/
+
+
+# NuGet packages
+*.nupkg
+packages/
+
+
+# Logs
+*.log
+
+
+# Database files
+*.db
+*.sqlite
+
+
+# Environment variables
+.env
+
+
+# User secrets
+appsettings.Development.json
+
+
+# Publish output
+publish/
+
+
+# Test results
+TestResults/
+
+
+# Coverage
+coverage/
+
+
+# Temporary files
+*.tmp
+*.temp
+
+
+# OS files
+.DS_Store
+Thumbs.db
+
+
+# Uploaded user files
+Storage/ProfileImages/*

@@ -17,6 +17,10 @@ var builder = WebApplication.CreateBuilder(args);
 // Database Configuration
 // ===============================
 
+// ===============================
+// Database
+// ===============================
+
 builder.Services.AddDbContext<AppDbContext>(options =>
 {
     options.UseNpgsql(
@@ -125,6 +129,13 @@ var app = builder.Build();
 
 // ===============================
 // Automatic Database Migration
+// ===============================
+
+
+
+
+// ===============================
+// Auto Database Migration
 // ===============================
 
 using(var scope = app.Services.CreateScope())
