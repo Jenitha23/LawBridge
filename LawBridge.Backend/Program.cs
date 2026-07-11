@@ -3,67 +3,99 @@ using LawBridge.Backend.Data;
 using LawBridge.Backend.Interfaces;
 using LawBridge.Backend.Repositories;
 using LawBridge.Backend.Services;
+
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+
 using System.Text;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
 
+// ===============================
+// Database Configuration
+// ===============================
 
 builder.Services.AddDbContext<AppDbContext>(options =>
 {
-
     options.UseNpgsql(
         builder.Configuration
         .GetConnectionString("DefaultConnection")
     );
-
 });
+
+
+
+// ===============================
+// CORS Configuration
+// Allow React Frontend
+// ===============================
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowFrontend",
+        policy =>
+        {
+            policy
+            .WithOrigins(
+                "http://localhost:5173"
+            )
+            .AllowAnyHeader()
+            .AllowAnyMethod();
+        });
+});
+
+
+
+// ===============================
+// JWT Authentication
+// ===============================
 
 builder.Services
 .AddAuthentication(
-JwtBearerDefaults.AuthenticationScheme)
+    JwtBearerDefaults.AuthenticationScheme
+)
 .AddJwtBearer(options =>
 {
 
-options.TokenValidationParameters =
-new TokenValidationParameters
-{
+    options.TokenValidationParameters =
+    new TokenValidationParameters
+    {
 
-ValidateIssuer = true,
+        ValidateIssuer = true,
 
-ValidateAudience = true,
+        ValidateAudience = true,
 
-ValidateLifetime = true,
+        ValidateLifetime = true,
 
-ValidateIssuerSigningKey = true,
-
-
-ValidIssuer =
-builder.Configuration["Jwt:Issuer"],
+        ValidateIssuerSigningKey = true,
 
 
-ValidAudience =
-builder.Configuration["Jwt:Audience"],
+        ValidIssuer =
+        builder.Configuration["Jwt:Issuer"],
 
 
-IssuerSigningKey =
-new SymmetricSecurityKey(
-Encoding.UTF8.GetBytes(
-builder.Configuration["Jwt:Key"]!
-))
+        ValidAudience =
+        builder.Configuration["Jwt:Audience"],
 
-};
+
+        IssuerSigningKey =
+        new SymmetricSecurityKey(
+            Encoding.UTF8.GetBytes(
+                builder.Configuration["Jwt:Key"]!
+            )
+        )
+
+    };
 
 });
 
-builder.Services.AddControllers();
 
 
-builder.Services.AddEndpointsApiExplorer();
-
-builder.Services.AddSwaggerGen();
+// ===============================
+// Dependency Injection
+// ===============================
 
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 
@@ -71,14 +103,29 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 
 builder.Services.AddScoped<IJwtService, JwtService>();
 
+
+
+// ===============================
+// MVC Controllers
+// ===============================
+
+builder.Services.AddControllers();
+
+
+
+builder.Services.AddEndpointsApiExplorer();
+
+builder.Services.AddSwaggerGen();
+
+
+
 var app = builder.Build();
 
 
-app.UseSwagger();
-app.UseSwaggerUI();
-app.UseAuthentication();
-app.UseAuthorization();
-app.MapControllers();
+
+// ===============================
+// Automatic Database Migration
+// ===============================
 
 using(var scope = app.Services.CreateScope())
 {
@@ -91,5 +138,28 @@ using(var scope = app.Services.CreateScope())
     db.Database.Migrate();
 
 }
+
+
+
+// ===============================
+// Middleware Pipeline
+// ===============================
+
+app.UseSwagger();
+
+app.UseSwaggerUI();
+
+
+// CORS must be before Authorization
+app.UseCors("AllowFrontend");
+
+
+app.UseAuthentication();
+
+app.UseAuthorization();
+
+
+app.MapControllers();
+
 
 app.Run();
