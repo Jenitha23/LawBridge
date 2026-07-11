@@ -72,7 +72,8 @@ await _repository.SaveChangesAsync();
 
 return new AuthResponseDto
 {
-
+    
+Token = _jwt.GenerateToken(user),
 Message="Registration successful"
 
 };

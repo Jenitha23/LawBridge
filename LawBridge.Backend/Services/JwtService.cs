@@ -33,7 +33,7 @@ public class JwtService : IJwtService
             ),
 
             new Claim(
-                JwtRegisteredClaimNames.Email,
+                ClaimTypes.Email,
                 user.Email
             ),
 
