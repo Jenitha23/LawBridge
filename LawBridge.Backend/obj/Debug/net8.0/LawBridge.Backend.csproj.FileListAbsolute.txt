@@ -112,3 +112,9 @@ C:\Users\Jenitha\Desktop\LawBridge\LawBridge.Backend\bin\Debug\net8.0\Microsoft.
 C:\Users\Jenitha\Desktop\LawBridge\LawBridge.Backend\bin\Debug\net8.0\Microsoft.IdentityModel.Tokens.dll
 C:\Users\Jenitha\Desktop\LawBridge\LawBridge.Backend\bin\Debug\net8.0\System.Formats.Asn1.dll
 C:\Users\Jenitha\Desktop\LawBridge\LawBridge.Backend\bin\Debug\net8.0\System.IdentityModel.Tokens.Jwt.dll
+C:\Users\Jenitha\Desktop\LawBridge\LawBridge.Backend\bin\Debug\net8.0\FluentValidation.dll
+C:\Users\Jenitha\Desktop\LawBridge\LawBridge.Backend\bin\Debug\net8.0\FluentValidation.AspNetCore.dll
+C:\Users\Jenitha\Desktop\LawBridge\LawBridge.Backend\bin\Debug\net8.0\FluentValidation.DependencyInjectionExtensions.dll
+C:\Users\Jenitha\Desktop\LawBridge\LawBridge.Backend\bin\Debug\net8.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
+C:\Users\Jenitha\Desktop\LawBridge\LawBridge.Backend\bin\Debug\net8.0\Microsoft.IdentityModel.Protocols.dll
+C:\Users\Jenitha\Desktop\LawBridge\LawBridge.Backend\bin\Debug\net8.0\Microsoft.IdentityModel.Protocols.OpenIdConnect.dll
