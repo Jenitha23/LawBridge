@@ -13,6 +13,9 @@ using System.Text;
 var builder = WebApplication.CreateBuilder(args);
 
 
+// ===============================
+// Database Configuration
+// ===============================
 
 // ===============================
 // Database
@@ -28,15 +31,14 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 
 
-
 // ===============================
-// CORS
+// CORS Configuration
 // Allow React Frontend
 // ===============================
 
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowReactApp",
+    options.AddPolicy("AllowFrontend",
         policy =>
         {
             policy
@@ -44,11 +46,9 @@ builder.Services.AddCors(options =>
                 "http://localhost:5173"
             )
             .AllowAnyHeader()
-            .AllowAnyMethod()
-            .AllowCredentials();
+            .AllowAnyMethod();
         });
 });
-
 
 
 
@@ -97,7 +97,6 @@ builder.Services
 
 
 
-
 // ===============================
 // Dependency Injection
 // ===============================
@@ -110,12 +109,13 @@ builder.Services.AddScoped<IJwtService, JwtService>();
 
 
 
-
 // ===============================
-// Controllers
+// MVC Controllers
 // ===============================
 
 builder.Services.AddControllers();
+
+
 
 builder.Services.AddEndpointsApiExplorer();
 
@@ -123,39 +123,13 @@ builder.Services.AddSwaggerGen();
 
 
 
-
-
 var app = builder.Build();
 
 
 
-
 // ===============================
-// Swagger
+// Automatic Database Migration
 // ===============================
-
-app.UseSwagger();
-
-app.UseSwaggerUI();
-
-
-
-
-// ===============================
-// Middleware Order
-// ===============================
-
-
-// CORS MUST be before Authentication
-app.UseCors("AllowReactApp");
-
-
-app.UseAuthentication();
-
-app.UseAuthorization();
-
-
-app.MapControllers();
 
 
 
@@ -177,6 +151,26 @@ using(var scope = app.Services.CreateScope())
 }
 
 
+
+// ===============================
+// Middleware Pipeline
+// ===============================
+
+app.UseSwagger();
+
+app.UseSwaggerUI();
+
+
+// CORS must be before Authorization
+app.UseCors("AllowFrontend");
+
+
+app.UseAuthentication();
+
+app.UseAuthorization();
+
+
+app.MapControllers();
 
 
 app.Run();
