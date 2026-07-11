@@ -1,11 +1,39 @@
 {
   "Version": 1,
-  "Hash": "osOAA15CIQH/diqY3X1387T39cXTPYMwzenKQfU+1MQ=",
+  "Hash": "Oqv7urS1HdwxUQ3oN9U3Rg5JwUdePcBA/k4iAEuwqt0=",
   "Source": "LawBridge.Backend",
   "BasePath": "_content/LawBridge.Backend",
   "Mode": "Default",
   "ManifestType": "Build",
   "ReferencedProjectsConfiguration": [],
-  "DiscoveryPatterns": [],
-  "Assets": []
+  "DiscoveryPatterns": [
+    {
+      "Name": "LawBridge.Backend\\wwwroot",
+      "Source": "LawBridge.Backend",
+      "ContentRoot": "C:\\Users\\Jenitha\\Desktop\\LawBridge\\LawBridge.Backend\\wwwroot\\",
+      "BasePath": "_content/LawBridge.Backend",
+      "Pattern": "**"
+    }
+  ],
+  "Assets": [
+    {
+      "Identity": "C:\\Users\\Jenitha\\Desktop\\LawBridge\\LawBridge.Backend\\wwwroot\\profile-images",
+      "SourceId": "LawBridge.Backend",
+      "SourceType": "Discovered",
+      "ContentRoot": "C:\\Users\\Jenitha\\Desktop\\LawBridge\\LawBridge.Backend\\wwwroot\\",
+      "BasePath": "_content/LawBridge.Backend",
+      "RelativePath": "profile-images",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "PreferTarget",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\profile-images"
+    }
+  ]
 }

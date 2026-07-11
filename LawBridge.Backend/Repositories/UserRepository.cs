@@ -45,5 +45,14 @@ public class UserRepository : IUserRepository
         await _context.SaveChangesAsync();
 
     }
+    public async Task<User?> GetByIdAsync(int id)
+{
+    return await _context.Users.FindAsync(id);
+}
+public Task UpdateAsync(User user)
+{
+    _context.Users.Update(user);
+    return Task.CompletedTask;
+}
 
 }
