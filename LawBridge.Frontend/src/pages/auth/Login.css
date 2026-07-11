@@ -1,0 +1,881 @@
+/* ============================================
+   LAWBRIDGE LOGIN PAGE STYLES
+   Used by Login.jsx
+============================================ */
+
+
+/* Main Page */
+
+.auth-page {
+
+    min-height:100vh;
+
+    display:flex;
+
+    flex-direction:column;
+
+
+    background-size:cover;
+
+    background-position:center;
+
+    background-repeat:no-repeat;
+
+    background-color:#F5F3FC;
+
+    background-attachment:fixed;
+
+
+    overflow-y:auto;
+
+
+    position:relative;
+
+}
+
+
+
+/* Background overlay */
+
+.auth-page::before {
+
+    content:"";
+
+    position:absolute;
+
+    inset:0;
+
+
+    background:rgba(250,249,255,0.35);
+
+
+    z-index:0;
+
+}
+
+
+
+/* Keep content above background */
+
+.auth-navbar,
+.auth-center,
+.auth-footer {
+
+    position:relative;
+
+    z-index:1;
+
+}
+
+
+
+
+
+/* =========================
+        Navbar
+========================= */
+
+
+.auth-navbar {
+
+    padding:14px 70px;
+
+}
+
+
+
+.brand {
+
+    display:flex;
+
+    align-items:center;
+
+    gap:10px;
+
+
+    font-size:20px;
+
+    font-weight:800;
+
+
+    color:#111827;
+
+}
+
+
+
+.brand-logo {
+
+    width:32px;
+
+    height:32px;
+
+    object-fit:contain;
+
+}
+
+
+
+
+
+
+
+/* =========================
+        Center
+========================= */
+
+
+.auth-center {
+
+    flex:1;
+
+
+    display:flex;
+
+
+    justify-content:center;
+
+
+    align-items:flex-start;
+
+
+    padding:0 20px 16px;
+
+}
+
+
+
+
+
+
+/* =========================
+        Login Card
+========================= */
+
+
+.auth-card {
+
+
+    width:100%;
+
+
+    max-width:480px;
+
+
+
+    background:
+
+    rgba(255,255,255,0.55);
+
+
+
+    backdrop-filter:
+
+    blur(20px) saturate(160%);
+
+
+    -webkit-backdrop-filter:
+
+    blur(20px) saturate(160%);
+
+
+
+    border-radius:24px;
+
+
+
+    padding:22px 34px;
+
+
+
+    border:
+
+    1px solid rgba(255,255,255,0.6);
+
+
+
+    box-shadow:
+
+    0 30px 80px rgba(70,40,150,0.18),
+    inset 0 1px 0 rgba(255,255,255,0.5);
+
+
+}
+
+
+
+
+
+
+
+/* User Icon */
+
+
+.auth-icon-circle {
+
+
+    width:42px;
+
+
+    height:42px;
+
+
+    border-radius:50%;
+
+
+    background:#EDE8FB;
+
+
+    display:flex;
+
+
+    justify-content:center;
+
+
+    align-items:center;
+
+
+    margin:0 auto 8px;
+
+
+}
+
+
+
+
+
+
+
+/* Heading */
+
+
+.auth-card h1 {
+
+
+    margin:0;
+
+
+    text-align:center;
+
+
+    font-size:24px;
+
+
+    font-weight:800;
+
+
+    color:#111827;
+
+
+}
+
+
+
+
+
+.auth-sub {
+
+
+    margin-top:6px;
+
+
+    text-align:center;
+
+
+    font-size:13px;
+
+
+    line-height:1.45;
+
+
+    color:#7B8194;
+
+
+    padding:0 6px;
+
+
+}
+
+
+
+
+
+
+
+/* =========================
+        Form
+========================= */
+
+
+.auth-form {
+
+
+    margin-top:14px;
+
+
+    display:flex;
+
+
+    flex-direction:column;
+
+
+    gap:10px;
+
+
+}
+
+
+
+
+.field label {
+
+
+    display:block;
+
+
+    margin-bottom:5px;
+
+
+    font-size:13px;
+
+
+    font-weight:700;
+
+
+    color:#111827;
+
+
+}
+
+
+
+
+
+
+/* Input */
+
+
+.input-group {
+
+
+    height:40px;
+
+
+    display:flex;
+
+
+    align-items:center;
+
+
+    gap:12px;
+
+
+    padding:0 16px;
+
+
+    background:rgba(255,255,255,0.6);
+
+
+    border:1.5px solid rgba(228,227,236,0.8);
+
+
+    border-radius:14px;
+
+
+    transition:border-color 0.15s ease, box-shadow 0.15s ease;
+
+
+}
+
+
+
+
+.input-group:focus-within {
+
+
+    border-color:#5428C7;
+
+
+    box-shadow:
+
+    0 0 0 4px rgba(84,40,199,0.12);
+
+
+}
+
+
+
+.input-icon {
+
+    flex-shrink:0;
+
+}
+
+
+
+
+
+.input-group input {
+
+
+    flex:1;
+
+
+    border:none;
+
+
+    outline:none;
+
+
+    background:transparent;
+
+
+    font-size:15px;
+
+
+    color:#111827;
+
+
+}
+
+
+.input-group input::placeholder {
+
+    color:#B3B7C4;
+
+}
+
+
+
+
+
+.toggle-visibility {
+
+
+    border:none;
+
+
+    background:none;
+
+
+    cursor:pointer;
+
+
+    display:flex;
+
+
+    align-items:center;
+
+
+    justify-content:center;
+
+
+    padding:0;
+
+
+}
+
+
+
+
+
+
+
+/* Forgot Password */
+
+
+.field-row-end {
+
+
+    display:flex;
+
+
+    justify-content:flex-end;
+
+
+    margin-top:-4px;
+
+
+}
+
+
+
+.link-muted {
+
+
+    background:none;
+
+
+    border:none;
+
+
+    color:#5428C7;
+
+
+    font-weight:600;
+
+
+    font-size:13px;
+
+
+    cursor:pointer;
+
+
+}
+
+
+
+
+
+/* Error */
+
+
+.error-box {
+
+
+    margin-top:15px;
+
+
+    padding:12px;
+
+
+    border-radius:12px;
+
+
+    background:#fee2e2;
+
+
+    color:#dc2626;
+
+
+    border:1px solid #fecaca;
+
+
+    font-size:14px;
+
+
+}
+
+
+
+
+
+
+
+/* =========================
+        Button
+========================= */
+
+
+.btn-primary {
+
+
+    background:#5428C7;
+
+
+    color:white;
+
+
+    border:none;
+
+
+    cursor:pointer;
+
+
+}
+
+
+
+
+.btn-block {
+
+
+    width:100%;
+
+
+    height:42px;
+
+
+    border-radius:14px;
+
+
+    display:flex;
+
+
+    justify-content:center;
+
+
+    align-items:center;
+
+
+    gap:10px;
+
+
+    font-size:16px;
+
+
+    font-weight:700;
+
+
+    cursor:pointer;
+
+
+    transition:background 0.15s ease, transform 0.05s ease;
+
+
+}
+
+
+
+.btn-primary.btn-block:hover {
+
+
+    background:#4320a5;
+
+
+}
+
+
+.btn-arrow {
+
+    font-size:17px;
+
+}
+
+
+
+
+
+/* Divider */
+
+
+.divider {
+
+
+    display:flex;
+
+
+    align-items:center;
+
+
+    text-align:center;
+
+
+    color:#9AA1B1;
+
+
+    font-size:13px;
+
+
+    margin:0;
+
+
+}
+
+
+.divider::before,
+.divider::after {
+
+
+    content:"";
+
+
+    flex:1;
+
+
+    height:1px;
+
+
+    background:#E4E3EC;
+
+
+}
+
+
+.divider span {
+
+
+    padding:0 14px;
+
+
+}
+
+
+
+
+
+/* Google Button */
+
+
+.btn-google {
+
+
+    background:rgba(255,255,255,0.6);
+
+
+    color:#111827;
+
+
+    border:1.5px solid rgba(228,227,236,0.8);
+
+
+}
+
+
+.btn-google:hover {
+
+
+    background:rgba(255,255,255,0.8);
+
+
+    border-color:#D9D8E3;
+
+
+}
+
+
+
+
+
+
+
+/* =========================
+        Signup
+========================= */
+
+
+.auth-switch {
+
+
+    text-align:center;
+
+
+    margin-top:12px;
+
+
+    color:#7B8194;
+
+
+    font-size:13px;
+
+
+}
+
+
+
+.btn-link {
+
+
+    background:none;
+
+
+    border:none;
+
+
+    color:#5428C7;
+
+
+    font-weight:700;
+
+
+    cursor:pointer;
+
+
+    margin-left:4px;
+
+
+}
+
+
+
+
+
+
+
+/* =========================
+        Footer
+========================= */
+
+
+.auth-footer {
+
+
+    padding:14px;
+
+
+    display:flex;
+
+
+    justify-content:center;
+
+
+    gap:32px;
+
+
+    flex-wrap:wrap;
+
+
+    font-size:12px;
+
+
+    color:#7B8194;
+
+
+}
+
+
+
+.auth-footer span {
+
+
+    display:flex;
+
+
+    align-items:center;
+
+
+    gap:8px;
+
+
+}
+
+
+
+
+
+
+
+/* =========================
+        Responsive
+========================= */
+
+
+@media(max-width:768px){
+
+
+    .auth-navbar {
+
+        padding:25px;
+
+    }
+
+
+
+    .auth-card {
+
+        padding:35px 25px;
+
+    }
+
+
+
+    .auth-footer {
+
+        flex-direction:column;
+
+        text-align:center;
+
+    }
+
+
+}
