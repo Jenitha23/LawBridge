@@ -120,7 +120,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 
 builder.Services.AddSwaggerGen();
-
+builder.Services.AddScoped<IUserRepository, UserRepository>();
 
 
 var app = builder.Build();
@@ -164,7 +164,7 @@ app.UseSwaggerUI();
 // CORS must be before Authorization
 app.UseCors("AllowFrontend");
 
-
+app.UseStaticFiles();
 app.UseAuthentication();
 
 app.UseAuthorization();

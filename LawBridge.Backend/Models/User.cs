@@ -22,4 +22,9 @@ public class User
 
 
     public DateTime UpdatedAt { get; set; }
+    public string? ProfileImage { get; set; }
+
+    public string PhoneNumber { get; set; } = string.Empty;
+
+    public string Address { get; set; } = string.Empty;
 }
