@@ -16,4 +16,6 @@ public interface IUserRepository
    Task UpdateAsync(User user);
 
    Task SaveChangesAsync();
+   Task<User?> GetByEmail(string email);
+   Task Update(User user);
 }
