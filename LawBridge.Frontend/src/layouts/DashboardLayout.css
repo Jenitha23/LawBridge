@@ -1,0 +1,92 @@
+/* ============================================
+   DASHBOARD SHELL
+   Sidebar + Topbar + scrollable content area.
+   Used by every logged-in page.
+============================================ */
+
+.dashboard-shell {
+
+    display: flex;
+    min-height: 100svh;
+    width: 100%;
+    background: var(--bg-soft);
+
+}
+
+
+.dashboard-main {
+
+    flex: 1;
+    min-width: 0;
+
+    display: flex;
+    flex-direction: column;
+
+}
+
+
+.dashboard-content {
+
+    flex: 1;
+    padding: 28px 32px 48px 32px;
+
+}
+
+
+.dashboard-loading,
+.dashboard-error {
+
+    max-width: 520px;
+    margin: 60px auto;
+    text-align: center;
+
+    padding: 20px;
+    border-radius: var(--radius-md);
+    font-size: 14.5px;
+    font-weight: 600;
+
+}
+
+
+.dashboard-loading {
+
+    color: var(--text-muted);
+
+}
+
+
+.dashboard-error {
+
+    color: var(--danger);
+    background: var(--danger-soft);
+
+}
+
+
+.sidebar-overlay {
+
+    display: none;
+
+}
+
+
+@media (max-width: 900px) {
+
+    .dashboard-content {
+
+        padding: 22px 18px 40px 18px;
+
+    }
+
+    .sidebar-overlay.visible {
+
+        display: block;
+
+        position: fixed;
+        inset: 0;
+        background: rgba(21, 15, 46, 0.35);
+        z-index: 30;
+
+    }
+
+}

@@ -1,0 +1,38 @@
+.coming-soon-card {
+
+    max-width: 480px;
+    margin: 60px auto;
+    text-align: center;
+
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 46px 32px;
+
+}
+
+
+.coming-soon-icon {
+
+    font-size: 34px;
+    margin-bottom: 14px;
+
+}
+
+
+.coming-soon-card h2 {
+
+    font-size: 19px;
+    font-weight: 800;
+    margin-bottom: 10px;
+
+}
+
+
+.coming-soon-card p {
+
+    font-size: 14px;
+    color: var(--text-muted);
+    line-height: 1.6;
+
+}
