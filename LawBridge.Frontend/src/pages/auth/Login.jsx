@@ -56,7 +56,7 @@ function Login()
             );
 
 
-            navigate("/profile");
+            navigate("/dashboard");
 
 
         }
