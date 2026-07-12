@@ -1,6 +1,6 @@
 {
   "Version": 1,
-  "Hash": "Oqv7urS1HdwxUQ3oN9U3Rg5JwUdePcBA/k4iAEuwqt0=",
+  "Hash": "wQBOYONyGP834iZ9TB1//FTG9NeHXRoJlodx0Gj6zn4=",
   "Source": "LawBridge.Backend",
   "BasePath": "_content/LawBridge.Backend",
   "Mode": "Default",
@@ -17,12 +17,12 @@
   ],
   "Assets": [
     {
-      "Identity": "C:\\Users\\Jenitha\\Desktop\\LawBridge\\LawBridge.Backend\\wwwroot\\profile-images",
+      "Identity": "C:\\Users\\Jenitha\\Desktop\\LawBridge\\LawBridge.Backend\\wwwroot\\profile-images\\c0fdb1ac-b36f-47a4-8bef-d3bf9999c2a6.jpeg",
       "SourceId": "LawBridge.Backend",
       "SourceType": "Discovered",
       "ContentRoot": "C:\\Users\\Jenitha\\Desktop\\LawBridge\\LawBridge.Backend\\wwwroot\\",
       "BasePath": "_content/LawBridge.Backend",
-      "RelativePath": "profile-images",
+      "RelativePath": "profile-images/c0fdb1ac-b36f-47a4-8bef-d3bf9999c2a6.jpeg",
       "AssetKind": "All",
       "AssetMode": "All",
       "AssetRole": "Primary",
@@ -33,7 +33,26 @@
       "AssetTraitValue": "",
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
-      "OriginalItemSpec": "wwwroot\\profile-images"
+      "OriginalItemSpec": "wwwroot\\profile-images\\c0fdb1ac-b36f-47a4-8bef-d3bf9999c2a6.jpeg"
+    },
+    {
+      "Identity": "C:\\Users\\Jenitha\\Desktop\\LawBridge\\LawBridge.Backend\\wwwroot\\profile-images\\f98c1d32-1120-4b8c-a7a5-cc806d5199d9.png",
+      "SourceId": "LawBridge.Backend",
+      "SourceType": "Discovered",
+      "ContentRoot": "C:\\Users\\Jenitha\\Desktop\\LawBridge\\LawBridge.Backend\\wwwroot\\",
+      "BasePath": "_content/LawBridge.Backend",
+      "RelativePath": "profile-images/f98c1d32-1120-4b8c-a7a5-cc806d5199d9.png",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "PreferTarget",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\profile-images\\f98c1d32-1120-4b8c-a7a5-cc806d5199d9.png"
     }
   ]
 }

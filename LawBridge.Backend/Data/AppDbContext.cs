@@ -18,6 +18,9 @@ public class AppDbContext : DbContext
 
     public DbSet<User> Users { get; set; }
     public DbSet<RefreshToken> RefreshTokens {get;set;}
+    public DbSet<LegalCategory> LegalCategories { get; set; }
+    public DbSet<LegalDocument> LegalDocuments { get; set; }
+    public DbSet<LegalChunk> LegalChunks { get; set; }
 
 
     protected override void OnModelCreating(
@@ -31,5 +34,6 @@ public class AppDbContext : DbContext
 
         base.OnModelCreating(modelBuilder);
     }
+
 
 }
