@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("LawBridge.Backend")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+c04dfb85d30f10835e0722284ae31422b761f416")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+a2b677cbca50612bb67680596e4f709568af129e")]
 [assembly: System.Reflection.AssemblyProductAttribute("LawBridge.Backend")]
 [assembly: System.Reflection.AssemblyTitleAttribute("LawBridge.Backend")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
