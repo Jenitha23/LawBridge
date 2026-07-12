@@ -108,7 +108,9 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IJwtService, JwtService>();
 builder.Services.AddScoped<IAdminService, AdminService>();
 builder.Services.AddScoped<IAdminDashboardService, AdminDashboardService>();
-
+builder.Services.AddScoped<ILegalDocumentRepository, LegalDocumentRepository>();
+builder.Services.AddScoped<PdfService>();
+builder.Services.AddScoped<ChunkService>();
 
 // ===============================
 // MVC Controllers
