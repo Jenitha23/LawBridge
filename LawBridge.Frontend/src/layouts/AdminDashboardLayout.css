@@ -1,0 +1,92 @@
+/* ============================================
+   ADMIN DASHBOARD SHELL
+   Sidebar + Topbar + scrollable content area.
+   Used by every logged-in admin page.
+============================================ */
+
+.admin-dashboard-shell {
+
+    display: flex;
+    min-height: 100svh;
+    width: 100%;
+    background: var(--bg-soft);
+
+}
+
+
+.admin-dashboard-main {
+
+    flex: 1;
+    min-width: 0;
+
+    display: flex;
+    flex-direction: column;
+
+}
+
+
+.admin-dashboard-content {
+
+    flex: 1;
+    padding: 28px 32px 48px 32px;
+
+}
+
+
+.admin-dashboard-loading,
+.admin-dashboard-error {
+
+    max-width: 520px;
+    margin: 60px auto;
+    text-align: center;
+
+    padding: 20px;
+    border-radius: var(--radius-md);
+    font-size: 14.5px;
+    font-weight: 600;
+
+}
+
+
+.admin-dashboard-loading {
+
+    color: var(--text-muted);
+
+}
+
+
+.admin-dashboard-error {
+
+    color: var(--danger);
+    background: var(--danger-soft);
+
+}
+
+
+.admin-sidebar-overlay {
+
+    display: none;
+
+}
+
+
+@media (max-width: 900px) {
+
+    .admin-dashboard-content {
+
+        padding: 22px 18px 40px 18px;
+
+    }
+
+    .admin-sidebar-overlay.visible {
+
+        display: block;
+
+        position: fixed;
+        inset: 0;
+        background: rgba(21, 15, 46, 0.35);
+        z-index: 30;
+
+    }
+
+}

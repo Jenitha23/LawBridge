@@ -14,6 +14,11 @@ import ComingSoon from "./pages/user/ComingSoon";
 import Landing from "./pages/Landing";
 import ProtectedRoute from "./components/ProtectedRoute";
 
+import AdminLogin from "./pages/admin/Login";
+import AdminDashboard from "./pages/admin/Dashboard";
+import AdminProfile from "./pages/admin/Profile";
+import AdminProtectedRoute from "./components/AdminProtectedRoute";
+
 
 function App()
 {
@@ -57,6 +62,34 @@ element={
 <ProtectedRoute>
 <Profile/>
 </ProtectedRoute>
+}
+/>
+
+
+{/* ---------- Admin routes ---------- */}
+
+<Route
+path="/admin/login"
+element={<AdminLogin/>}
+/>
+
+
+<Route
+path="/admin/dashboard"
+element={
+<AdminProtectedRoute>
+<AdminDashboard/>
+</AdminProtectedRoute>
+}
+/>
+
+
+<Route
+path="/admin/profile"
+element={
+<AdminProtectedRoute>
+<AdminProfile/>
+</AdminProtectedRoute>
 }
 />
 
