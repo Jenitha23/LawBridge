@@ -1,6 +1,6 @@
 {
   "Version": 1,
-  "Hash": "wQBOYONyGP834iZ9TB1//FTG9NeHXRoJlodx0Gj6zn4=",
+  "Hash": "N3YlTd1ZnSimtfP//haxNIZ+FypZqrEpqDj4Mm1puOI=",
   "Source": "LawBridge.Backend",
   "BasePath": "_content/LawBridge.Backend",
   "Mode": "Default",
@@ -16,6 +16,25 @@
     }
   ],
   "Assets": [
+    {
+      "Identity": "C:\\Users\\Jenitha\\Desktop\\LawBridge\\LawBridge.Backend\\wwwroot\\profile-images\\bf4cad47-aa2a-4489-95cb-5097cbba3335.png",
+      "SourceId": "LawBridge.Backend",
+      "SourceType": "Discovered",
+      "ContentRoot": "C:\\Users\\Jenitha\\Desktop\\LawBridge\\LawBridge.Backend\\wwwroot\\",
+      "BasePath": "_content/LawBridge.Backend",
+      "RelativePath": "profile-images/bf4cad47-aa2a-4489-95cb-5097cbba3335.png",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "PreferTarget",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\profile-images\\bf4cad47-aa2a-4489-95cb-5097cbba3335.png"
+    },
     {
       "Identity": "C:\\Users\\Jenitha\\Desktop\\LawBridge\\LawBridge.Backend\\wwwroot\\profile-images\\c0fdb1ac-b36f-47a4-8bef-d3bf9999c2a6.jpeg",
       "SourceId": "LawBridge.Backend",
@@ -53,6 +72,25 @@
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot\\profile-images\\f98c1d32-1120-4b8c-a7a5-cc806d5199d9.png"
+    },
+    {
+      "Identity": "C:\\Users\\Jenitha\\Desktop\\LawBridge\\LawBridge.Backend\\wwwroot\\uploads\\profiles\\8007da49-39ff-4b5e-bb19-031cb75ac5e7.png",
+      "SourceId": "LawBridge.Backend",
+      "SourceType": "Discovered",
+      "ContentRoot": "C:\\Users\\Jenitha\\Desktop\\LawBridge\\LawBridge.Backend\\wwwroot\\",
+      "BasePath": "_content/LawBridge.Backend",
+      "RelativePath": "uploads/profiles/8007da49-39ff-4b5e-bb19-031cb75ac5e7.png",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "PreferTarget",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\uploads\\profiles\\8007da49-39ff-4b5e-bb19-031cb75ac5e7.png"
     }
   ]
 }

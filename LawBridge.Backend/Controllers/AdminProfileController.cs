@@ -243,7 +243,8 @@ public async Task<IActionResult> UploadProfileImage(
         Path.Combine(
             Directory.GetCurrentDirectory(),
             "wwwroot",
-            "profile-images"
+            "uploads",
+            "profiles"
         );
 
 
