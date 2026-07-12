@@ -1,0 +1,307 @@
+/* ============================================
+   ADMIN TOPBAR
+============================================ */
+
+.admin-topbar {
+
+    display: flex;
+    align-items: center;
+    gap: 16px;
+
+    padding: 18px 32px;
+    border-bottom: 1px solid var(--border);
+    background: #fff;
+
+    position: sticky;
+    top: 0;
+    z-index: 20;
+
+}
+
+
+.admin-topbar-menu-btn {
+
+    display: none;
+
+    align-items: center;
+    justify-content: center;
+
+    width: 36px;
+    height: 36px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    background: #fff;
+    color: var(--text-heading);
+
+}
+
+
+.admin-topbar-heading {
+
+    flex: 1;
+    min-width: 0;
+
+}
+
+
+.admin-topbar-heading h1 {
+
+    font-size: 21px;
+    font-weight: 800;
+
+}
+
+
+.admin-topbar-actions {
+
+    display: flex;
+    align-items: center;
+    gap: 14px;
+
+}
+
+
+.admin-icon-btn {
+
+    position: relative;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    background: #fff;
+    color: var(--text);
+
+}
+
+
+.admin-icon-btn:hover {
+
+    border-color: var(--primary-light);
+    color: var(--primary);
+
+}
+
+
+.admin-notif-badge {
+
+    position: absolute;
+    top: -4px;
+    right: -4px;
+
+    min-width: 17px;
+    height: 17px;
+    padding: 0 4px;
+    border-radius: 999px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: var(--danger);
+    color: #fff;
+    font-size: 10px;
+    font-weight: 800;
+    border: 2px solid #fff;
+
+}
+
+
+.admin-topbar-avatar-wrap {
+
+    position: relative;
+
+}
+
+
+.admin-topbar-avatar-btn {
+
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    border: none;
+    background: none;
+    padding: 4px 6px 4px 4px;
+    border-radius: 999px;
+
+}
+
+
+.admin-topbar-avatar-btn:hover {
+
+    background: var(--bg-soft);
+
+}
+
+
+.admin-topbar-avatar {
+
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--primary-soft);
+
+}
+
+
+.admin-topbar-avatar-fallback {
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: var(--primary);
+    color: #fff;
+    font-weight: 700;
+    font-size: 14px;
+
+}
+
+
+.admin-topbar-name-block {
+
+    display: none;
+    flex-direction: column;
+    text-align: left;
+    line-height: 1.25;
+
+}
+
+
+.admin-topbar-name {
+
+    font-size: 13.5px;
+    font-weight: 700;
+    color: var(--text-heading);
+
+}
+
+
+.admin-topbar-role {
+
+    font-size: 11.5px;
+    color: var(--text-muted);
+
+}
+
+
+.admin-caret {
+
+    color: var(--text-muted);
+    display: none;
+
+}
+
+
+.admin-topbar-dropdown {
+
+    position: absolute;
+    right: 0;
+    top: calc(100% + 10px);
+
+    width: 220px;
+
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-lg);
+
+    padding: 14px;
+
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+
+    z-index: 30;
+
+}
+
+
+.admin-topbar-dropdown-name {
+
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-heading);
+
+}
+
+
+.admin-topbar-dropdown-email {
+
+    font-size: 12.5px;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+    word-break: break-all;
+
+}
+
+
+.admin-topbar-dropdown button {
+
+    text-align: left;
+
+    padding: 9px 10px;
+    border-radius: var(--radius-sm);
+    border: none;
+    background: none;
+
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--text);
+
+}
+
+
+.admin-topbar-dropdown button:hover {
+
+    background: var(--primary-soft-2);
+
+}
+
+
+.admin-topbar-dropdown button.danger {
+
+    color: var(--danger);
+
+}
+
+
+.admin-topbar-dropdown button.danger:hover {
+
+    background: var(--danger-soft);
+
+}
+
+
+@media (min-width: 700px) {
+
+    .admin-topbar-name-block {
+
+        display: flex;
+
+    }
+
+    .admin-caret {
+
+        display: block;
+
+    }
+
+}
+
+
+@media (max-width: 900px) {
+
+    .admin-topbar-menu-btn {
+
+        display: flex;
+
+    }
+
+}

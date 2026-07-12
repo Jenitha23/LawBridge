@@ -1,0 +1,548 @@
+/* ============================================
+   ADMIN DASHBOARD PAGE
+============================================ */
+
+.sample-data-banner {
+
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+
+    padding: 12px 16px;
+    margin-bottom: 20px;
+    border-radius: var(--radius-md);
+
+    background: #FFFBEB;
+    border: 1px solid #FDE68A;
+    color: #92400E;
+
+    font-size: 12.5px;
+    line-height: 1.5;
+
+}
+
+
+.sample-data-banner svg {
+
+    flex-shrink: 0;
+    margin-top: 1px;
+
+}
+
+
+/* ---------- Welcome banner ---------- */
+
+.admin-welcome-card {
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    flex-wrap: wrap;
+
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 26px 28px;
+    margin-bottom: 22px;
+
+}
+
+
+.admin-welcome-text h1 {
+
+    font-size: 24px;
+    font-weight: 800;
+    margin-bottom: 6px;
+
+}
+
+
+.admin-welcome-text p {
+
+    color: var(--text-muted);
+    font-size: 14.5px;
+
+}
+
+
+.admin-date-card {
+
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    padding: 12px 18px;
+    border-radius: var(--radius-md);
+    background: var(--primary-soft-2);
+    border: 1px solid var(--border);
+
+}
+
+
+.admin-date-value {
+
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-heading);
+
+}
+
+
+.admin-date-sub {
+
+    font-size: 12px;
+    color: var(--text-muted);
+
+}
+
+
+/* ---------- Stat cards ---------- */
+
+.admin-stats-grid {
+
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 18px;
+    margin-bottom: 22px;
+
+}
+
+
+.admin-stat-card {
+
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 22px;
+
+}
+
+
+.admin-stat-icon {
+
+    width: 46px;
+    height: 46px;
+    border-radius: var(--radius-md);
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    margin-bottom: 14px;
+
+}
+
+
+.icon-purple { background: var(--primary-soft); color: var(--primary); }
+
+.icon-green { background: #DCFCE7; color: #16A34A; }
+
+.icon-blue { background: #DBEAFE; color: #2563EB; }
+
+.icon-violet { background: #EDE9FE; color: #7C3AED; }
+
+
+.admin-stat-value {
+
+    font-size: 26px;
+    font-weight: 800;
+    color: var(--text-heading);
+
+}
+
+
+.admin-stat-label {
+
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-heading);
+    margin-top: 4px;
+
+}
+
+
+.admin-stat-sub {
+
+    font-size: 12.5px;
+    color: var(--text-muted);
+    margin-top: 2px;
+
+}
+
+
+/* ---------- Panels (shared card) ---------- */
+
+.admin-mid-grid {
+
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+    margin-bottom: 18px;
+
+}
+
+
+.admin-bottom-grid {
+
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 18px;
+
+}
+
+
+.admin-panel {
+
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 22px;
+
+}
+
+
+.admin-panel-header {
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 18px;
+
+}
+
+
+.admin-panel-header h3 {
+
+    font-size: 15.5px;
+    font-weight: 800;
+
+}
+
+
+.admin-panel-header a {
+
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--primary);
+
+}
+
+
+.admin-panel-pill {
+
+    font-size: 12.5px;
+    font-weight: 600;
+    padding: 6px 12px;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    color: var(--text);
+
+}
+
+
+.admin-panel-muted {
+
+    font-size: 12.5px;
+    color: var(--text-muted);
+    font-weight: 600;
+
+}
+
+
+/* ---------- Donut ---------- */
+
+.donut-row {
+
+    display: flex;
+    align-items: center;
+    gap: 28px;
+    flex-wrap: wrap;
+
+}
+
+
+.donut-chart {
+
+    flex-shrink: 0;
+
+}
+
+
+.donut-center-value {
+
+    font-size: 22px;
+    font-weight: 800;
+    fill: var(--text-heading);
+
+}
+
+
+.donut-center-label {
+
+    font-size: 10.5px;
+    fill: var(--text-muted);
+
+}
+
+
+.donut-legend {
+
+    flex: 1;
+    min-width: 180px;
+
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+
+}
+
+
+.donut-legend li {
+
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+}
+
+
+.donut-legend i {
+
+    width: 11px;
+    height: 11px;
+    border-radius: 4px;
+    flex-shrink: 0;
+
+}
+
+
+.legend-name {
+
+    font-size: 13.5px;
+    font-weight: 700;
+    color: var(--text-heading);
+
+}
+
+
+.legend-count {
+
+    font-size: 12px;
+    color: var(--text-muted);
+
+}
+
+
+/* ---------- Recent documents list ---------- */
+
+.doc-list {
+
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+
+}
+
+
+.doc-list li {
+
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    padding: 10px 6px;
+    border-radius: var(--radius-sm);
+
+}
+
+
+.doc-list li:hover {
+
+    background: var(--bg-soft);
+
+}
+
+
+.doc-list-icon {
+
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    background: #FEF2F2;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+
+}
+
+
+.doc-list-name {
+
+    flex: 1;
+    min-width: 0;
+
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--text-heading);
+
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+}
+
+
+.doc-list-time {
+
+    font-size: 12px;
+    color: var(--text-muted);
+    flex-shrink: 0;
+
+}
+
+
+.tag {
+
+    font-size: 11px;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 999px;
+    flex-shrink: 0;
+    white-space: nowrap;
+
+}
+
+
+.tag-purple { background: var(--primary-soft); color: var(--primary); }
+
+.tag-green { background: #DCFCE7; color: #16A34A; }
+
+.tag-orange { background: #FFEDD5; color: #C2410C; }
+
+
+/* ---------- Rank list (top viewed) ---------- */
+
+.rank-list {
+
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+
+}
+
+
+.rank-list li {
+
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    padding: 10px 6px;
+    border-radius: var(--radius-sm);
+
+}
+
+
+.rank-list li:hover {
+
+    background: var(--bg-soft);
+
+}
+
+
+.rank-badge {
+
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+
+    background: var(--primary-soft);
+    color: var(--primary);
+    font-size: 12px;
+    font-weight: 800;
+
+}
+
+
+.rank-name {
+
+    flex: 1;
+    min-width: 0;
+
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--text-heading);
+
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+}
+
+
+.rank-views {
+
+    font-size: 12px;
+    color: var(--text-muted);
+    flex-shrink: 0;
+
+}
+
+
+/* ---------- Charts ---------- */
+
+.chart-axis-label {
+
+    font-size: 9.5px;
+    fill: var(--text-muted);
+
+}
+
+
+/* ---------- Responsive ---------- */
+
+@media (max-width: 1200px) {
+
+    .admin-stats-grid {
+
+        grid-template-columns: repeat(2, 1fr);
+
+    }
+
+    .admin-bottom-grid {
+
+        grid-template-columns: 1fr;
+
+    }
+
+}
+
+
+@media (max-width: 900px) {
+
+    .admin-mid-grid {
+
+        grid-template-columns: 1fr;
+
+    }
+
+}
+
+
+@media (max-width: 560px) {
+
+    .admin-stats-grid {
+
+        grid-template-columns: 1fr;
+
+    }
+
+}
