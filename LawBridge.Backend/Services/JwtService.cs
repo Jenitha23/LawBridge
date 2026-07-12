@@ -38,9 +38,9 @@ public class JwtService : IJwtService
             ),
 
             new Claim(
-                "name",
-                user.Name
-            )
+                ClaimTypes.Role,
+                user.Role
+          )
         };
 
 
