@@ -2,6 +2,23 @@ import adminApi from "../api/adminAxios";
 
 
 // ===========================
+// GET /api/admin/dashboard/stats
+// returns: { totalUsers, totalDocuments, totalCategories,
+//   totalChatSessions, chatSessionsTracked, storageUsedMB,
+//   categoryBreakdown: [{ name, count, percent }],
+//   recentDocuments: [{ title, categoryName, createdAt }],
+//   registrationTrend: [{ date, count }],
+//   topViewedTracked }
+// ===========================
+export const getDashboardStats = async () =>
+{
+    const response = await adminApi.get("/admin/dashboard/stats");
+
+    return response.data;
+};
+
+
+// ===========================
 // GET /api/admin/profile
 // returns: { id, name, email, phoneNumber, address, profileImage, preferredLanguage, role }
 // ===========================

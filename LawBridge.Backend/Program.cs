@@ -6,9 +6,8 @@ using LawBridge.Backend.Services;
 
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
-
 using System.Text;
-
+using Pgvector.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -29,6 +28,16 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     );
 });
 
+builder.Services.AddDbContext<RagDbContext>(options =>
+{
+    options.UseNpgsql(
+        builder.Configuration
+        .GetConnectionString("RagConnection"),
+        npgsqlOptions =>
+        {
+            npgsqlOptions.UseVector();
+        });
+});
 
 
 // ===============================
@@ -111,6 +120,7 @@ builder.Services.AddScoped<IAdminDashboardService, AdminDashboardService>();
 builder.Services.AddScoped<ILegalDocumentRepository, LegalDocumentRepository>();
 builder.Services.AddScoped<PdfService>();
 builder.Services.AddScoped<ChunkService>();
+builder.Services.AddScoped<EmbeddingService>();
 
 // ===============================
 // MVC Controllers

@@ -17,7 +17,7 @@ namespace LawBridge.Backend.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.8")
+                .HasAnnotation("ProductVersion", "9.0.0")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -41,28 +41,6 @@ namespace LawBridge.Backend.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("LegalCategories");
-                });
-
-            modelBuilder.Entity("LawBridge.Backend.Models.LegalChunk", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("DocumentId")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("Text")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("DocumentId");
-
-                    b.ToTable("LegalChunks");
                 });
 
             modelBuilder.Entity("LawBridge.Backend.Models.LegalDocument", b =>
@@ -181,17 +159,6 @@ namespace LawBridge.Backend.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("LawBridge.Backend.Models.LegalChunk", b =>
-                {
-                    b.HasOne("LawBridge.Backend.Models.LegalDocument", "Document")
-                        .WithMany("Chunks")
-                        .HasForeignKey("DocumentId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Document");
-                });
-
             modelBuilder.Entity("LawBridge.Backend.Models.LegalDocument", b =>
                 {
                     b.HasOne("LawBridge.Backend.Models.LegalCategory", "Category")
@@ -206,11 +173,6 @@ namespace LawBridge.Backend.Migrations
             modelBuilder.Entity("LawBridge.Backend.Models.LegalCategory", b =>
                 {
                     b.Navigation("LegalDocuments");
-                });
-
-            modelBuilder.Entity("LawBridge.Backend.Models.LegalDocument", b =>
-                {
-                    b.Navigation("Chunks");
                 });
 #pragma warning restore 612, 618
         }

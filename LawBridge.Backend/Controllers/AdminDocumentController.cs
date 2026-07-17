@@ -17,7 +17,8 @@ public class AdminDocumentController : ControllerBase
     private readonly ILegalDocumentRepository _repository;
     private readonly PdfService _pdfService;
     private readonly ChunkService _chunkService;
-    private readonly AppDbContext _context;
+    private readonly RagDbContext _ragContext;
+    private readonly EmbeddingService _embeddingService;
 
 
 
@@ -25,13 +26,15 @@ public class AdminDocumentController : ControllerBase
         ILegalDocumentRepository repository,
         PdfService pdfService,
         ChunkService chunkService,
-        AppDbContext context
+        RagDbContext ragContext,
+        EmbeddingService embeddingService
     )
     {
         _repository=repository;
         _pdfService = pdfService;
         _chunkService = chunkService;
-        _context = context;
+        _ragContext = ragContext;
+        _embeddingService = embeddingService;
     }
 
 
@@ -128,25 +131,30 @@ public class AdminDocumentController : ControllerBase
 foreach(var chunk in chunks)
 {
 
+    var embedding =
+        await _embeddingService
+        .GenerateEmbedding(chunk);
+
     var legalChunk =
     new LegalChunk
     {
 
         Text = chunk,
 
-        DocumentId = document.Id
+        DocumentId = document.Id,
+        Embedding = embedding
 
     };
 
 
-    _context.LegalChunks.Add(
-        legalChunk
+    _ragContext.LegalChunks.Add(
+    legalChunk
     );
 
 }
 
 
-await _context.SaveChangesAsync();
+await _ragContext.SaveChangesAsync();
 
 
 
