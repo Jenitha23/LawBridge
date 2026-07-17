@@ -7,7 +7,7 @@ using LawBridge.Backend.Interfaces;
 namespace LawBridge.Backend.Services;
 
 
-public class AdminDashboardService 
+public class AdminDashboardService
     : IAdminDashboardService
 {
 
@@ -41,6 +41,79 @@ public class AdminDashboardService
 
 
 
+        // ---- Documents by category ----
+        var categoryBreakdown = await _context.LegalCategories
+            .Select(c => new CategoryBreakdownDto
+            {
+                Name = c.Name,
+                Count = c.LegalDocuments.Count
+            })
+            .OrderByDescending(c => c.Count)
+            .ToListAsync();
+
+        foreach (var c in categoryBreakdown)
+        {
+            c.Percent = totalDocuments > 0
+                ? Math.Round((double)c.Count / totalDocuments * 100, 1)
+                : 0;
+        }
+
+
+
+        // ---- Recent documents (last 5 uploaded) ----
+        var recentDocuments = await _context.LegalDocuments
+            .OrderByDescending(d => d.CreatedAt)
+            .Take(5)
+            .Select(d => new RecentDocumentDto
+            {
+                Title = d.Title,
+                CategoryName = d.Category.Name,
+                CreatedAt = d.CreatedAt
+            })
+            .ToListAsync();
+
+
+
+        // ---- User registrations, last 12 days ----
+        var since = DateTime.UtcNow.Date.AddDays(-11);
+
+        var registrationsRaw = await _context.Users
+            .Where(u => u.CreatedAt >= since)
+            .GroupBy(u => u.CreatedAt.Date)
+            .Select(g => new { Date = g.Key, Count = g.Count() })
+            .ToListAsync();
+
+        var registrationTrend = new List<RegistrationPointDto>();
+        for (var day = since; day <= DateTime.UtcNow.Date; day = day.AddDays(1))
+        {
+            var match = registrationsRaw.FirstOrDefault(r => r.Date == day);
+            registrationTrend.Add(new RegistrationPointDto
+            {
+                Date = day,
+                Count = match?.Count ?? 0
+            });
+        }
+
+
+
+        // ---- Storage used: sum of actual file sizes on disk ----
+        double storageUsedMB = 0;
+        var uploadsFolder = Path.Combine(
+            Directory.GetCurrentDirectory(),
+            "wwwroot", "uploads", "documents"
+        );
+
+        if (Directory.Exists(uploadsFolder))
+        {
+            var totalBytes = new DirectoryInfo(uploadsFolder)
+                .GetFiles()
+                .Sum(f => f.Length);
+
+            storageUsedMB = Math.Round(totalBytes / (1024.0 * 1024.0), 2);
+        }
+
+
+
         return new DashboardStatsDto
         {
 
@@ -51,12 +124,20 @@ public class AdminDashboardService
             TotalCategories = totalCategories,
 
 
-            // AI chat will implement later
+            // AI chat will implement later - no tracking table exists yet
             TotalChatSessions = 0,
+            ChatSessionsTracked = false,
 
 
-            // File storage calculation later
-            StorageUsedMB = 0
+            StorageUsedMB = storageUsedMB,
+
+            CategoryBreakdown = categoryBreakdown,
+
+            RecentDocuments = recentDocuments,
+
+            RegistrationTrend = registrationTrend,
+
+            TopViewedTracked = false
 
         };
 

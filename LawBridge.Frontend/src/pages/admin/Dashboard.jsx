@@ -1,81 +1,11 @@
+import { useEffect, useState } from "react";
 import AdminDashboardLayout from "../../layouts/AdminDashboardLayout";
+import { getDashboardStats } from "../../services/adminService";
 import "./Dashboard.css";
 
 
-// ============================================================
-// SAMPLE DATA
-// The backend currently has no endpoints for document counts,
-// storage usage, chat-session analytics, or registration trends
-// (no such tables/controllers exist yet - see AppDbContext.cs).
-// These numbers are placeholders so the dashboard matches the
-// design; swap them for real API calls once those endpoints exist.
-// ============================================================
-
-const STATS = [
-
-    { label: "Total Documents", value: "156", sub: "All legal documents", color: "purple", icon: <DocIcon /> },
-    { label: "Storage Used", value: "24.5 MB", sub: "Total system storage", color: "green", icon: <StorageIcon /> },
-    { label: "Total Users", value: "1,248", sub: "Registered users", color: "blue", icon: <UsersIcon /> },
-    { label: "AI Chat Sessions", value: "892", sub: "This month", color: "violet", icon: <ChatIcon /> }
-
-];
-
-
-const CATEGORIES = [
-
-    { name: "Labour Laws", count: 62, percent: 40, color: "#4F32C4" },
-    { name: "Tenancy Laws", count: 47, percent: 30, color: "#16A34A" },
-    { name: "Consumer Protection Laws", count: 31, percent: 20, color: "#F59E0B" },
-    { name: "Other Laws", count: 16, percent: 10, color: "#7C5CFA" }
-
-];
-
-
-const RECENT_DOCUMENTS = [
-
-    { title: "Employment_Act_No_24.pdf", tag: "Labour Laws", time: "2 hours ago" },
-    { title: "Tenancy_Act_No_17.pdf", tag: "Tenancy Laws", time: "5 hours ago" },
-    { title: "Consumer_Protection_Act.pdf", tag: "Consumer Protection", time: "1 day ago" },
-    { title: "Shop_and_Office_Employees_Act.pdf", tag: "Labour Laws", time: "2 days ago" },
-    { title: "Industrial_Disputes_Act.pdf", tag: "Labour Laws", time: "3 days ago" }
-
-];
-
-
-const TOP_VIEWED = [
-
-    { title: "Employment_Act_No_24.pdf", views: 245 },
-    { title: "Tenancy_Act_No_17.pdf", views: 189 },
-    { title: "Consumer_Protection_Act.pdf", views: 156 },
-    { title: "Shop_and_Office_Employees_Act.pdf", views: 134 },
-    { title: "Industrial_Disputes_Act.pdf", views: 98 }
-
-];
-
-
-// Last 7 calendar days, labelled dynamically off the real current date.
-function getLastDays(n)
-{
-    const days = [];
-
-    const today = new Date();
-
-    for (let i = n - 1; i >= 0; i--)
-    {
-        const d = new Date(today);
-
-        d.setDate(today.getDate() - i);
-
-        days.push(d);
-    }
-
-    return days;
-}
-
-
-const CHAT_SESSION_VALUES = [55, 90, 70, 110, 80, 95, 120];
-
-const REGISTRATION_VALUES = [12, 18, 22, 28, 45, 38, 42, 40, 55, 48, 60, 65];
+// Category donut palette - cycles if there are more categories than colors.
+const CATEGORY_COLORS = ["#4F32C4", "#16A34A", "#F59E0B", "#7C5CFA", "#0EA5E9", "#DB2777"];
 
 
 function tagClass(tag)
@@ -88,18 +18,101 @@ function tagClass(tag)
 }
 
 
+function timeAgo(dateString)
+{
+    const then = new Date(dateString);
+
+    const diffMs = Date.now() - then.getTime();
+
+    const mins = Math.floor(diffMs / 60000);
+
+    if (mins < 60) return `${Math.max(mins, 0)} min ago`;
+
+    const hours = Math.floor(mins / 60);
+
+    if (hours < 24) return `${hours} hour${hours === 1 ? "" : "s"} ago`;
+
+    const days = Math.floor(hours / 24);
+
+    return `${days} day${days === 1 ? "" : "s"} ago`;
+}
+
+
 function Dashboard()
 {
 
-    const days7 = getLastDays(7);
+    const [stats, setStats] = useState(null);
 
-    const days12 = getLastDays(12);
+    const [loading, setLoading] = useState(true);
+
+    const [error, setError] = useState("");
+
+
+    useEffect(() =>
+    {
+        const loadStats = async () =>
+        {
+            try
+            {
+                const data = await getDashboardStats();
+
+                setStats(data);
+
+                setError("");
+            }
+            catch (err)
+            {
+                setError(
+                    err.response?.data?.message ||
+                    "Could not load dashboard stats."
+                );
+            }
+            finally
+            {
+                setLoading(false);
+            }
+        };
+
+        // eslint-disable-next-line react-hooks/set-state-in-effect -- standard fetch-on-mount pattern
+        loadStats();
+
+    }, []);
+
 
     const today = new Date();
 
     const dateLabel = today.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
 
     const weekdayLabel = today.toLocaleDateString("en-US", { weekday: "long" });
+
+
+    const statCards = stats ? [
+        { label: "Total Documents", value: stats.totalDocuments.toLocaleString(), sub: "All legal documents", color: "purple", icon: <DocIcon /> },
+        { label: "Storage Used", value: `${stats.storageUsedMB} MB`, sub: "Total system storage", color: "green", icon: <StorageIcon /> },
+        { label: "Total Users", value: stats.totalUsers.toLocaleString(), sub: "Registered users", color: "blue", icon: <UsersIcon /> },
+        {
+            label: "AI Chat Sessions",
+            value: stats.chatSessionsTracked ? stats.totalChatSessions.toLocaleString() : "—",
+            sub: stats.chatSessionsTracked ? "This month" : "Not tracked yet",
+            color: "violet",
+            icon: <ChatIcon />
+        }
+    ] : [];
+
+
+    const categoryBreakdown = (stats?.categoryBreakdown || []).map((c, i) => ({
+        name: c.name,
+        count: c.count,
+        percent: c.percent,
+        color: CATEGORY_COLORS[i % CATEGORY_COLORS.length]
+    }));
+
+
+    const registrationValues = (stats?.registrationTrend || []).map((p) => p.count);
+
+    const registrationLabels = (stats?.registrationTrend || []).map((p) =>
+        new Date(p.date).toLocaleDateString("en-US", { month: "short", day: "numeric" })
+    );
 
 
     return (
@@ -110,189 +123,192 @@ function Dashboard()
 
                 <>
 
-                    <div className="sample-data-banner">
+                    {loading && (
+                        <div className="admin-dashboard-loading">Loading dashboard stats...</div>
+                    )}
 
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                            <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="1.6" />
-                            <path d="M12 8v5M12 16h.01" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
-                        </svg>
+                    {!loading && error && (
+                        <div className="admin-dashboard-error">{error}</div>
+                    )}
 
-                        <span>
-                            The charts and counters below are sample data. Your backend doesn't have
-                            document, storage, or chat-analytics endpoints yet — the profile card above
-                            and Sign In are the only parts of this screen backed by live data.
-                        </span>
+                    {!loading && !error && stats && (
 
-                    </div>
+                        <>
 
+                            <section className="admin-welcome-card">
 
-                    <section className="admin-welcome-card">
+                                <div className="admin-welcome-text">
 
-                        <div className="admin-welcome-text">
+                                    <h1>Welcome back, {user?.name?.split(" ")[0] || "Admin"}! 👋</h1>
 
-                            <h1>Welcome back, {user?.name?.split(" ")[0] || "Admin"}! 👋</h1>
+                                    <p>Here's what's happening with your LawBridge system today.</p>
 
-                            <p>Here's what's happening with your LawBridge system today.</p>
+                                </div>
 
-                        </div>
+                                <div className="admin-date-card">
 
-                        <div className="admin-date-card">
+                                    <CalendarIcon />
 
-                            <CalendarIcon />
+                                    <div>
+                                        <div className="admin-date-value">{dateLabel}</div>
+                                        <div className="admin-date-sub">{weekdayLabel}</div>
+                                    </div>
 
-                            <div>
-                                <div className="admin-date-value">{dateLabel}</div>
-                                <div className="admin-date-sub">{weekdayLabel}</div>
-                            </div>
+                                </div>
 
-                        </div>
-
-                    </section>
+                            </section>
 
 
-                    <section className="admin-stats-grid">
+                            <section className="admin-stats-grid">
 
-                        {STATS.map((stat) => (
+                                {statCards.map((stat) => (
 
-                            <div className="admin-stat-card" key={stat.label}>
+                                    <div className="admin-stat-card" key={stat.label}>
 
-                                <div className={`admin-stat-icon icon-${stat.color}`}>{stat.icon}</div>
+                                        <div className={`admin-stat-icon icon-${stat.color}`}>{stat.icon}</div>
 
-                                <div className="admin-stat-value">{stat.value}</div>
+                                        <div className="admin-stat-value">{stat.value}</div>
 
-                                <div className="admin-stat-label">{stat.label}</div>
+                                        <div className="admin-stat-label">{stat.label}</div>
 
-                                <div className="admin-stat-sub">{stat.sub}</div>
+                                        <div className="admin-stat-sub">{stat.sub}</div>
 
-                            </div>
-
-                        ))}
-
-                    </section>
-
-
-                    <section className="admin-mid-grid">
-
-                        <div className="admin-panel">
-
-                            <div className="admin-panel-header">
-                                <h3>Documents by Category</h3>
-                                <span className="admin-panel-pill">This Month</span>
-                            </div>
-
-                            <div className="donut-row">
-
-                                <DonutChart segments={CATEGORIES} />
-
-                                <ul className="donut-legend">
-
-                                    {CATEGORIES.map((c) => (
-
-                                        <li key={c.name}>
-                                            <i style={{ background: c.color }} />
-                                            <div>
-                                                <div className="legend-name">{c.name}</div>
-                                                <div className="legend-count">{c.count} documents</div>
-                                            </div>
-                                        </li>
-
-                                    ))}
-
-                                </ul>
-
-                            </div>
-
-                        </div>
-
-
-                        <div className="admin-panel">
-
-                            <div className="admin-panel-header">
-                                <h3>Recent Documents</h3>
-                                <a href="#recent" onClick={(e) => e.preventDefault()}>View All</a>
-                            </div>
-
-                            <ul className="doc-list">
-
-                                {RECENT_DOCUMENTS.map((doc) => (
-
-                                    <li key={doc.title}>
-
-                                        <div className="doc-list-icon"><PdfIcon /></div>
-
-                                        <div className="doc-list-name">{doc.title}</div>
-
-                                        <span className={tagClass(doc.tag)}>{doc.tag}</span>
-
-                                        <span className="doc-list-time">{doc.time}</span>
-
-                                    </li>
+                                    </div>
 
                                 ))}
 
-                            </ul>
-
-                        </div>
-
-                    </section>
+                            </section>
 
 
-                    <section className="admin-bottom-grid">
+                            <section className="admin-mid-grid">
 
-                        <div className="admin-panel">
+                                <div className="admin-panel">
 
-                            <div className="admin-panel-header">
-                                <h3>AI Chat Sessions</h3>
-                                <span className="admin-panel-muted">This Month</span>
-                            </div>
+                                    <div className="admin-panel-header">
+                                        <h3>Documents by Category</h3>
+                                    </div>
 
-                            <AreaChart
-                                values={CHAT_SESSION_VALUES}
-                                labels={days7.map((d) => d.toLocaleDateString("en-US", { month: "short", day: "numeric" }))}
-                            />
+                                    {categoryBreakdown.length > 0 ? (
 
-                        </div>
+                                        <div className="donut-row">
+
+                                            <DonutChart segments={categoryBreakdown} />
+
+                                            <ul className="donut-legend">
+
+                                                {categoryBreakdown.map((c) => (
+
+                                                    <li key={c.name}>
+                                                        <i style={{ background: c.color }} />
+                                                        <div>
+                                                            <div className="legend-name">{c.name}</div>
+                                                            <div className="legend-count">{c.count} documents</div>
+                                                        </div>
+                                                    </li>
+
+                                                ))}
+
+                                            </ul>
+
+                                        </div>
+
+                                    ) : (
+
+                                        <p className="admin-panel-muted">No documents uploaded yet.</p>
+
+                                    )}
+
+                                </div>
 
 
-                        <div className="admin-panel">
+                                <div className="admin-panel">
 
-                            <div className="admin-panel-header">
-                                <h3>Top Viewed Documents</h3>
-                                <a href="#top" onClick={(e) => e.preventDefault()}>View All</a>
-                            </div>
+                                    <div className="admin-panel-header">
+                                        <h3>Recent Documents</h3>
+                                    </div>
 
-                            <ul className="rank-list">
+                                    {stats.recentDocuments.length > 0 ? (
 
-                                {TOP_VIEWED.map((doc, i) => (
+                                        <ul className="doc-list">
 
-                                    <li key={doc.title}>
-                                        <span className="rank-badge">{i + 1}</span>
-                                        <span className="rank-name">{doc.title}</span>
-                                        <span className="rank-views">{doc.views} views</span>
-                                    </li>
+                                            {stats.recentDocuments.map((doc) => (
 
-                                ))}
+                                                <li key={doc.title + doc.createdAt}>
 
-                            </ul>
+                                                    <div className="doc-list-icon"><PdfIcon /></div>
 
-                        </div>
+                                                    <div className="doc-list-name">{doc.title}</div>
+
+                                                    <span className={tagClass(doc.categoryName)}>{doc.categoryName}</span>
+
+                                                    <span className="doc-list-time">{timeAgo(doc.createdAt)}</span>
+
+                                                </li>
+
+                                            ))}
+
+                                        </ul>
+
+                                    ) : (
+
+                                        <p className="admin-panel-muted">No documents uploaded yet.</p>
+
+                                    )}
+
+                                </div>
+
+                            </section>
 
 
-                        <div className="admin-panel">
+                            <section className="admin-bottom-grid">
 
-                            <div className="admin-panel-header">
-                                <h3>User Registrations</h3>
-                                <span className="admin-panel-muted">This Month</span>
-                            </div>
+                                <div className="admin-panel">
 
-                            <BarChart
-                                values={REGISTRATION_VALUES}
-                                labels={days12.map((d) => d.toLocaleDateString("en-US", { month: "short", day: "numeric" }))}
-                            />
+                                    <div className="admin-panel-header">
+                                        <h3>AI Chat Sessions</h3>
+                                    </div>
 
-                        </div>
+                                    <p className="admin-panel-muted">
+                                        Chat session analytics aren't tracked yet — this needs a
+                                        chat-session table on the backend.
+                                    </p>
 
-                    </section>
+                                </div>
+
+
+                                <div className="admin-panel">
+
+                                    <div className="admin-panel-header">
+                                        <h3>Top Viewed Documents</h3>
+                                    </div>
+
+                                    <p className="admin-panel-muted">
+                                        Document view counts aren't tracked yet — this needs a
+                                        view-count field on the backend.
+                                    </p>
+
+                                </div>
+
+
+                                <div className="admin-panel">
+
+                                    <div className="admin-panel-header">
+                                        <h3>User Registrations</h3>
+                                        <span className="admin-panel-muted">Last 12 Days</span>
+                                    </div>
+
+                                    <BarChart
+                                        values={registrationValues}
+                                        labels={registrationLabels}
+                                    />
+
+                                </div>
+
+                            </section>
+
+                        </>
+
+                    )}
 
                 </>
 
@@ -318,8 +334,6 @@ function DonutChart({ segments })
 
     const circumference = 2 * Math.PI * radius;
 
-    // Precompute each segment's starting offset (as a length along the
-    // circumference) without mutating anything during render.
     const offsets = segments.reduce((acc, seg) => {
 
         const prevEnd = acc.length > 0 ? acc[acc.length - 1].end : 0;
@@ -382,82 +396,6 @@ function DonutChart({ segments })
 }
 
 
-function AreaChart({ values, labels })
-{
-
-    const width = 480;
-
-    const height = 180;
-
-    const padding = 24;
-
-    const max = Math.max(...values) * 1.15;
-
-    const stepX = (width - padding * 2) / (values.length - 1);
-
-
-    const points = values.map((v, i) => {
-
-        const x = padding + i * stepX;
-
-        const y = height - padding - (v / max) * (height - padding * 2);
-
-        return [x, y];
-
-    });
-
-
-    const linePath = points.map((p, i) => (i === 0 ? `M ${p[0]} ${p[1]}` : `L ${p[0]} ${p[1]}`)).join(" ");
-
-    const areaPath = `${linePath} L ${points[points.length - 1][0]} ${height - padding} L ${points[0][0]} ${height - padding} Z`;
-
-    const last = points[points.length - 1];
-
-
-    return (
-
-        <svg width="100%" viewBox={`0 0 ${width} ${height + 34}`} className="area-chart">
-
-            <defs>
-                <linearGradient id="areaFill" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="var(--primary)" stopOpacity="0.28" />
-                    <stop offset="100%" stopColor="var(--primary)" stopOpacity="0" />
-                </linearGradient>
-            </defs>
-
-            <path d={areaPath} fill="url(#areaFill)" />
-
-            <path d={linePath} fill="none" stroke="var(--primary)" strokeWidth="2.5" />
-
-            {points.map((p, i) => (
-                <circle key={i} cx={p[0]} cy={p[1]} r={i === points.length - 1 ? 4.5 : 0} fill="var(--primary)" />
-            ))}
-
-            <g transform={`translate(${last[0] - 46}, ${last[1] - 42})`}>
-                <rect width="92" height="34" rx="8" fill="var(--text-heading)" />
-                <text x="46" y="14" textAnchor="middle" fill="#fff" fontSize="10.5" fontWeight="700">{labels[labels.length - 1]}</text>
-                <text x="46" y="26" textAnchor="middle" fill="#D8D2F5" fontSize="10">{values[values.length - 1]} sessions</text>
-            </g>
-
-            {labels.map((l, i) => (
-                <text
-                    key={l}
-                    x={padding + i * stepX}
-                    y={height + 22}
-                    textAnchor="middle"
-                    className="chart-axis-label"
-                >
-                    {l}
-                </text>
-            ))}
-
-        </svg>
-
-    );
-
-}
-
-
 function BarChart({ values, labels })
 {
 
@@ -467,11 +405,11 @@ function BarChart({ values, labels })
 
     const padding = 24;
 
-    const max = Math.max(...values) * 1.15;
+    const max = values.length > 0 ? Math.max(...values, 1) * 1.15 : 1;
 
     const barGap = 6;
 
-    const barWidth = (width - padding * 2) / values.length - barGap;
+    const barWidth = values.length > 0 ? (width - padding * 2) / values.length - barGap : 0;
 
 
     return (
