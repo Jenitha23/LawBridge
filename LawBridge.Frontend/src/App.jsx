@@ -17,6 +17,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import AdminLogin from "./pages/admin/Login";
 import AdminDashboard from "./pages/admin/Dashboard";
 import AdminProfile from "./pages/admin/Profile";
+import AdminUploadDocument from "./pages/admin/UploadDocument";
 import AdminProtectedRoute from "./components/AdminProtectedRoute";
 
 
@@ -89,6 +90,16 @@ path="/admin/profile"
 element={
 <AdminProtectedRoute>
 <AdminProfile/>
+</AdminProtectedRoute>
+}
+/>
+
+
+<Route
+path="/admin/documents/upload"
+element={
+<AdminProtectedRoute>
+<AdminUploadDocument/>
 </AdminProtectedRoute>
 }
 />
