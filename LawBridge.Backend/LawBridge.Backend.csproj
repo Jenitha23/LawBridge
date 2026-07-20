@@ -28,8 +28,6 @@
 
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.8" />
 
-    <PackageReference Include="OpenAI" Version="2.12.0" />
-
     <PackageReference Include="Pgvector" Version="0.3.2" />
 
     <PackageReference Include="Pgvector.EntityFrameworkCore" Version="0.3.0" />

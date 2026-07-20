@@ -120,7 +120,7 @@ builder.Services.AddScoped<IAdminDashboardService, AdminDashboardService>();
 builder.Services.AddScoped<ILegalDocumentRepository, LegalDocumentRepository>();
 builder.Services.AddScoped<PdfService>();
 builder.Services.AddScoped<ChunkService>();
-builder.Services.AddScoped<EmbeddingService>();
+builder.Services.AddHttpClient<EmbeddingService>();
 
 // ===============================
 // MVC Controllers

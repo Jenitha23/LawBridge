@@ -38,7 +38,7 @@ public class RagDbContext : DbContext
 
 
             entity.Property(x => x.Embedding)
-                .HasColumnType("vector(1536)");
+                .HasColumnType("vector(768)");
 
         });
 

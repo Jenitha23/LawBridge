@@ -1,4 +1,5 @@
-using OpenAI.Embeddings;
+using System.Text;
+using System.Text.Json;
 using Pgvector;
 
 
@@ -9,13 +10,16 @@ public class EmbeddingService
 {
 
     private readonly IConfiguration _configuration;
+    private readonly HttpClient _httpClient;
 
 
     public EmbeddingService(
-        IConfiguration configuration
+        IConfiguration configuration,
+        HttpClient httpClient
     )
     {
         _configuration = configuration;
+        _httpClient = httpClient;
     }
 
 
@@ -25,36 +29,74 @@ public class EmbeddingService
     )
     {
 
-        var apiKey =
-            _configuration["OpenAI:ApiKey"];
+        // e.g. "http://localhost:11434"
+        var baseUrl =
+            _configuration["Ollama:BaseUrl"]
+            ?? "http://localhost:11434";
 
 
 
         var model =
-            _configuration["OpenAI:EmbeddingModel"];
+            _configuration["Ollama:EmbeddingModel"]
+            ?? "nomic-embed-text";
 
 
 
-        var client =
-            new EmbeddingClient(
-                model,
-                apiKey
+        var requestBody = new
+        {
+            model = model,
+            prompt = text
+        };
+
+
+
+        var content = new StringContent(
+            JsonSerializer.Serialize(requestBody),
+            Encoding.UTF8,
+            "application/json"
+        );
+
+
+
+        var response =
+            await _httpClient.PostAsync(
+                $"{baseUrl}/api/embeddings",
+                content
             );
 
 
 
-        var result =
-            await client.GenerateEmbeddingAsync(
-                text
-            );
+        response.EnsureSuccessStatusCode();
 
 
 
-        var values =
-    result.Value.ToFloats().ToArray();
+        var responseJson =
+            await response.Content.ReadAsStringAsync();
 
 
-return new Vector(values);
+
+        using var doc =
+            JsonDocument.Parse(responseJson);
+
+
+
+        var embeddingArray =
+            doc.RootElement.GetProperty("embedding");
+
+
+
+        var values = new float[embeddingArray.GetArrayLength()];
+
+
+
+        for(int i = 0; i < values.Length; i++)
+        {
+            values[i] = embeddingArray[i].GetSingle();
+        }
+
+
+
+        return new Vector(values);
 
     }
 
