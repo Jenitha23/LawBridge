@@ -1,5 +1,6 @@
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import DashboardLayout from "../../layouts/DashboardLayout";
+import ChatPanel from "./ChatPanel";
 import heroIllustration from "../../assets/image.png";
 import "./Dashboard.css";
 
@@ -89,12 +90,24 @@ function Dashboard()
 
     const navigate = useNavigate();
 
+    const [searchParams] = useSearchParams();
+
+    const isChatMode = searchParams.get("new") === "1" || !!searchParams.get("id");
+
+    const historyId = searchParams.get("id");
+
 
     return (
 
-        <DashboardLayout title="Dashboard">
+        <DashboardLayout title={isChatMode ? "New Chat" : "Dashboard"}>
 
             {({ user }) => (
+
+                isChatMode ? (
+
+                    <ChatPanel historyId={historyId} />
+
+                ) : (
 
                 <>
 
@@ -185,6 +198,8 @@ function Dashboard()
                     </section>
 
                 </>
+
+                )
 
             )}
 

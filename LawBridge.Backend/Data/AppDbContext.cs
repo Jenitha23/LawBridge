@@ -20,6 +20,7 @@ public class AppDbContext : DbContext
     public DbSet<RefreshToken> RefreshTokens {get;set;}
     public DbSet<LegalCategory> LegalCategories { get; set; }
     public DbSet<LegalDocument> LegalDocuments { get; set; }
+    public DbSet<ChatMessage> ChatMessages { get; set; }
     
 
 
