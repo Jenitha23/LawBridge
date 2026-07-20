@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using LawBridge.Backend.Data;
 using LawBridge.Backend.Interfaces;
 using LawBridge.Backend.Models;
@@ -38,7 +39,32 @@ public class LegalDocumentRepository
     public async Task<List<LegalDocument>> GetAll()
     {
 
-        return _context.LegalDocuments.ToList();
+        return await _context.LegalDocuments
+            .Include(d => d.Category)
+            .OrderByDescending(d => d.CreatedAt)
+            .ToListAsync();
+
+    }
+
+
+
+    public async Task<LegalDocument?> GetById(int id)
+    {
+
+        return await _context.LegalDocuments
+            .Include(d => d.Category)
+            .FirstOrDefaultAsync(d => d.Id == id);
+
+    }
+
+
+
+    public async Task Delete(LegalDocument document)
+    {
+
+        _context.LegalDocuments.Remove(document);
+
+        await _context.SaveChangesAsync();
 
     }
 

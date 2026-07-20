@@ -12,4 +12,10 @@ public interface ILegalDocumentRepository
 
     Task<List<LegalDocument>> GetAll();
 
+
+    Task<LegalDocument?> GetById(int id);
+
+
+    Task Delete(LegalDocument document);
+
 }
