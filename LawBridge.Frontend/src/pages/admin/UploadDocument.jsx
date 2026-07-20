@@ -3,6 +3,8 @@ import AdminDashboardLayout from "../../layouts/AdminDashboardLayout";
 import { getAssetUrl } from "../../utils/imageUrl";
 import {
     getDocuments,
+    getDocumentById,
+    updateDocument,
     getCategories,
     uploadDocument,
     deleteDocument
@@ -75,6 +77,16 @@ function UploadDocument()
     const [page, setPage] = useState(1);
 
     const [deletingId, setDeletingId] = useState(null);
+
+    const [manageDoc, setManageDoc] = useState(null);
+
+    const [manageLoading, setManageLoading] = useState(false);
+
+    const [manageError, setManageError] = useState("");
+
+    const [manageSaving, setManageSaving] = useState(false);
+
+    const [editForm, setEditForm] = useState({ title: "", categoryId: "", language: "English" });
 
 
     const loadData = async () =>
@@ -257,6 +269,82 @@ function UploadDocument()
         finally
         {
             setDeletingId(null);
+        }
+    };
+
+
+    const openManage = async (id) =>
+    {
+        setManageLoading(true);
+
+        setManageError("");
+
+        setManageDoc(null);
+
+        try
+        {
+            const detail = await getDocumentById(id);
+
+            setManageDoc(detail);
+
+            setEditForm({
+                title: detail.title,
+                categoryId: detail.categoryId,
+                language: detail.language
+            });
+        }
+        catch (err)
+        {
+            setManageError(
+                err.response?.data?.message ||
+                "Could not load document details."
+            );
+        }
+        finally
+        {
+            setManageLoading(false);
+        }
+    };
+
+
+    const closeManage = () =>
+    {
+        setManageDoc(null);
+
+        setManageError("");
+    };
+
+
+    const handleSaveEdit = async () =>
+    {
+        if (!editForm.title.trim() || !editForm.categoryId) return;
+
+        setManageSaving(true);
+
+        setManageError("");
+
+        try
+        {
+            await updateDocument(manageDoc.id, {
+                title: editForm.title.trim(),
+                categoryId: editForm.categoryId,
+                language: editForm.language
+            });
+
+            closeManage();
+
+            await loadData();
+        }
+        catch (err)
+        {
+            setManageError(
+                err.response?.data?.message ||
+                "Could not save changes."
+            );
+        }
+        finally
+        {
+            setManageSaving(false);
         }
     };
 
@@ -497,12 +585,20 @@ function UploadDocument()
 
                                                             <div className="upload-actions">
 
+                                                                <button
+                                                                    className="upload-icon-btn"
+                                                                    title="View / edit details"
+                                                                    onClick={() => openManage(d.id)}
+                                                                >
+                                                                    <EditIcon />
+                                                                </button>
+
                                                                 <a
                                                                     href={getAssetUrl(d.source.replace(/^\//, ""))}
                                                                     target="_blank"
                                                                     rel="noreferrer"
                                                                     className="upload-icon-btn"
-                                                                    title="View document"
+                                                                    title="Open PDF"
                                                                 >
                                                                     <ViewIcon />
                                                                 </a>
@@ -598,6 +694,101 @@ function UploadDocument()
 
                     </section>
 
+
+                    {(manageLoading || manageDoc) && (
+
+                        <div className="upload-modal-overlay" onClick={closeManage}>
+
+                            <div className="upload-modal" onClick={(e) => e.stopPropagation()}>
+
+                                <div className="upload-modal-header">
+                                    <h3>Document Details</h3>
+                                    <button className="upload-modal-close" onClick={closeManage}>×</button>
+                                </div>
+
+                                {manageLoading && <p className="admin-panel-muted">Loading…</p>}
+
+                                {!manageLoading && manageDoc && (
+
+                                    <>
+
+                                        <dl className="upload-modal-facts">
+
+                                            <div>
+                                                <dt>File</dt>
+                                                <dd>{manageDoc.fileName}</dd>
+                                            </div>
+
+                                            <div>
+                                                <dt>Uploaded</dt>
+                                                <dd>{formatDate(manageDoc.createdAt)}</dd>
+                                            </div>
+
+                                            <div>
+                                                <dt>Chunks</dt>
+                                                <dd>{manageDoc.embeddedChunkCount} / {manageDoc.chunkCount} embedded</dd>
+                                            </div>
+
+                                            <div>
+                                                <dt>Status</dt>
+                                                <dd><span className={statusClass(manageDoc.status)}>{manageDoc.status}</span></dd>
+                                            </div>
+
+                                        </dl>
+
+
+                                        <div className="upload-field">
+                                            <label>Title <em>*</em></label>
+                                            <input
+                                                type="text"
+                                                value={editForm.title}
+                                                onChange={(e) => setEditForm((f) => ({ ...f, title: e.target.value }))}
+                                            />
+                                        </div>
+
+                                        <div className="upload-field">
+                                            <label>Category <em>*</em></label>
+                                            <select
+                                                value={editForm.categoryId}
+                                                onChange={(e) => setEditForm((f) => ({ ...f, categoryId: e.target.value }))}
+                                            >
+                                                {categories.map((c) => (
+                                                    <option key={c.id} value={c.id}>{c.name}</option>
+                                                ))}
+                                            </select>
+                                        </div>
+
+                                        <div className="upload-field">
+                                            <label>Language <em>*</em></label>
+                                            <select
+                                                value={editForm.language}
+                                                onChange={(e) => setEditForm((f) => ({ ...f, language: e.target.value }))}
+                                            >
+                                                {LANGUAGES.map((l) => (
+                                                    <option key={l} value={l}>{l}</option>
+                                                ))}
+                                            </select>
+                                        </div>
+
+                                        {manageError && <div className="upload-form-message error">{manageError}</div>}
+
+                                        <div className="upload-modal-actions">
+                                            <button className="upload-modal-cancel" onClick={closeManage}>Cancel</button>
+                                            <button className="upload-submit-btn" onClick={handleSaveEdit} disabled={manageSaving}>
+                                                {manageSaving ? "Saving..." : "Save Changes"}
+                                            </button>
+                                        </div>
+
+                                    </>
+
+                                )}
+
+                            </div>
+
+                        </div>
+
+                    )}
+
                 </>
 
             )}
@@ -630,6 +821,8 @@ function DocsIcon() { return (<svg width="18" height="18" viewBox="0 0 24 24" fi
 function SearchIcon() { return (<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="10.5" cy="10.5" r="6.5" stroke="currentColor" strokeWidth="1.7" /><path d="M20 20l-4.5-4.5" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" /></svg>); }
 
 function ViewIcon() { return (<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12Z" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" /><circle cx="12" cy="12" r="2.6" stroke="currentColor" strokeWidth="1.6" /></svg>); }
+
+function EditIcon() { return (<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M15.2 4.5l4.3 4.3-10 10-4.7.4.4-4.7 10-10Z" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" /></svg>); }
 
 function TrashIcon() { return (<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M4.5 7h15M9.5 7V5a1.5 1.5 0 0 1 1.5-1.5h2A1.5 1.5 0 0 1 14.5 5v2M18 7l-.8 12a2 2 0 0 1-2 1.9H8.8a2 2 0 0 1-2-1.9L6 7" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" /></svg>); }
 

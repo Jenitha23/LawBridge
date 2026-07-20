@@ -18,6 +18,8 @@ import AdminLogin from "./pages/admin/Login";
 import AdminDashboard from "./pages/admin/Dashboard";
 import AdminProfile from "./pages/admin/Profile";
 import AdminUploadDocument from "./pages/admin/UploadDocument";
+import AdminCategories from "./pages/admin/Categories";
+import AdminUsers from "./pages/admin/Users";
 import AdminProtectedRoute from "./components/AdminProtectedRoute";
 
 
@@ -100,6 +102,26 @@ path="/admin/documents/upload"
 element={
 <AdminProtectedRoute>
 <AdminUploadDocument/>
+</AdminProtectedRoute>
+}
+/>
+
+
+<Route
+path="/admin/categories"
+element={
+<AdminProtectedRoute>
+<AdminCategories/>
+</AdminProtectedRoute>
+}
+/>
+
+
+<Route
+path="/admin/users"
+element={
+<AdminProtectedRoute>
+<AdminUsers/>
 </AdminProtectedRoute>
 }
 />

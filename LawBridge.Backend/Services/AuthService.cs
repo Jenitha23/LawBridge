@@ -106,6 +106,15 @@ throw new Exception(
 }
 
 
+if(!user.IsActive)
+{
+
+throw new Exception(
+"This account has been disabled. Please contact support.");
+
+}
+
+
 
 return new AuthResponseDto
 {
