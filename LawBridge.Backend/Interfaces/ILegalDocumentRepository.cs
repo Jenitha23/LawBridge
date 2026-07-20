@@ -16,6 +16,9 @@ public interface ILegalDocumentRepository
     Task<LegalDocument?> GetById(int id);
 
 
+    Task Update(LegalDocument document);
+
+
     Task Delete(LegalDocument document);
 
 }

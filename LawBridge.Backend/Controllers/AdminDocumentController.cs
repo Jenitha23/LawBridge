@@ -237,6 +237,107 @@ await _ragContext.SaveChangesAsync();
 
 
 
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetById(int id)
+    {
+
+        var document =
+            await _repository.GetById(id);
+
+
+        if (document == null)
+        {
+            return NotFound(new
+            {
+                message = "Document not found"
+            });
+        }
+
+
+        var chunks = await _ragContext.LegalChunks
+            .Where(c => c.DocumentId == id)
+            .ToListAsync();
+
+        var embeddedCount =
+            chunks.Count(c => c.Embedding != null);
+
+
+        var status = "Failed";
+
+        if (chunks.Count > 0)
+        {
+            status = embeddedCount == chunks.Count
+                ? "Processed"
+                : "Processing";
+        }
+
+
+        var result = new LegalDocumentDetailDto
+        {
+            Id = document.Id,
+            Title = document.Title,
+            FileName = Path.GetFileName(document.Source),
+            CategoryId = document.CategoryId,
+            CategoryName = document.Category?.Name ?? "Uncategorized",
+            Language = document.Language,
+            Source = document.Source,
+            CreatedAt = document.CreatedAt,
+            Status = status,
+            ChunkCount = chunks.Count,
+            EmbeddedChunkCount = embeddedCount,
+            ContentLength = document.Content.Length
+        };
+
+
+        return Ok(result);
+
+    }
+
+
+
+    [HttpPut("{id}")]
+    public async Task<IActionResult> Update(int id, [FromBody] UpdateDocumentDto dto)
+    {
+
+        var document =
+            await _repository.GetById(id);
+
+
+        if (document == null)
+        {
+            return NotFound(new
+            {
+                message = "Document not found"
+            });
+        }
+
+
+        if (string.IsNullOrWhiteSpace(dto.Title))
+        {
+            return BadRequest(new
+            {
+                message = "Title is required"
+            });
+        }
+
+
+        document.Title = dto.Title;
+        document.CategoryId = dto.CategoryId;
+        document.Language = dto.Language;
+
+
+        await _repository.Update(document);
+
+
+        return Ok(new
+        {
+            message = "Document updated successfully"
+        });
+
+    }
+
+
+
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(int id)
     {

@@ -59,6 +59,17 @@ public class LegalDocumentRepository
 
 
 
+    public async Task Update(LegalDocument document)
+    {
+
+        _context.LegalDocuments.Update(document);
+
+        await _context.SaveChangesAsync();
+
+    }
+
+
+
     public async Task Delete(LegalDocument document)
     {
 
