@@ -118,9 +118,13 @@ builder.Services.AddScoped<IJwtService, JwtService>();
 builder.Services.AddScoped<IAdminService, AdminService>();
 builder.Services.AddScoped<IAdminDashboardService, AdminDashboardService>();
 builder.Services.AddScoped<ILegalDocumentRepository, LegalDocumentRepository>();
+builder.Services.AddScoped<IChatRepository, ChatRepository>();
 builder.Services.AddScoped<PdfService>();
 builder.Services.AddScoped<ChunkService>();
+builder.Services.AddScoped<LegalSearchService>();
+builder.Services.AddScoped<LegalChatService>();
 builder.Services.AddHttpClient<EmbeddingService>();
+builder.Services.AddHttpClient<OllamaChatService>();
 
 // ===============================
 // MVC Controllers
