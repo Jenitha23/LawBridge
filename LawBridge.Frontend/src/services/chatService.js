@@ -40,3 +40,43 @@ export const getChatDetail = async (id) =>
 
     return response.data;
 };
+
+
+
+// ===========================
+// DELETE /api/chat/history/{id}
+// FR-17
+// ===========================
+export const deleteChat = async (id) =>
+{
+    const response = await api.delete(`/chat/history/${id}`);
+
+    return response.data;
+};
+
+
+
+// ===========================
+// PUT /api/chat/history/{id}/save
+// body: { isSaved }
+// FR-15
+// ===========================
+export const setChatSaved = async (id, isSaved) =>
+{
+    const response = await api.put(`/chat/history/${id}/save`, { isSaved });
+
+    return response.data;
+};
+
+
+
+// ===========================
+// GET /api/chat/saved
+// FR-16
+// ===========================
+export const getSavedChats = async () =>
+{
+    const response = await api.get("/chat/saved");
+
+    return response.data;
+};

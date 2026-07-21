@@ -11,6 +11,8 @@ import Register from "./pages/auth/Register";
 import Dashboard from "./pages/user/Dashboard";
 import ChatHistory from "./pages/user/ChatHistory";
 import MyDocuments from "./pages/user/MyDocuments";
+import LegalTopics from "./pages/user/LegalTopics";
+import SavedAnswers from "./pages/user/SavedAnswers";
 import Profile from "./pages/user/Profile";
 import ComingSoon from "./pages/user/ComingSoon";
 import Landing from "./pages/Landing";
@@ -153,7 +155,7 @@ element={
 path="/topics"
 element={
 <ProtectedRoute>
-<ComingSoon title="Legal Topics"/>
+<LegalTopics/>
 </ProtectedRoute>
 }
 />
@@ -162,7 +164,7 @@ element={
 path="/saved"
 element={
 <ProtectedRoute>
-<ComingSoon title="Saved Answers"/>
+<SavedAnswers/>
 </ProtectedRoute>
 }
 />
