@@ -41,4 +41,48 @@ public class ChatRepository : IChatRepository
 
     }
 
+
+
+    public async Task<List<ChatMessage>> GetSaved(int userId)
+    {
+
+        return await _context.ChatMessages
+            .Where(m => m.UserId == userId && m.IsSaved)
+            .OrderByDescending(m => m.CreatedAt)
+            .ToListAsync();
+
+    }
+
+
+
+    public async Task<ChatMessage?> GetByIdForUser(int id, int userId)
+    {
+
+        return await _context.ChatMessages
+            .FirstOrDefaultAsync(m => m.Id == id && m.UserId == userId);
+
+    }
+
+
+
+    public async Task Update(ChatMessage message)
+    {
+
+        _context.ChatMessages.Update(message);
+
+        await _context.SaveChangesAsync();
+
+    }
+
+
+
+    public async Task Delete(ChatMessage message)
+    {
+
+        _context.ChatMessages.Remove(message);
+
+        await _context.SaveChangesAsync();
+
+    }
+
 }

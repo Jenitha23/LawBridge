@@ -38,6 +38,9 @@ public class ChatAnswerDto
 
     public List<string> Sources { get; set; } = new();
 
+    // FR-15/16
+    public bool IsSaved { get; set; }
+
     // Set only when the person asked for Sinhala/Tamil but the local
     // model's translation didn't reliably land in that script — the
     // content shown falls back to English in that case.
@@ -59,6 +62,16 @@ public class ChatHistoryItemDto
 
     public string Language { get; set; } = string.Empty;
 
+    public bool IsSaved { get; set; }
+
     public DateTime CreatedAt { get; set; }
+
+}
+
+
+public class UpdateSavedDto
+{
+
+    public bool IsSaved { get; set; }
 
 }

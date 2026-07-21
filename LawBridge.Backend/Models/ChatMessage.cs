@@ -34,6 +34,9 @@ public class ChatMessage
     // JSON-serialized string[] of source document titles used for RAG
     public string SourceDocuments { get; set; } = "[]";
 
+    // FR-15/16 — person can save a useful answer to revisit later
+    public bool IsSaved { get; set; } = false;
+
 
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
