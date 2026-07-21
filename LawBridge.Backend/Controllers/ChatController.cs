@@ -112,6 +112,7 @@ public class ChatController : ControllerBase
             Question = m.Question,
             Category = m.Category,
             Language = m.Language,
+            IsSaved = m.IsSaved,
             CreatedAt = m.CreatedAt
         }).ToList();
 
@@ -141,11 +142,8 @@ public class ChatController : ControllerBase
         }
 
 
-        var messages =
-            await _chatRepository.GetByUser(userId.Value);
-
         var message =
-            messages.FirstOrDefault(m => m.Id == id);
+            await _chatRepository.GetByIdForUser(id, userId.Value);
 
 
         if (message == null)
@@ -157,7 +155,144 @@ public class ChatController : ControllerBase
         }
 
 
-        var result = new ChatAnswerDto
+        return Ok(ToAnswerDto(message));
+
+    }
+
+
+
+    // ===========================
+    // DELETE: api/chat/history/{id}
+    // FR-17 — delete chats
+    // ===========================
+    [HttpDelete("history/{id}")]
+    public async Task<IActionResult> DeleteHistory(int id)
+    {
+
+        var userId = await GetUserId();
+
+        if (userId == null)
+        {
+            return Unauthorized(new
+            {
+                message = "Invalid token."
+            });
+        }
+
+
+        var message =
+            await _chatRepository.GetByIdForUser(id, userId.Value);
+
+        if (message == null)
+        {
+            return NotFound(new
+            {
+                message = "Chat message not found"
+            });
+        }
+
+
+        await _chatRepository.Delete(message);
+
+
+        return Ok(new
+        {
+            message = "Chat deleted successfully"
+        });
+
+    }
+
+
+
+    // ===========================
+    // PUT: api/chat/history/{id}/save
+    // FR-15 — save a useful AI answer
+    // ===========================
+    [HttpPut("history/{id}/save")]
+    public async Task<IActionResult> SetSaved(int id, [FromBody] UpdateSavedDto dto)
+    {
+
+        var userId = await GetUserId();
+
+        if (userId == null)
+        {
+            return Unauthorized(new
+            {
+                message = "Invalid token."
+            });
+        }
+
+
+        var message =
+            await _chatRepository.GetByIdForUser(id, userId.Value);
+
+        if (message == null)
+        {
+            return NotFound(new
+            {
+                message = "Chat message not found"
+            });
+        }
+
+
+        message.IsSaved = dto.IsSaved;
+
+        await _chatRepository.Update(message);
+
+
+        return Ok(new
+        {
+            message = dto.IsSaved ? "Answer saved" : "Answer removed from saved"
+        });
+
+    }
+
+
+
+    // ===========================
+    // GET: api/chat/saved
+    // FR-16 — view saved answers
+    // ===========================
+    [HttpGet("saved")]
+    public async Task<IActionResult> Saved()
+    {
+
+        var userId = await GetUserId();
+
+        if (userId == null)
+        {
+            return Unauthorized(new
+            {
+                message = "Invalid token."
+            });
+        }
+
+
+        var messages =
+            await _chatRepository.GetSaved(userId.Value);
+
+
+        var result = messages.Select(m => new ChatHistoryItemDto
+        {
+            Id = m.Id,
+            Question = m.Question,
+            Category = m.Category,
+            Language = m.Language,
+            IsSaved = m.IsSaved,
+            CreatedAt = m.CreatedAt
+        }).ToList();
+
+
+        return Ok(result);
+
+    }
+
+
+
+    private static ChatAnswerDto ToAnswerDto(Models.ChatMessage message)
+    {
+
+        return new ChatAnswerDto
         {
             Id = message.Id,
             Question = message.Question,
@@ -169,11 +304,9 @@ public class ChatController : ControllerBase
             RequiredDocuments = JsonSerializer.Deserialize<List<string>>(message.RequiredDocuments) ?? new(),
             WhenToConsultLawyer = message.WhenToConsultLawyer,
             Sources = JsonSerializer.Deserialize<List<string>>(message.SourceDocuments) ?? new(),
+            IsSaved = message.IsSaved,
             CreatedAt = message.CreatedAt
         };
-
-
-        return Ok(result);
 
     }
 
