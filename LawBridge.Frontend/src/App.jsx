@@ -10,6 +10,7 @@ import Login from "./pages/auth/Login";
 import Register from "./pages/auth/Register";
 import Dashboard from "./pages/user/Dashboard";
 import ChatHistory from "./pages/user/ChatHistory";
+import MyDocuments from "./pages/user/MyDocuments";
 import Profile from "./pages/user/Profile";
 import ComingSoon from "./pages/user/ComingSoon";
 import Landing from "./pages/Landing";
@@ -143,7 +144,7 @@ element={
 path="/documents"
 element={
 <ProtectedRoute>
-<ComingSoon title="My Documents"/>
+<MyDocuments/>
 </ProtectedRoute>
 }
 />
