@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import DashboardLayout from "../../layouts/DashboardLayout";
-import { getChatHistory, deleteChat } from "../../services/chatService";
+import { getSavedChats, setChatSaved } from "../../services/chatService";
 import "./ChatHistory.css";
 
 
@@ -15,30 +15,30 @@ function formatDate(dateString)
 }
 
 
-function ChatHistory()
+function SavedAnswers()
 {
 
     const navigate = useNavigate();
 
-    const [history, setHistory] = useState([]);
+    const [saved, setSaved] = useState([]);
 
     const [loading, setLoading] = useState(true);
 
     const [error, setError] = useState("");
 
-    const [deletingId, setDeletingId] = useState(null);
+    const [removingId, setRemovingId] = useState(null);
 
 
     useEffect(() =>
     {
 
-        getChatHistory()
-            .then(setHistory)
+        getSavedChats()
+            .then(setSaved)
             .catch((err) =>
             {
                 setError(
                     err.response?.data?.message ||
-                    "Could not load your chat history."
+                    "Could not load your saved answers."
                 );
             })
             .finally(() => setLoading(false));
@@ -46,31 +46,29 @@ function ChatHistory()
     }, []);
 
 
-    const handleDelete = async (e, id) =>
+    const handleUnsave = async (e, id) =>
     {
 
         e.stopPropagation();
 
-        if (!window.confirm("Delete this conversation? This can't be undone.")) return;
-
-        setDeletingId(id);
+        setRemovingId(id);
 
         try
         {
-            await deleteChat(id);
+            await setChatSaved(id, false);
 
-            setHistory((prev) => prev.filter((h) => h.id !== id));
+            setSaved((prev) => prev.filter((s) => s.id !== id));
         }
         catch (err)
         {
             setError(
                 err.response?.data?.message ||
-                "Could not delete this conversation."
+                "Could not remove this answer."
             );
         }
         finally
         {
-            setDeletingId(null);
+            setRemovingId(null);
         }
 
     };
@@ -78,14 +76,14 @@ function ChatHistory()
 
     return (
 
-        <DashboardLayout title="My Chats">
+        <DashboardLayout title="Saved Answers">
 
             {() => (
 
                 <section className="chat-history-panel">
 
                     <div className="chat-history-header">
-                        <h3>Past Questions</h3>
+                        <h3>Saved Answers</h3>
                         <button onClick={() => navigate("/dashboard?new=1")}>+ New Chat</button>
                     </div>
 
@@ -97,42 +95,42 @@ function ChatHistory()
 
                         <p className="chat-muted">Loading…</p>
 
-                    ) : history.length === 0 ? (
+                    ) : saved.length === 0 ? (
 
                         <div className="chat-history-empty">
-                            <p>You haven't asked any questions yet.</p>
-                            <button onClick={() => navigate("/dashboard?new=1")}>Ask your first question</button>
+                            <p>You haven't saved any answers yet. Tap ☆ Save on an answer in chat to keep it here.</p>
+                            <button onClick={() => navigate("/dashboard?new=1")}>Ask a question</button>
                         </div>
 
                     ) : (
 
                         <div className="chat-history-list">
 
-                            {history.map((h) => (
+                            {saved.map((s) => (
 
                                 <div
-                                    key={h.id}
+                                    key={s.id}
                                     className="chat-history-item"
-                                    onClick={() => navigate(`/dashboard?id=${h.id}`)}
+                                    onClick={() => navigate(`/dashboard?id=${s.id}`)}
                                 >
 
                                     <div>
                                         <p className="chat-history-question">
-                                            {h.isSaved && <span className="chat-history-star">★</span>}
-                                            {h.question}
+                                            <span className="chat-history-star">★</span>
+                                            {s.question}
                                         </p>
-                                        <span className="chat-history-meta">{formatDate(h.createdAt)} · {h.language}</span>
+                                        <span className="chat-history-meta">{formatDate(s.createdAt)} · {s.language}</span>
                                     </div>
 
                                     <div className="chat-history-item-right">
 
-                                        {h.category && <span className="tag tag-purple">{h.category}</span>}
+                                        {s.category && <span className="tag tag-purple">{s.category}</span>}
 
                                         <button
                                             className="chat-history-delete"
-                                            onClick={(e) => handleDelete(e, h.id)}
-                                            disabled={deletingId === h.id}
-                                            title="Delete conversation"
+                                            onClick={(e) => handleUnsave(e, s.id)}
+                                            disabled={removingId === s.id}
+                                            title="Remove from saved"
                                         >
                                             ✕
                                         </button>
@@ -158,4 +156,4 @@ function ChatHistory()
 }
 
 
-export default ChatHistory;
+export default SavedAnswers;

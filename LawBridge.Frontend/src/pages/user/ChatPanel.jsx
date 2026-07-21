@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { askQuestion, getChatDetail } from "../../services/chatService";
+import { askQuestion, getChatDetail, setChatSaved } from "../../services/chatService";
 import "./ChatPanel.css";
 
 
@@ -12,16 +12,55 @@ const EXAMPLE_QUESTIONS = [
 ];
 
 
-function AnswerCard({ answer })
+function AnswerCard({ answer, onToggleSave })
 {
+
+    const [saving, setSaving] = useState(false);
+
+
+    const handleToggleSave = async () =>
+    {
+
+        if (!answer.id || saving) return;
+
+        setSaving(true);
+
+        try
+        {
+            await onToggleSave(answer.id, !answer.isSaved);
+        }
+        finally
+        {
+            setSaving(false);
+        }
+
+    };
+
 
     return (
 
         <div className="chat-answer-card">
 
-            {answer.category && (
-                <span className="chat-category-pill">{answer.category}</span>
-            )}
+            <div className="chat-answer-top">
+
+                {answer.category && (
+                    <span className="chat-category-pill">{answer.category}</span>
+                )}
+
+                {answer.id && (
+
+                    <button
+                        className={`chat-save-btn ${answer.isSaved ? "saved" : ""}`}
+                        onClick={handleToggleSave}
+                        disabled={saving}
+                        title={answer.isSaved ? "Remove from saved" : "Save this answer"}
+                    >
+                        {answer.isSaved ? "★ Saved" : "☆ Save"}
+                    </button>
+
+                )}
+
+            </div>
 
             {answer.translationNote && (
                 <div className="chat-translation-note">{answer.translationNote}</div>
@@ -128,6 +167,8 @@ function ChatPanel({ historyId })
                 if (cancelled) return;
 
                 setMessages([{ question: detail.question, answer: detail }]);
+
+                setLanguage(detail.language || "English");
             })
             .catch((err) =>
             {
@@ -203,15 +244,36 @@ function ChatPanel({ historyId })
     };
 
 
+    const handleToggleSave = async (id, isSaved) =>
+    {
+
+        try
+        {
+            await setChatSaved(id, isSaved);
+
+            setMessages((prev) => prev.map((m) =>
+                m.answer?.id === id
+                    ? { ...m, answer: { ...m.answer, isSaved } }
+                    : m
+            ));
+        }
+        catch (err)
+        {
+            setError(
+                err.response?.data?.message ||
+                "Could not update saved status."
+            );
+        }
+
+    };
+
+
     const handleSubmit = (e) =>
     {
         e.preventDefault();
 
         handleAsk();
     };
-
-
-    const isReadOnlyHistory = !!historyId;
 
 
     return (
@@ -222,17 +284,13 @@ function ChatPanel({ historyId })
 
                 <h2>AI Legal Chat Assistant</h2>
 
-                {!isReadOnlyHistory && (
-
-                    <select
-                        className="chat-language-select"
-                        value={language}
-                        onChange={(e) => setLanguage(e.target.value)}
-                    >
-                        {LANGUAGES.map((l) => <option key={l} value={l}>{l}</option>)}
-                    </select>
-
-                )}
+                <select
+                    className="chat-language-select"
+                    value={language}
+                    onChange={(e) => setLanguage(e.target.value)}
+                >
+                    {LANGUAGES.map((l) => <option key={l} value={l}>{l}</option>)}
+                </select>
 
             </div>
 
@@ -266,7 +324,7 @@ function ChatPanel({ historyId })
                         <div className="chat-question-bubble">{m.question}</div>
 
                         {m.answer ? (
-                            <AnswerCard answer={m.answer} />
+                            <AnswerCard answer={m.answer} onToggleSave={handleToggleSave} />
                         ) : (
                             <div className="chat-thinking">
                                 <span /><span /><span />
@@ -286,25 +344,21 @@ function ChatPanel({ historyId })
             {error && <div className="chat-error">{error}</div>}
 
 
-            {!isReadOnlyHistory && (
+            <form className="chat-input-row" onSubmit={handleSubmit}>
 
-                <form className="chat-input-row" onSubmit={handleSubmit}>
+                <input
+                    type="text"
+                    placeholder="Type your legal question..."
+                    value={question}
+                    onChange={(e) => setQuestion(e.target.value)}
+                    disabled={asking}
+                />
 
-                    <input
-                        type="text"
-                        placeholder="Type your legal question..."
-                        value={question}
-                        onChange={(e) => setQuestion(e.target.value)}
-                        disabled={asking}
-                    />
+                <button type="submit" disabled={asking || !question.trim()}>
+                    {asking ? "Asking..." : "Ask"}
+                </button>
 
-                    <button type="submit" disabled={asking || !question.trim()}>
-                        {asking ? "Asking..." : "Ask"}
-                    </button>
-
-                </form>
-
-            )}
+            </form>
 
         </section>
 

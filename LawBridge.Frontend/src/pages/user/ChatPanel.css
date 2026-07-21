@@ -150,6 +150,55 @@
 }
 
 
+.chat-answer-top {
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 12px;
+
+}
+
+
+.chat-answer-top .chat-category-pill {
+    margin-bottom: 0;
+}
+
+
+.chat-save-btn {
+
+    border: 1px solid var(--border);
+    background: #fff;
+    color: var(--text-muted);
+    font-size: 12px;
+    font-weight: 700;
+    padding: 5px 12px;
+    border-radius: 999px;
+    white-space: nowrap;
+
+}
+
+
+.chat-save-btn:hover {
+    border-color: var(--primary-light);
+    color: var(--primary);
+}
+
+
+.chat-save-btn.saved {
+    background: var(--primary-soft);
+    border-color: var(--primary-light);
+    color: var(--primary);
+}
+
+
+.chat-save-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+
 .chat-category-pill {
 
     display: inline-block;
