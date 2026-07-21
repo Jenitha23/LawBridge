@@ -119,10 +119,13 @@ builder.Services.AddScoped<IAdminService, AdminService>();
 builder.Services.AddScoped<IAdminDashboardService, AdminDashboardService>();
 builder.Services.AddScoped<ILegalDocumentRepository, LegalDocumentRepository>();
 builder.Services.AddScoped<IChatRepository, ChatRepository>();
+builder.Services.AddScoped<IUserDocumentRepository, UserDocumentRepository>();
 builder.Services.AddScoped<PdfService>();
+builder.Services.AddScoped<OcrService>();
 builder.Services.AddScoped<ChunkService>();
 builder.Services.AddScoped<LegalSearchService>();
 builder.Services.AddScoped<LegalChatService>();
+builder.Services.AddScoped<UserDocumentService>();
 builder.Services.AddHttpClient<EmbeddingService>();
 builder.Services.AddHttpClient<OllamaChatService>();
 

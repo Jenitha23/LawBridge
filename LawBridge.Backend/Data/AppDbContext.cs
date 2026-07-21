@@ -21,6 +21,7 @@ public class AppDbContext : DbContext
     public DbSet<LegalCategory> LegalCategories { get; set; }
     public DbSet<LegalDocument> LegalDocuments { get; set; }
     public DbSet<ChatMessage> ChatMessages { get; set; }
+    public DbSet<UserDocument> UserDocuments { get; set; }
     
 
 
