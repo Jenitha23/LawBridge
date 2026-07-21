@@ -13,7 +13,8 @@ public class DashboardStatsDto
     public int TotalCategories { get; set; }
 
 
-    // AI chat will implement later - no ChatSession tracking exists yet
+    // Each ChatMessage is one question — there's no session grouping in
+    // this app, so this is really "questions asked", not distinct sessions.
     public int TotalChatSessions { get; set; }
     public bool ChatSessionsTracked { get; set; } = false;
 
@@ -33,9 +34,20 @@ public class DashboardStatsDto
         = new();
 
 
+    public List<PopularTopicDto> PopularTopics { get; set; }
+        = new();
+
+
     // Document view counts aren't tracked anywhere in the schema yet
     public bool TopViewedTracked { get; set; } = false;
 
+}
+
+
+public class PopularTopicDto
+{
+    public string Category { get; set; } = string.Empty;
+    public int Count { get; set; }
 }
 
 

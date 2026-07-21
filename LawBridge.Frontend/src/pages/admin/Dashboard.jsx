@@ -91,9 +91,9 @@ function Dashboard()
         { label: "Storage Used", value: `${stats.storageUsedMB} MB`, sub: "Total system storage", color: "green", icon: <StorageIcon /> },
         { label: "Total Users", value: stats.totalUsers.toLocaleString(), sub: "Registered users", color: "blue", icon: <UsersIcon /> },
         {
-            label: "AI Chat Sessions",
-            value: stats.chatSessionsTracked ? stats.totalChatSessions.toLocaleString() : "—",
-            sub: stats.chatSessionsTracked ? "This month" : "Not tracked yet",
+            label: "Questions Asked",
+            value: stats.totalChatSessions.toLocaleString(),
+            sub: "Total AI chat questions",
             color: "violet",
             icon: <ChatIcon />
         }
@@ -265,13 +265,36 @@ function Dashboard()
                                 <div className="admin-panel">
 
                                     <div className="admin-panel-header">
-                                        <h3>AI Chat Sessions</h3>
+                                        <h3>Popular Legal Topics</h3>
                                     </div>
 
-                                    <p className="admin-panel-muted">
-                                        Chat session analytics aren't tracked yet — this needs a
-                                        chat-session table on the backend.
-                                    </p>
+                                    {(stats.popularTopics || []).length > 0 ? (
+
+                                        <ul className="doc-list">
+
+                                            {stats.popularTopics.map((t) => (
+
+                                                <li key={t.category}>
+
+                                                    <div className="doc-list-icon"><ChatIcon /></div>
+
+                                                    <div className="doc-list-name">{t.category}</div>
+
+                                                    <span className="doc-list-time">{t.count} question{t.count === 1 ? "" : "s"}</span>
+
+                                                </li>
+
+                                            ))}
+
+                                        </ul>
+
+                                    ) : (
+
+                                        <p className="admin-panel-muted">
+                                            No questions have been asked yet.
+                                        </p>
+
+                                    )}
 
                                 </div>
 
