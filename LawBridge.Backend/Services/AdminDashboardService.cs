@@ -114,6 +114,26 @@ public class AdminDashboardService
 
 
 
+        // ---- Questions asked & popular legal topics (FR-21) ----
+
+        var totalQuestionsAsked =
+            await _context.ChatMessages.CountAsync();
+
+
+        var popularTopics = await _context.ChatMessages
+            .Where(m => m.Category != null && m.Category != "")
+            .GroupBy(m => m.Category)
+            .Select(g => new PopularTopicDto
+            {
+                Category = g.Key,
+                Count = g.Count()
+            })
+            .OrderByDescending(t => t.Count)
+            .Take(5)
+            .ToListAsync();
+
+
+
         return new DashboardStatsDto
         {
 
@@ -124,9 +144,8 @@ public class AdminDashboardService
             TotalCategories = totalCategories,
 
 
-            // AI chat will implement later - no tracking table exists yet
-            TotalChatSessions = 0,
-            ChatSessionsTracked = false,
+            TotalChatSessions = totalQuestionsAsked,
+            ChatSessionsTracked = true,
 
 
             StorageUsedMB = storageUsedMB,
@@ -136,6 +155,8 @@ public class AdminDashboardService
             RecentDocuments = recentDocuments,
 
             RegistrationTrend = registrationTrend,
+
+            PopularTopics = popularTopics,
 
             TopViewedTracked = false
 
