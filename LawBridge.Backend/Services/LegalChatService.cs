@@ -17,6 +17,7 @@ public class LegalChatService
     private readonly OllamaChatService _ollamaChatService;
     private readonly IChatRepository _chatRepository;
     private readonly AppDbContext _appContext;
+    private readonly ILogger<LegalChatService> _logger;
 
 
     public LegalChatService(
@@ -24,7 +25,8 @@ public class LegalChatService
         LegalSearchService searchService,
         OllamaChatService ollamaChatService,
         IChatRepository chatRepository,
-        AppDbContext appContext
+        AppDbContext appContext,
+        ILogger<LegalChatService> logger
     )
     {
         _embeddingService = embeddingService;
@@ -32,6 +34,7 @@ public class LegalChatService
         _ollamaChatService = ollamaChatService;
         _chatRepository = chatRepository;
         _appContext = appContext;
+        _logger = logger;
     }
 
 
@@ -115,8 +118,15 @@ public class LegalChatService
                 }
 
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+
+                _logger.LogWarning(
+                    ex,
+                    "Translation to {Language} failed for chat question {Question}",
+                    dto.Language,
+                    dto.Question
+                );
 
                 translationNote =
                     $"Translating this answer into {dto.Language} failed, so it's shown in English below.";
