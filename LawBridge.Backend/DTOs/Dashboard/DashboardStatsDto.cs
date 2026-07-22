@@ -38,9 +38,20 @@ public class DashboardStatsDto
         = new();
 
 
-    // Document view counts aren't tracked anywhere in the schema yet
+    public List<TopViewedDocumentDto> TopViewedDocuments { get; set; }
+        = new();
+
+
     public bool TopViewedTracked { get; set; } = false;
 
+}
+
+
+public class TopViewedDocumentDto
+{
+    public string Title { get; set; } = string.Empty;
+    public string CategoryName { get; set; } = string.Empty;
+    public int ViewCount { get; set; }
 }
 
 

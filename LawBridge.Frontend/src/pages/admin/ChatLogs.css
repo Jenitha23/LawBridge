@@ -1,0 +1,63 @@
+/* ============================================
+   ADMIN — AI CHAT LOGS PAGE
+============================================ */
+
+.chat-log-row {
+    cursor: pointer;
+}
+
+
+.chat-log-row:hover {
+    background: var(--primary-soft-2);
+}
+
+
+.chat-log-question {
+
+    max-width: 320px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 13px;
+
+}
+
+
+.chat-log-section-title {
+
+    font-size: 12px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: var(--text-muted);
+    margin: 16px 0 6px;
+
+}
+
+
+.chat-log-section-title:first-of-type {
+    margin-top: 0;
+}
+
+
+.chat-log-list {
+    margin: 0;
+    padding-left: 18px;
+}
+
+
+.chat-log-list li {
+    font-size: 13px;
+    line-height: 1.6;
+    color: var(--text);
+}
+
+
+.chat-log-sources {
+
+    margin-top: 14px;
+    font-size: 12px;
+    color: var(--text-muted);
+    font-style: italic;
+
+}
