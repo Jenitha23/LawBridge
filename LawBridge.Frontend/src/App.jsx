@@ -22,6 +22,9 @@ import AdminLogin from "./pages/admin/Login";
 import AdminDashboard from "./pages/admin/Dashboard";
 import AdminProfile from "./pages/admin/Profile";
 import AdminUploadDocument from "./pages/admin/UploadDocument";
+import AdminLegalDocuments from "./pages/admin/LegalDocuments";
+import AdminAnalytics from "./pages/admin/Analytics";
+import AdminChatLogs from "./pages/admin/ChatLogs";
 import AdminCategories from "./pages/admin/Categories";
 import AdminUsers from "./pages/admin/Users";
 import AdminProtectedRoute from "./components/AdminProtectedRoute";
@@ -106,6 +109,36 @@ path="/admin/documents/upload"
 element={
 <AdminProtectedRoute>
 <AdminUploadDocument/>
+</AdminProtectedRoute>
+}
+/>
+
+
+<Route
+path="/admin/documents"
+element={
+<AdminProtectedRoute>
+<AdminLegalDocuments/>
+</AdminProtectedRoute>
+}
+/>
+
+
+<Route
+path="/admin/analytics"
+element={
+<AdminProtectedRoute>
+<AdminAnalytics/>
+</AdminProtectedRoute>
+}
+/>
+
+
+<Route
+path="/admin/chat-logs"
+element={
+<AdminProtectedRoute>
+<AdminChatLogs/>
 </AdminProtectedRoute>
 }
 />

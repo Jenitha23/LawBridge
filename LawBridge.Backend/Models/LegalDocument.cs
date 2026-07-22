@@ -22,6 +22,10 @@ public class LegalDocument
     public DateTime CreatedAt { get; set; }
         = DateTime.UtcNow;
 
+    // Incremented each time a user opens this document via the Legal
+    // Topics feature (not counted for admin viewing their own uploads)
+    public int ViewCount { get; set; } = 0;
+
     // Foreign key
     public int CategoryId { get; set; }
 

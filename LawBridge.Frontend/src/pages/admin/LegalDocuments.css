@@ -1,0 +1,30 @@
+/* ============================================
+   ADMIN — LEGAL DOCUMENTS PAGE
+============================================ */
+
+.legal-docs-filters {
+
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+
+}
+
+
+.legal-docs-filters select {
+
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 9px 14px;
+    font-size: 13px;
+    color: var(--text);
+    background: #fff;
+
+}
+
+
+.legal-docs-filters select:focus {
+    outline: none;
+    border-color: var(--primary-light);
+}

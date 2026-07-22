@@ -107,6 +107,11 @@ public class TopicsController : ControllerBase
         }
 
 
+        document.ViewCount++;
+
+        await _context.SaveChangesAsync();
+
+
         return Ok(new TopicDetailDto
         {
             Id = document.Id,

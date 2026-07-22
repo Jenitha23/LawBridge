@@ -134,6 +134,22 @@ public class AdminDashboardService
 
 
 
+        // ---- Top viewed documents ----
+
+        var topViewedDocuments = await _context.LegalDocuments
+            .Where(d => d.ViewCount > 0)
+            .OrderByDescending(d => d.ViewCount)
+            .Take(5)
+            .Select(d => new TopViewedDocumentDto
+            {
+                Title = d.Title,
+                CategoryName = d.Category.Name,
+                ViewCount = d.ViewCount
+            })
+            .ToListAsync();
+
+
+
         return new DashboardStatsDto
         {
 
@@ -158,7 +174,9 @@ public class AdminDashboardService
 
             PopularTopics = popularTopics,
 
-            TopViewedTracked = false
+            TopViewedDocuments = topViewedDocuments,
+
+            TopViewedTracked = true
 
         };
 
