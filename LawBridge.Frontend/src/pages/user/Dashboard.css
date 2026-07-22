@@ -81,7 +81,7 @@
     text-align: left;
     position: relative;
 
-    background: #fff;
+    background: var(--card-bg);
     border: 1px solid var(--border);
     border-radius: var(--radius-lg);
     padding: 24px;
@@ -173,7 +173,7 @@
     align-items: flex-start;
     gap: 14px;
 
-    background: #fff;
+    background: var(--card-bg);
     border: 1px solid var(--border);
     border-radius: var(--radius-lg);
     padding: 22px;
@@ -243,7 +243,7 @@
     padding: 11px 26px;
     border-radius: var(--radius-sm);
     border: 1px solid var(--primary);
-    background: #fff;
+    background: var(--card-bg);
     color: var(--primary);
 
     font-size: 14px;

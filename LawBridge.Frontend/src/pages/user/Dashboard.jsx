@@ -2,14 +2,15 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import DashboardLayout from "../../layouts/DashboardLayout";
 import ChatPanel from "./ChatPanel";
 import heroIllustration from "../../assets/image.png";
+import { useLanguage } from "../../context/LanguageContext";
 import "./Dashboard.css";
 
 
 const QUICK_ACTIONS = [
 
     {
-        title: "Ask a Legal Question",
-        description: "Get clear, reliable answers to your legal questions in simple terms.",
+        titleKey: "quick_ask_title",
+        descKey: "quick_ask_desc",
         path: "/dashboard?new=1",
         icon: (
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
@@ -21,8 +22,8 @@ const QUICK_ACTIONS = [
     },
 
     {
-        title: "Upload a Document",
-        description: "Upload your legal documents and get AI-powered insights instantly.",
+        titleKey: "quick_upload_title",
+        descKey: "quick_upload_desc",
         path: "/documents",
         icon: (
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
@@ -33,8 +34,8 @@ const QUICK_ACTIONS = [
     },
 
     {
-        title: "Explore Legal Topics",
-        description: "Browse trusted legal information on a wide range of topics.",
+        titleKey: "quick_explore_title",
+        descKey: "quick_explore_desc",
         path: "/topics",
         icon: (
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
@@ -50,8 +51,8 @@ const QUICK_ACTIONS = [
 const POPULAR_AREAS = [
 
     {
-        title: "Labour Law",
-        description: "Learn about employee rights, employer obligations, contracts, and workplace disputes.",
+        titleKey: "area_labour_title",
+        descKey: "area_labour_desc",
         icon: (
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
                 <circle cx="8.5" cy="9" r="2.3" stroke="#5428C7" strokeWidth="1.6" />
@@ -62,8 +63,8 @@ const POPULAR_AREAS = [
     },
 
     {
-        title: "Tenancy Law",
-        description: "Understand lease agreements, rent rights, eviction rules, and tenant protections.",
+        titleKey: "area_tenancy_title",
+        descKey: "area_tenancy_desc",
         icon: (
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
                 <path d="M4 11.5 12 5l8 6.5" stroke="#5428C7" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
@@ -73,8 +74,8 @@ const POPULAR_AREAS = [
     },
 
     {
-        title: "Consumer Protection",
-        description: "Know your rights as a consumer and how to resolve disputes fairly.",
+        titleKey: "area_consumer_title",
+        descKey: "area_consumer_desc",
         icon: (
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
                 <path d="M12 4 5 6.5v5c0 4.5 3 7.5 7 8.5 4-1 7-4 7-8.5v-5L12 4Z" stroke="#5428C7" strokeWidth="1.6" strokeLinejoin="round" />
@@ -96,16 +97,18 @@ function Dashboard()
 
     const historyId = searchParams.get("id");
 
+    const { t } = useLanguage();
+
 
     return (
 
-        <DashboardLayout title={isChatMode ? "New Chat" : "Dashboard"}>
+        <DashboardLayout title={isChatMode ? t("nav_new_chat") : t("dashboard_title")}>
 
             {({ user }) => (
 
                 isChatMode ? (
 
-                    <ChatPanel historyId={historyId} />
+                    <ChatPanel historyId={historyId} user={user} />
 
                 ) : (
 
@@ -119,7 +122,7 @@ function Dashboard()
                                 Hello, <span className="accent">{user?.name?.split(" ")[0] || "there"}!</span>
                             </h1>
 
-                            <p>How can we help you today?</p>
+                            <p>{t("dashboard_hero_question")}</p>
 
                         </div>
 
@@ -138,16 +141,16 @@ function Dashboard()
                         {QUICK_ACTIONS.map((action) => (
 
                             <button
-                                key={action.title}
+                                key={action.titleKey}
                                 className="quick-card"
                                 onClick={() => navigate(action.path)}
                             >
 
                                 <div className="quick-icon">{action.icon}</div>
 
-                                <h3>{action.title}</h3>
+                                <h3>{t(action.titleKey)}</h3>
 
-                                <p>{action.description}</p>
+                                <p>{t(action.descKey)}</p>
 
                                 <span className="quick-arrow">→</span>
 
@@ -160,14 +163,14 @@ function Dashboard()
 
                     <section className="popular-areas">
 
-                        <h2>Popular Legal Areas</h2>
+                        <h2>{t("popular_areas_heading")}</h2>
 
                         <div className="area-grid">
 
                             {POPULAR_AREAS.map((area) => (
 
                                 <button
-                                    key={area.title}
+                                    key={area.titleKey}
                                     className="area-card"
                                     onClick={() => navigate("/topics")}
                                 >
@@ -176,9 +179,9 @@ function Dashboard()
 
                                     <div className="area-text">
 
-                                        <h4>{area.title}</h4>
+                                        <h4>{t(area.titleKey)}</h4>
 
-                                        <p>{area.description}</p>
+                                        <p>{t(area.descKey)}</p>
 
                                     </div>
 
@@ -192,7 +195,7 @@ function Dashboard()
 
 
                         <button className="view-all-btn" onClick={() => navigate("/topics")}>
-                            View All Topics
+                            {t("view_all_topics")}
                         </button>
 
                     </section>

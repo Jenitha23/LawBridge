@@ -1,13 +1,14 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import logo from "../assets/logo.png";
 import { logout } from "../services/authService";
+import { useLanguage } from "../context/LanguageContext";
 import "./Sidebar.css";
 
 
 const NAV_ITEMS = [
 
     {
-        label: "Dashboard",
+        key: "nav_dashboard",
         path: "/dashboard",
         icon: (
             <svg width="19" height="19" viewBox="0 0 24 24" fill="none">
@@ -18,7 +19,7 @@ const NAV_ITEMS = [
     },
 
     {
-        label: "New Chat",
+        key: "nav_new_chat",
         path: "/dashboard?new=1",
         icon: (
             <svg width="19" height="19" viewBox="0 0 24 24" fill="none">
@@ -29,7 +30,7 @@ const NAV_ITEMS = [
     },
 
     {
-        label: "My Chats",
+        key: "nav_my_chats",
         path: "/chats",
         icon: (
             <svg width="19" height="19" viewBox="0 0 24 24" fill="none">
@@ -39,7 +40,7 @@ const NAV_ITEMS = [
     },
 
     {
-        label: "My Documents",
+        key: "nav_my_documents",
         path: "/documents",
         icon: (
             <svg width="19" height="19" viewBox="0 0 24 24" fill="none">
@@ -50,7 +51,7 @@ const NAV_ITEMS = [
     },
 
     {
-        label: "Legal Topics",
+        key: "nav_legal_topics",
         path: "/topics",
         icon: (
             <svg width="19" height="19" viewBox="0 0 24 24" fill="none">
@@ -61,7 +62,7 @@ const NAV_ITEMS = [
     },
 
     {
-        label: "Saved Answers",
+        key: "nav_saved_answers",
         path: "/saved",
         icon: (
             <svg width="19" height="19" viewBox="0 0 24 24" fill="none">
@@ -76,7 +77,7 @@ const NAV_ITEMS = [
 const NAV_ITEMS_BOTTOM = [
 
     {
-        label: "Profile",
+        key: "nav_profile",
         path: "/profile",
         icon: (
             <svg width="19" height="19" viewBox="0 0 24 24" fill="none">
@@ -87,7 +88,7 @@ const NAV_ITEMS_BOTTOM = [
     },
 
     {
-        label: "Settings",
+        key: "nav_settings",
         path: "/settings",
         icon: (
             <svg width="19" height="19" viewBox="0 0 24 24" fill="none">
@@ -106,6 +107,8 @@ function Sidebar({ open })
     const location = useLocation();
 
     const navigate = useNavigate();
+
+    const { t } = useLanguage();
 
 
     const isActive = (path) =>
@@ -142,12 +145,12 @@ function Sidebar({ open })
                 {NAV_ITEMS.map((item) => (
 
                     <Link
-                        key={item.label}
+                        key={item.key}
                         to={item.path}
                         className={`sidebar-link ${isActive(item.path) ? "active" : ""}`}
                     >
                         {item.icon}
-                        <span>{item.label}</span>
+                        <span>{t(item.key)}</span>
                     </Link>
 
                 ))}
@@ -163,12 +166,12 @@ function Sidebar({ open })
                 {NAV_ITEMS_BOTTOM.map((item) => (
 
                     <Link
-                        key={item.label}
+                        key={item.key}
                         to={item.path}
                         className={`sidebar-link ${isActive(item.path) ? "active" : ""}`}
                     >
                         {item.icon}
-                        <span>{item.label}</span>
+                        <span>{t(item.key)}</span>
                     </Link>
 
                 ))}
@@ -181,7 +184,7 @@ function Sidebar({ open })
                         <path d="M14 8l4.5 4-4.5 4M18 12H9" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
                     </svg>
 
-                    <span>Log Out</span>
+                    <span>{t("nav_logout")}</span>
 
                 </button>
 

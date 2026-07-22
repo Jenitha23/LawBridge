@@ -14,7 +14,7 @@
 
 .profile-card {
 
-    background: #fff;
+    background: var(--card-bg);
     border: 1px solid var(--border);
     border-radius: var(--radius-lg);
     padding: 26px;
@@ -328,7 +328,7 @@
 
     font-size: 14px;
     color: var(--text);
-    background: #fff;
+    background: var(--card-bg);
 
 }
 

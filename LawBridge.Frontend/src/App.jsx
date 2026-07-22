@@ -14,7 +14,7 @@ import MyDocuments from "./pages/user/MyDocuments";
 import LegalTopics from "./pages/user/LegalTopics";
 import SavedAnswers from "./pages/user/SavedAnswers";
 import Profile from "./pages/user/Profile";
-import ComingSoon from "./pages/user/ComingSoon";
+import Settings from "./pages/user/Settings";
 import Landing from "./pages/Landing";
 import ProtectedRoute from "./components/ProtectedRoute";
 
@@ -206,7 +206,7 @@ element={
 path="/settings"
 element={
 <ProtectedRoute>
-<ComingSoon title="Settings"/>
+<Settings/>
 </ProtectedRoute>
 }
 />
