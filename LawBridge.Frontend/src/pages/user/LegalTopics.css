@@ -4,7 +4,7 @@
 
 .topics-panel {
 
-    background: #fff;
+    background: var(--card-bg);
     border: 1px solid var(--border);
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-sm);
@@ -75,7 +75,7 @@
 
 .topics-clear-btn {
 
-    background: #fff;
+    background: var(--card-bg);
     border: 1px solid var(--border);
     color: var(--text-muted);
     font-size: 13px;
@@ -121,7 +121,7 @@
     border: 1px solid var(--border);
     border-radius: var(--radius-md);
     padding: 18px;
-    background: #fff;
+    background: var(--card-bg);
     display: flex;
     flex-direction: column;
     gap: 8px;
@@ -175,7 +175,7 @@
     border: 1px solid var(--border);
     border-radius: var(--radius-md);
     padding: 14px 18px;
-    background: #fff;
+    background: var(--card-bg);
 
 }
 

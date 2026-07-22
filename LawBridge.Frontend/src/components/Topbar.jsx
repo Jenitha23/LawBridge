@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { logout } from "../services/authService";
 import { getAssetUrl } from "../utils/imageUrl";
+import { useLanguage } from "../context/LanguageContext";
 import "./Topbar.css";
 
 
@@ -13,6 +14,8 @@ function Topbar({ title, subtitle, user, onMenuClick })
     const [menuOpen, setMenuOpen] = useState(false);
 
     const menuRef = useRef(null);
+
+    const { t } = useLanguage();
 
 
     useEffect(() =>
@@ -83,7 +86,7 @@ function Topbar({ title, subtitle, user, onMenuClick })
                 </div>
 
 
-                <button className="icon-btn" aria-label="Notifications">
+                <button className="icon-btn" aria-label={t("topbar_notifications")}>
 
                     <svg width="19" height="19" viewBox="0 0 24 24" fill="none">
                         <path d="M6 10.5a6 6 0 1 1 12 0v3.7l1.6 2.8H4.4L6 14.2v-3.7Z" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" />
@@ -121,11 +124,11 @@ function Topbar({ title, subtitle, user, onMenuClick })
                             <div className="topbar-dropdown-email">{user?.email}</div>
 
                             <button onClick={() => { setMenuOpen(false); navigate("/profile"); }}>
-                                My Profile
+                                {t("topbar_my_profile")}
                             </button>
 
                             <button onClick={handleLogout} className="danger">
-                                Log Out
+                                {t("topbar_log_out")}
                             </button>
 
                         </div>

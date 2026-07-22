@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import Sidebar from "../components/Sidebar";
 import Topbar from "../components/Topbar";
 import { getProfile } from "../services/userService";
+import { useLanguage } from "../context/LanguageContext";
 import "./DashboardLayout.css";
 
 
@@ -19,6 +20,8 @@ function DashboardLayout({ title, subtitle, children })
 
     const [sidebarOpen, setSidebarOpen] = useState(false);
 
+    const { setLanguage } = useLanguage();
+
 
     const loadUser = async () =>
     {
@@ -29,6 +32,11 @@ function DashboardLayout({ title, subtitle, children })
             setUser(data);
 
             setError("");
+
+            if (data?.preferredLanguage)
+            {
+                setLanguage(data.preferredLanguage);
+            }
         }
         catch (err)
         {
