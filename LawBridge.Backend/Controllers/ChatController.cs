@@ -305,6 +305,8 @@ public class ChatController : ControllerBase
             WhenToConsultLawyer = message.WhenToConsultLawyer,
             Sources = JsonSerializer.Deserialize<List<string>>(message.SourceDocuments) ?? new(),
             IsSaved = message.IsSaved,
+            NeedsClarification = message.NeedsClarification,
+            ClarifyingQuestion = message.ClarifyingQuestion,
             CreatedAt = message.CreatedAt
         };
 

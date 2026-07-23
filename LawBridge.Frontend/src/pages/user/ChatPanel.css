@@ -26,7 +26,7 @@
 
     height: 100%;
 
-    background: #fff;
+    background: var(--card-bg);
     border: 1px solid var(--border);
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-sm);
@@ -206,7 +206,7 @@
     display: flex;
     flex-direction: column;
 
-    background: #fff;
+    background: var(--card-bg);
     border: 1px solid var(--border);
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-sm);
@@ -257,7 +257,7 @@
     font-size: 13px;
     font-weight: 600;
     color: var(--text);
-    background: #fff;
+    background: var(--card-bg);
     flex-shrink: 0;
 
 }
@@ -440,6 +440,31 @@
 }
 
 
+.chat-clarify-card {
+    background: var(--primary-soft);
+    border: 1px solid var(--primary-light);
+}
+
+
+.chat-clarify-label {
+    display: block;
+    font-size: 11.5px;
+    font-weight: 700;
+    color: var(--primary);
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    margin-bottom: 6px;
+}
+
+
+.chat-clarify-question {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-heading);
+    line-height: 1.5;
+}
+
+
 .chat-answer-top {
 
     display: flex;
@@ -459,7 +484,7 @@
 .chat-save-btn {
 
     border: 1px solid var(--border);
-    background: #fff;
+    background: var(--card-bg);
     color: var(--text-muted);
     font-size: 12px;
     font-weight: 700;
@@ -477,7 +502,7 @@
 
 
 .chat-save-btn.saved {
-    background: #fff;
+    background: var(--card-bg);
     border-color: var(--primary-light);
     color: var(--primary);
 }
@@ -492,7 +517,7 @@
 .chat-category-pill {
 
     display: inline-block;
-    background: #fff;
+    background: var(--card-bg);
     color: var(--primary);
     font-size: 12px;
     font-weight: 700;
@@ -656,7 +681,7 @@
 .chat-input-row input:focus {
     outline: none;
     border-color: var(--primary-light);
-    background: #fff;
+    background: var(--card-bg);
 }
 
 

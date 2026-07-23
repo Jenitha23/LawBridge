@@ -1,17 +1,16 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { askQuestion, getChatDetail, getChatHistory, setChatSaved } from "../../services/chatService";
+import { useLanguage } from "../../context/LanguageContext";
 import chatLogo from "../../assets/logo.png";
 import "./ChatPanel.css";
 
 
 const LANGUAGES = ["English", "Sinhala", "Tamil"];
 
-const EXAMPLE_QUESTIONS = [
-    "My employer did not pay my salary, what should I do?",
-    "My landlord wants to remove me suddenly, what are my rights?",
-    "I received a defective product, can I get a refund?"
-];
+// How many previous Q&A pairs from this session get sent back to the
+// API as context so the assistant can handle natural follow-up questions.
+const HISTORY_WINDOW = 3;
 
 
 function formatClockTime(date)
@@ -26,7 +25,7 @@ function formatClockTime(date)
 }
 
 
-function formatRelativeTime(dateString)
+function formatRelativeTime(dateString, t)
 {
     if (!dateString) return "";
 
@@ -38,22 +37,22 @@ function formatRelativeTime(dateString)
 
     const minutes = Math.floor(diffMs / 60000);
 
-    if (minutes < 1) return "Just now";
-    if (minutes < 60) return `${minutes} min${minutes === 1 ? "" : "s"} ago`;
+    if (minutes < 1) return t("time_just_now");
+    if (minutes < 60) return `${minutes} ${minutes === 1 ? t("time_min") : t("time_mins")} ${t("time_ago")}`;
 
     const hours = Math.floor(minutes / 60);
 
-    if (hours < 24) return `${hours} hour${hours === 1 ? "" : "s"} ago`;
+    if (hours < 24) return `${hours} ${hours === 1 ? t("time_hour") : t("time_hours")} ${t("time_ago")}`;
 
     const days = Math.floor(hours / 24);
 
-    if (days < 7) return `${days} day${days === 1 ? "" : "s"} ago`;
+    if (days < 7) return `${days} ${days === 1 ? t("time_day") : t("time_days")} ${t("time_ago")}`;
 
     return new Date(dateString).toLocaleDateString("en-GB", { day: "numeric", month: "short" });
 }
 
 
-function AnswerCard({ answer, onToggleSave })
+function AnswerCard({ answer, onToggleSave, t })
 {
 
     const [saving, setSaving] = useState(false);
@@ -78,6 +77,24 @@ function AnswerCard({ answer, onToggleSave })
     };
 
 
+    if (answer.needsClarification)
+    {
+
+        return (
+
+            <div className="chat-answer-card chat-clarify-card">
+
+                <span className="chat-clarify-label">{t("chat_clarify_label")}</span>
+
+                <p className="chat-clarify-question">{answer.clarifyingQuestion}</p>
+
+            </div>
+
+        );
+
+    }
+
+
     return (
 
         <div className="chat-answer-card">
@@ -94,9 +111,9 @@ function AnswerCard({ answer, onToggleSave })
                         className={`chat-save-btn ${answer.isSaved ? "saved" : ""}`}
                         onClick={handleToggleSave}
                         disabled={saving}
-                        title={answer.isSaved ? "Remove from saved" : "Save this answer"}
+                        title={answer.isSaved ? t("saved_answers_remove_title") : t("chat_save_tooltip")}
                     >
-                        {answer.isSaved ? "★ Saved" : "☆ Save"}
+                        {answer.isSaved ? `★ ${t("answer_saved")}` : `☆ ${t("answer_save")}`}
                     </button>
 
                 )}
@@ -107,13 +124,13 @@ function AnswerCard({ answer, onToggleSave })
                 <div className="chat-translation-note">{answer.translationNote}</div>
             )}
 
-            <h4>Explanation</h4>
+            <h4>{t("answer_explanation")}</h4>
             <p>{answer.explanation}</p>
 
             {answer.relevantLegalInfo && (
 
                 <>
-                    <h4>Relevant Legal Information</h4>
+                    <h4>{t("answer_relevant_legal_info")}</h4>
                     <p>{answer.relevantLegalInfo}</p>
                 </>
 
@@ -122,7 +139,7 @@ function AnswerCard({ answer, onToggleSave })
             {answer.possibleActions?.length > 0 && (
 
                 <>
-                    <h4>Possible Actions</h4>
+                    <h4>{t("answer_possible_actions")}</h4>
                     <ul>
                         {answer.possibleActions.map((a, i) => <li key={i}>{a}</li>)}
                     </ul>
@@ -133,7 +150,7 @@ function AnswerCard({ answer, onToggleSave })
             {answer.requiredDocuments?.length > 0 && (
 
                 <>
-                    <h4>Documents You May Need</h4>
+                    <h4>{t("answer_required_documents")}</h4>
                     <ul>
                         {answer.requiredDocuments.map((d, i) => <li key={i}>{d}</li>)}
                     </ul>
@@ -144,7 +161,7 @@ function AnswerCard({ answer, onToggleSave })
             {answer.whenToConsultLawyer && (
 
                 <div className="chat-lawyer-note">
-                    <strong>When to consult a lawyer:</strong> {answer.whenToConsultLawyer}
+                    <strong>{t("answer_consult_lawyer")}</strong> {answer.whenToConsultLawyer}
                 </div>
 
             )}
@@ -152,7 +169,7 @@ function AnswerCard({ answer, onToggleSave })
             {answer.sources?.length > 0 && (
 
                 <div className="chat-sources">
-                    Sources: {answer.sources.join(", ")}
+                    {t("answer_sources")} {answer.sources.join(", ")}
                 </div>
 
             )}
@@ -169,11 +186,13 @@ function ChatPanel({ historyId, user })
 
     const navigate = useNavigate();
 
+    const { t } = useLanguage();
+
     const [messages, setMessages] = useState([]);
 
     const [question, setQuestion] = useState("");
 
-    const [language, setLanguage] = useState("English");
+    const [answerLanguage, setAnswerLanguage] = useState("English");
 
     const [asking, setAsking] = useState(false);
 
@@ -217,7 +236,7 @@ function ChatPanel({ historyId, user })
 
                 setMessages([{ question: detail.question, answer: detail, askedAt: detail.createdAt }]);
 
-                setLanguage(detail.language || "English");
+                setAnswerLanguage(detail.language || "English");
             })
             .catch((err) =>
             {
@@ -225,7 +244,7 @@ function ChatPanel({ historyId, user })
 
                 setError(
                     err.response?.data?.message ||
-                    "Could not load this conversation."
+                    t("chat_could_not_load")
                 );
             })
             .finally(() =>
@@ -236,6 +255,7 @@ function ChatPanel({ historyId, user })
 
         return () => { cancelled = true; };
 
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [historyId]);
 
 
@@ -293,7 +313,15 @@ function ChatPanel({ historyId, user })
 
         try
         {
-            const answer = await askQuestion(q, language);
+            // Send a short window of prior answered turns so the assistant
+            // can follow up naturally instead of treating every message
+            // as a brand-new, unrelated question.
+            const conversationHistory = messages
+                .filter((m) => m.answer && !m.answer.needsClarification)
+                .slice(-HISTORY_WINDOW)
+                .map((m) => ({ question: m.question, explanation: m.answer.explanation }));
+
+            const answer = await askQuestion(q, answerLanguage, conversationHistory);
 
             setMessages((prev) =>
             {
@@ -308,7 +336,7 @@ function ChatPanel({ historyId, user })
         {
             setError(
                 err.response?.data?.message ||
-                "Something went wrong while getting your answer. Please try again."
+                t("chat_error_generic")
             );
 
             setMessages((prev) => prev.slice(0, -1));
@@ -338,7 +366,7 @@ function ChatPanel({ historyId, user })
         {
             setError(
                 err.response?.data?.message ||
-                "Could not update saved status."
+                t("chat_could_not_update_saved")
             );
         }
 
@@ -353,6 +381,13 @@ function ChatPanel({ historyId, user })
     };
 
 
+    const exampleQuestions = [
+        t("chat_example_1"),
+        t("chat_example_2"),
+        t("chat_example_3")
+    ];
+
+
     return (
 
         <div className="chat-layout">
@@ -360,16 +395,16 @@ function ChatPanel({ historyId, user })
             <aside className="recent-chats-panel">
 
                 <div className="recent-chats-header">
-                    <h3>Recent Chats</h3>
-                    <button onClick={() => navigate("/dashboard?new=1")}>+ New Chat</button>
+                    <h3>{t("chat_recent_chats")}</h3>
+                    <button onClick={() => navigate("/dashboard?new=1")}>+ {t("nav_new_chat")}</button>
                 </div>
 
                 <div className="recent-chats-list">
 
-                    {loadingRecent && <p className="chat-muted recent-chats-loading">Loading…</p>}
+                    {loadingRecent && <p className="chat-muted recent-chats-loading">{t("common_loading")}</p>}
 
                     {!loadingRecent && recentChats.length === 0 && (
-                        <p className="chat-muted recent-chats-loading">No conversations yet.</p>
+                        <p className="chat-muted recent-chats-loading">{t("chat_no_conversations")}</p>
                     )}
 
                     {!loadingRecent && recentChats.map((h) => (
@@ -388,7 +423,7 @@ function ChatPanel({ historyId, user })
 
                             <span className="recent-chat-text">
                                 <span className="recent-chat-title">{h.question}</span>
-                                <span className="recent-chat-time">{formatRelativeTime(h.createdAt)}</span>
+                                <span className="recent-chat-time">{formatRelativeTime(h.createdAt, t)}</span>
                             </span>
 
                         </button>
@@ -398,7 +433,7 @@ function ChatPanel({ historyId, user })
                 </div>
 
                 <button className="view-all-chats-link" onClick={() => navigate("/chats")}>
-                    View All Chats <span aria-hidden="true">→</span>
+                    {t("chat_view_all")} <span aria-hidden="true">→</span>
                 </button>
 
             </aside>
@@ -409,14 +444,14 @@ function ChatPanel({ historyId, user })
                 <div className="chat-panel-header">
 
                     <div className="chat-panel-title">
-                        <h2>Chat with <span className="accent">LawBridge AI</span></h2>
-                        <p>Your AI legal assistant for Sri Lankan laws.</p>
+                        <h2>{t("chat_with")} <span className="accent">LawBridge AI</span></h2>
+                        <p>{t("chat_subtitle")}</p>
                     </div>
 
                     <select
                         className="chat-language-select"
-                        value={language}
-                        onChange={(e) => setLanguage(e.target.value)}
+                        value={answerLanguage}
+                        onChange={(e) => setAnswerLanguage(e.target.value)}
                     >
                         {LANGUAGES.map((l) => <option key={l} value={l}>{l}</option>)}
                     </select>
@@ -426,7 +461,7 @@ function ChatPanel({ historyId, user })
 
                 <div className="chat-thread">
 
-                    {loadingHistory && <p className="chat-muted">Loading conversation…</p>}
+                    {loadingHistory && <p className="chat-muted">{t("common_loading")}</p>}
 
                     {!loadingHistory && messages.length === 0 && (
 
@@ -439,9 +474,9 @@ function ChatPanel({ historyId, user })
                                 <div className="chat-msg-body">
 
                                     <div className="chat-bubble chat-bubble-ai">
-                                        <p>Hello {firstName}! 👋</p>
-                                        <p>I&apos;m LawBridge AI, your legal assistant.</p>
-                                        <p>I can help you understand legal information based on Sri Lankan laws. How can I assist you today?</p>
+                                        <p>Hello, {firstName}! 👋</p>
+                                        <p>{t("chat_greeting_intro")}</p>
+                                        <p>{t("chat_greeting_body")}</p>
                                     </div>
 
                                     <span className="chat-timestamp">{formatClockTime(new Date())}</span>
@@ -452,7 +487,7 @@ function ChatPanel({ historyId, user })
 
                             <div className="chat-examples">
 
-                                {EXAMPLE_QUESTIONS.map((ex) => (
+                                {exampleQuestions.map((ex) => (
                                     <button key={ex} onClick={() => handleAsk(ex)}>{ex}</button>
                                 ))}
 
@@ -492,7 +527,7 @@ function ChatPanel({ historyId, user })
 
                                     <div className="chat-msg-body">
 
-                                        <AnswerCard answer={m.answer} onToggleSave={handleToggleSave} />
+                                        <AnswerCard answer={m.answer} onToggleSave={handleToggleSave} t={t} />
 
                                         <span className="chat-timestamp">{formatClockTime(m.askedAt)}</span>
 
@@ -503,7 +538,7 @@ function ChatPanel({ historyId, user })
                                     <div className="chat-msg-body">
 
                                         <div className="chat-bubble chat-bubble-ai chat-thinking">
-                                            <span className="chat-thinking-label">LawBridge AI is typing</span>
+                                            <span className="chat-thinking-label">{t("chat_typing")}</span>
                                             <span className="chat-dot" />
                                             <span className="chat-dot" />
                                             <span className="chat-dot" />
@@ -531,7 +566,7 @@ function ChatPanel({ historyId, user })
 
                     <input
                         type="text"
-                        placeholder="Type your message..."
+                        placeholder={t("chat_placeholder")}
                         value={question}
                         onChange={(e) => setQuestion(e.target.value)}
                         disabled={asking}
@@ -553,7 +588,7 @@ function ChatPanel({ historyId, user })
                         <path d="M12 3.5 19 6.5v5c0 5-3 8.5-7 9.5-4-1-7-4.5-7-9.5v-5l7-3Z" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" />
                     </svg>
 
-                    LawBridge provides legal awareness, not legal advice.
+                    {t("chat_disclaimer")}
 
                 </p>
 

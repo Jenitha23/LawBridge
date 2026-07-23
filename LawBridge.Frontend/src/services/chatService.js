@@ -3,14 +3,17 @@ import api from "../api/axios";
 
 // ===========================
 // POST /api/chat/ask
-// body: { question, language }
+// body: { question, language, history }
+// history: [{ question, explanation }] — recent turns from this
+// on-screen conversation, oldest first, so the AI can use context.
 // returns: { id, question, language, category, explanation,
 //   relevantLegalInfo, possibleActions[], requiredDocuments[],
-//   whenToConsultLawyer, sources[], createdAt }
+//   whenToConsultLawyer, sources[], needsClarification,
+//   clarifyingQuestion, createdAt }
 // ===========================
-export const askQuestion = async (question, language) =>
+export const askQuestion = async (question, language, history = []) =>
 {
-    const response = await api.post("/chat/ask", { question, language });
+    const response = await api.post("/chat/ask", { question, language, history });
 
     return response.data;
 };
