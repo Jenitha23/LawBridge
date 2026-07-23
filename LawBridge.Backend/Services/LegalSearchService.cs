@@ -33,12 +33,22 @@ public class LegalSearchService
 
     public async Task<List<LegalSearchResult>> Search(
         Vector queryEmbedding,
-        int topK = 5
+        int topK = 5,
+        List<int>? allowedDocumentIds = null
     )
     {
 
-        return await _ragContext.LegalChunks
-            .Where(c => c.Embedding != null)
+        var query = _ragContext.LegalChunks
+            .Where(c => c.Embedding != null);
+
+
+        if (allowedDocumentIds != null && allowedDocumentIds.Count > 0)
+        {
+            query = query.Where(c => allowedDocumentIds.Contains(c.DocumentId));
+        }
+
+
+        return await query
             .OrderBy(c => c.Embedding!.CosineDistance(queryEmbedding))
             .Take(topK)
             .Select(c => new LegalSearchResult

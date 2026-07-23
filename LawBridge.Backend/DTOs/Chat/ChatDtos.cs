@@ -9,6 +9,21 @@ public class AskQuestionDto
     // "English" | "Sinhala" | "Tamil" — FR-05
     public string Language { get; set; } = "English";
 
+    // Recent turns from the same on-screen conversation, oldest first.
+    // Sent by the frontend from its client-side thread state — capped
+    // to the last few exchanges so the prompt doesn't grow unbounded.
+    public List<ChatContextItemDto>? History { get; set; }
+
+}
+
+
+public class ChatContextItemDto
+{
+
+    public string Question { get; set; } = string.Empty;
+
+    public string Explanation { get; set; } = string.Empty;
+
 }
 
 
@@ -40,6 +55,13 @@ public class ChatAnswerDto
 
     // FR-15/16
     public bool IsSaved { get; set; }
+
+    // When true, the model judged the question too vague to answer
+    // reliably and is asking for more detail instead of guessing —
+    // the other answer fields are empty in that case.
+    public bool NeedsClarification { get; set; }
+
+    public string? ClarifyingQuestion { get; set; }
 
     // Set only when the person asked for Sinhala/Tamil but the local
     // model's translation didn't reliably land in that script — the

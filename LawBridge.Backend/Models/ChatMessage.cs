@@ -37,6 +37,12 @@ public class ChatMessage
     // FR-15/16 — person can save a useful answer to revisit later
     public bool IsSaved { get; set; } = false;
 
+    // Set when the model asked for more detail instead of answering —
+    // the fields above are left empty in that case.
+    public bool NeedsClarification { get; set; } = false;
+
+    public string? ClarifyingQuestion { get; set; }
+
 
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
