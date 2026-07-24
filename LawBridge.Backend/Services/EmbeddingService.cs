@@ -30,37 +30,56 @@ public class EmbeddingService
     {
 
         var apiKey =
-            _configuration["OpenAI:ApiKey"]
-            ?? throw new InvalidOperationException("OpenAI:ApiKey is not configured.");
+            _configuration["Gemini:ApiKey"]
+            ?? throw new InvalidOperationException("Gemini:ApiKey is not configured.");
 
 
         var model =
-            _configuration["OpenAI:EmbeddingModel"]
-            ?? "text-embedding-3-small";
+            _configuration["Gemini:EmbeddingModel"]
+            ?? "gemini-embedding-001";
+
+
+        // Kept at 1536 to match the existing "vector(1536)" column in the
+        // RAG database — gemini-embedding-001 supports truncated output via
+        // Matryoshka Representation Learning, so this avoids a schema
+        // migration when swapping providers.
+        var dimensions =
+            _configuration.GetValue<int?>("Gemini:EmbeddingDimensions")
+            ?? 1536;
 
 
         var requestBody = new
         {
-            model = model,
-            input = text
-        };
-
-
-        HttpRequestMessage BuildRequest() => new(
-            HttpMethod.Post,
-            "https://api.openai.com/v1/embeddings"
-        )
-        {
-            Content = new StringContent(
-                JsonSerializer.Serialize(requestBody),
-                Encoding.UTF8,
-                "application/json"
-            ),
-            Headers =
+            content = new
             {
-                Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", apiKey)
-            }
+                parts = new[]
+                {
+                    new { text = text }
+                }
+            },
+            outputDimensionality = dimensions
         };
+
+
+        var url =
+            $"https://generativelanguage.googleapis.com/v1beta/models/{model}:embedContent";
+
+
+        HttpRequestMessage BuildRequest()
+        {
+            var req = new HttpRequestMessage(HttpMethod.Post, url)
+            {
+                Content = new StringContent(
+                    JsonSerializer.Serialize(requestBody),
+                    Encoding.UTF8,
+                    "application/json"
+                )
+            };
+
+            req.Headers.Add("x-goog-api-key", apiKey);
+
+            return req;
+        }
 
 
 
@@ -68,16 +87,31 @@ public class EmbeddingService
             await _httpClient.SendAsync(BuildRequest());
 
 
-        if (response.StatusCode == System.Net.HttpStatusCode.TooManyRequests)
+        // Retry on rate-limiting (429) and transient overload (503) —
+        // Gemini returns 503 "UNAVAILABLE" when the model is under heavy
+        // demand, which is usually resolved within a few seconds. If this
+        // is actually a quota/billing issue, the retries fail the same way
+        // and we fall through to the detailed error below.
+        var attempt = 0;
+        var maxAttempts = 3;
+        var delayMs = 2000;
+
+        while (
+            attempt < maxAttempts
+            && (
+                response.StatusCode == System.Net.HttpStatusCode.TooManyRequests
+                || response.StatusCode == System.Net.HttpStatusCode.ServiceUnavailable
+            )
+        )
         {
-            // Give OpenAI a moment and retry once, with a brand-new request —
-            // HttpRequestMessage instances can't be sent twice. Covers a
-            // genuine transient rate-limit blip; if this is actually a
-            // quota/billing issue, the retry fails the same way and we
-            // fall through to the detailed error below.
-            await Task.Delay(3000);
+            // HttpRequestMessage instances can't be sent twice, so a fresh
+            // one is built for every retry attempt.
+            await Task.Delay(delayMs);
 
             response = await _httpClient.SendAsync(BuildRequest());
+
+            attempt++;
+            delayMs *= 2;
         }
 
 
@@ -88,7 +122,7 @@ public class EmbeddingService
                 await response.Content.ReadAsStringAsync();
 
             throw new HttpRequestException(
-                $"OpenAI embeddings request failed ({(int)response.StatusCode} {response.StatusCode}): {errorBody}"
+                $"Gemini embeddings request failed ({(int)response.StatusCode} {response.StatusCode}): {errorBody}"
             );
 
         }
@@ -106,8 +140,8 @@ public class EmbeddingService
 
 
         var embeddingArray = doc.RootElement
-            .GetProperty("data")[0]
-            .GetProperty("embedding");
+            .GetProperty("embedding")
+            .GetProperty("values");
 
 
 
