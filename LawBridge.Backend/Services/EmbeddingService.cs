@@ -29,44 +29,69 @@ public class EmbeddingService
     )
     {
 
-        // e.g. "http://localhost:11434"
-        var baseUrl =
-            _configuration["Ollama:BaseUrl"]
-            ?? "http://localhost:11434";
-
+        var apiKey =
+            _configuration["OpenAI:ApiKey"]
+            ?? throw new InvalidOperationException("OpenAI:ApiKey is not configured.");
 
 
         var model =
-            _configuration["Ollama:EmbeddingModel"]
-            ?? "nomic-embed-text";
-
+            _configuration["OpenAI:EmbeddingModel"]
+            ?? "text-embedding-3-small";
 
 
         var requestBody = new
         {
             model = model,
-            prompt = text
+            input = text
+        };
+
+
+        HttpRequestMessage BuildRequest() => new(
+            HttpMethod.Post,
+            "https://api.openai.com/v1/embeddings"
+        )
+        {
+            Content = new StringContent(
+                JsonSerializer.Serialize(requestBody),
+                Encoding.UTF8,
+                "application/json"
+            ),
+            Headers =
+            {
+                Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", apiKey)
+            }
         };
 
 
 
-        var content = new StringContent(
-            JsonSerializer.Serialize(requestBody),
-            Encoding.UTF8,
-            "application/json"
-        );
-
-
-
         var response =
-            await _httpClient.PostAsync(
-                $"{baseUrl}/api/embeddings",
-                content
+            await _httpClient.SendAsync(BuildRequest());
+
+
+        if (response.StatusCode == System.Net.HttpStatusCode.TooManyRequests)
+        {
+            // Give OpenAI a moment and retry once, with a brand-new request —
+            // HttpRequestMessage instances can't be sent twice. Covers a
+            // genuine transient rate-limit blip; if this is actually a
+            // quota/billing issue, the retry fails the same way and we
+            // fall through to the detailed error below.
+            await Task.Delay(3000);
+
+            response = await _httpClient.SendAsync(BuildRequest());
+        }
+
+
+        if (!response.IsSuccessStatusCode)
+        {
+
+            var errorBody =
+                await response.Content.ReadAsStringAsync();
+
+            throw new HttpRequestException(
+                $"OpenAI embeddings request failed ({(int)response.StatusCode} {response.StatusCode}): {errorBody}"
             );
 
-
-
-        response.EnsureSuccessStatusCode();
+        }
 
 
 
@@ -80,8 +105,9 @@ public class EmbeddingService
 
 
 
-        var embeddingArray =
-            doc.RootElement.GetProperty("embedding");
+        var embeddingArray = doc.RootElement
+            .GetProperty("data")[0]
+            .GetProperty("embedding");
 
 
 

@@ -127,7 +127,7 @@ builder.Services.AddScoped<LegalSearchService>();
 builder.Services.AddScoped<LegalChatService>();
 builder.Services.AddScoped<UserDocumentService>();
 builder.Services.AddHttpClient<EmbeddingService>();
-builder.Services.AddHttpClient<OllamaChatService>();
+builder.Services.AddHttpClient<AiChatService>();
 
 // ===============================
 // MVC Controllers
@@ -142,17 +142,8 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 
-
+DotNetEnv.Env.Load();
 var app = builder.Build();
-
-
-
-// ===============================
-// Automatic Database Migration
-// ===============================
-
-
-
 
 // ===============================
 // Auto Database Migration

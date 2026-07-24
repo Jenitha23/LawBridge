@@ -14,7 +14,7 @@ public class LegalChatService
 
     private readonly EmbeddingService _embeddingService;
     private readonly LegalSearchService _searchService;
-    private readonly OllamaChatService _ollamaChatService;
+    private readonly AiChatService _aiChatService;
     private readonly IChatRepository _chatRepository;
     private readonly AppDbContext _appContext;
     private readonly ILogger<LegalChatService> _logger;
@@ -23,7 +23,7 @@ public class LegalChatService
     public LegalChatService(
         EmbeddingService embeddingService,
         LegalSearchService searchService,
-        OllamaChatService ollamaChatService,
+        AiChatService aiChatService,
         IChatRepository chatRepository,
         AppDbContext appContext,
         ILogger<LegalChatService> logger
@@ -31,7 +31,7 @@ public class LegalChatService
     {
         _embeddingService = embeddingService;
         _searchService = searchService;
-        _ollamaChatService = ollamaChatService;
+        _aiChatService = aiChatService;
         _chatRepository = chatRepository;
         _appContext = appContext;
         _logger = logger;
@@ -117,7 +117,7 @@ public class LegalChatService
         var prompt = BuildPrompt(dto.Question, contextText, dto.History);
 
         var rawResponse =
-            await _ollamaChatService.Generate(prompt);
+            await _aiChatService.Generate(prompt);
 
         var englishAnswer = ParseAnswer(rawResponse);
 
@@ -281,7 +281,7 @@ public class LegalChatService
 
     // ---- Classification-before-retrieval ----
     //
-    // A short, separate Ollama call that picks one of the admin's actual
+    // A short, separate OpenAI call that picks one of the admin's actual
     // legal categories (or "Unknown"). Best-effort: if it fails or doesn't
     // match a real category, callers fall back to an unrestricted search
     // rather than blocking the answer on this step.
@@ -315,7 +315,7 @@ QUESTION:
         {
 
             var raw =
-                await _ollamaChatService.Generate(prompt);
+                await _aiChatService.Generate(prompt);
 
             using var doc =
                 JsonDocument.Parse(raw);
@@ -374,7 +374,7 @@ JSON TO TRANSLATE:
 
 
         var raw =
-            await _ollamaChatService.Generate(prompt);
+            await _aiChatService.Generate(prompt);
 
 
         return ParseAnswer(raw);
