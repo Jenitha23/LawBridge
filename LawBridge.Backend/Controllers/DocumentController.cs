@@ -134,7 +134,7 @@ public class DocumentController : ControllerBase
 
             return StatusCode(503, new
             {
-                message = "The AI assistant is unavailable right now. Please make sure Ollama is running and try again."
+                message = "The AI assistant is unavailable right now. Please check the OpenAI API key/connection and try again."
             });
 
         }

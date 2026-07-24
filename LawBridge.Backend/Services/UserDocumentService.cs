@@ -10,7 +10,7 @@ public class UserDocumentService
 
     private readonly PdfService _pdfService;
     private readonly OcrService _ocrService;
-    private readonly OllamaChatService _ollamaChatService;
+    private readonly AiChatService _aiChatService;
     private readonly IUserDocumentRepository _repository;
     private readonly ILogger<UserDocumentService> _logger;
 
@@ -23,14 +23,14 @@ public class UserDocumentService
     public UserDocumentService(
         PdfService pdfService,
         OcrService ocrService,
-        OllamaChatService ollamaChatService,
+        AiChatService aiChatService,
         IUserDocumentRepository repository,
         ILogger<UserDocumentService> logger
     )
     {
         _pdfService = pdfService;
         _ocrService = ocrService;
-        _ollamaChatService = ollamaChatService;
+        _aiChatService = aiChatService;
         _repository = repository;
         _logger = logger;
     }
@@ -149,7 +149,7 @@ public class UserDocumentService
 
             document.Status = "Failed";
             document.ErrorMessage =
-                "Something went wrong while processing this document. Please make sure Ollama is running and try again.";
+                "Something went wrong while processing this document. Please check the OpenAI API key/connection and try again.";
 
         }
 
@@ -187,7 +187,7 @@ DOCUMENT TEXT:
 """;
 
         var raw =
-            await _ollamaChatService.Generate(prompt);
+            await _aiChatService.Generate(prompt);
 
         return ExtractExplanationField(raw);
 
@@ -211,7 +211,7 @@ TEXT TO TRANSLATE:
 """;
 
         var raw =
-            await _ollamaChatService.Generate(prompt);
+            await _aiChatService.Generate(prompt);
 
         return ExtractExplanationField(raw);
 

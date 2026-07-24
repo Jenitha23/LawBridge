@@ -299,7 +299,7 @@ function MyDocuments()
 
                                 {uploading && (
                                     <p className="doc-processing-note">
-                                        Extracting text and generating an explanation — this can take a minute on a local model.
+                                        Extracting text and generating an explanation — this may take a moment.
                                     </p>
                                 )}
 
