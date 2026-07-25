@@ -4,7 +4,8 @@ import { getAssetUrl } from "../../utils/imageUrl";
 import {
     uploadUserDocument,
     getUserDocuments,
-    getUserDocumentById
+    getUserDocumentById,
+    deleteUserDocument
 } from "../../services/userDocumentService";
 import { useLanguage } from "../../context/LanguageContext";
 import "./MyDocuments.css";
@@ -65,6 +66,8 @@ function MyDocuments()
     const [viewLoading, setViewLoading] = useState(false);
 
     const [viewError, setViewError] = useState("");
+
+    const [deletingId, setDeletingId] = useState(null);
 
 
     const loadDocuments = async () =>
@@ -226,6 +229,41 @@ function MyDocuments()
     };
 
 
+    const handleDelete = async (e, id) =>
+    {
+
+        e.stopPropagation();
+
+        if (!window.confirm(t("docs_delete_confirm"))) return;
+
+        setDeletingId(id);
+
+        try
+        {
+            await deleteUserDocument(id);
+
+            setDocuments((prev) => prev.filter((d) => d.id !== id));
+
+            if (viewingDoc?.id === id)
+            {
+                setViewingDoc(null);
+            }
+        }
+        catch (err)
+        {
+            setLoadError(
+                err.response?.data?.message ||
+                t("docs_could_not_delete")
+            );
+        }
+        finally
+        {
+            setDeletingId(null);
+        }
+
+    };
+
+
     return (
 
         <DashboardLayout title={t("nav_my_documents")}>
@@ -331,16 +369,29 @@ function MyDocuments()
 
                                     {documents.map((d) => (
 
-                                        <button className="doc-list-item" key={d.id} onClick={() => openDocument(d.id)}>
+                                        <div className="doc-list-item" key={d.id} onClick={() => openDocument(d.id)}>
 
                                             <div>
                                                 <p className="doc-list-title">{d.title}</p>
                                                 <span className="doc-list-meta">{d.fileName} · {formatDate(d.createdAt)}</span>
                                             </div>
 
-                                            <span className={statusClass(d.status)}>{d.status}</span>
+                                            <div className="doc-list-item-right">
 
-                                        </button>
+                                                <span className={statusClass(d.status)}>{d.status}</span>
+
+                                                <button
+                                                    className="doc-list-delete"
+                                                    onClick={(e) => handleDelete(e, d.id)}
+                                                    disabled={deletingId === d.id}
+                                                    title={t("docs_delete_title")}
+                                                >
+                                                    ✕
+                                                </button>
+
+                                            </div>
+
+                                        </div>
 
                                     ))}
 

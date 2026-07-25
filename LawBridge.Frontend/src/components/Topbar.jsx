@@ -39,7 +39,7 @@ function Topbar({ title, subtitle, user, onMenuClick })
     {
         logout();
 
-        navigate("/login");
+        navigate("/", { replace: true });
     };
 
 

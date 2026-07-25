@@ -36,7 +36,7 @@ function AdminTopbar({ title, user, onMenuClick })
     {
         adminLogout();
 
-        navigate("/admin/login");
+        navigate("/", { replace: true });
     };
 
 

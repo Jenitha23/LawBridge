@@ -213,6 +213,64 @@ public class DocumentController : ControllerBase
 
 
 
+    // ===========================
+    // DELETE: api/documents/{id}
+    // ===========================
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> Delete(int id)
+    {
+
+        var userId = await GetUserId();
+
+        if (userId == null)
+        {
+            return Unauthorized(new { message = "Invalid token." });
+        }
+
+
+        var document =
+            await _repository.GetById(id);
+
+        if (document == null || document.UserId != userId.Value)
+        {
+            return NotFound(new { message = "Document not found" });
+        }
+
+
+        // Best-effort: remove the uploaded file from disk too, but a
+        // missing/locked file shouldn't block deleting the record itself.
+        try
+        {
+
+            var diskPath = Path.Combine(
+                Directory.GetCurrentDirectory(),
+                "wwwroot",
+                document.FilePath.TrimStart('/', '\\')
+            );
+
+            if (System.IO.File.Exists(diskPath))
+            {
+                System.IO.File.Delete(diskPath);
+            }
+
+        }
+        catch
+        {
+            // Ignore — the DB record is the source of truth for "My
+            // Documents"; an orphaned file on disk is a minor cleanup
+            // issue, not a reason to fail the delete.
+        }
+
+
+        await _repository.Delete(document);
+
+
+        return Ok(new { message = "Document deleted successfully" });
+
+    }
+
+
+
     private static UserDocumentDetailDto ToDetailDto(Models.UserDocument d)
     {
 

@@ -47,3 +47,15 @@ export const getUserDocumentById = async (id) =>
 
     return response.data;
 };
+
+
+
+// ===========================
+// DELETE /api/documents/{id}
+// ===========================
+export const deleteUserDocument = async (id) =>
+{
+    const response = await api.delete(`/documents/${id}`);
+
+    return response.data;
+};

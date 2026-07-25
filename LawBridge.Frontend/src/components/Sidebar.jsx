@@ -123,7 +123,7 @@ function Sidebar({ open })
     {
         logout();
 
-        navigate("/login");
+        navigate("/", { replace: true });
     };
 
 
