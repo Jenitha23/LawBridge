@@ -114,7 +114,7 @@ function SavedAnswers()
                                 <div
                                     key={s.id}
                                     className="chat-history-item"
-                                    onClick={() => navigate(`/dashboard?id=${s.id}`)}
+                                    onClick={() => navigate(`/dashboard?id=${s.conversationId}`)}
                                 >
 
                                     <div>

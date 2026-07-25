@@ -14,6 +14,12 @@ public class AskQuestionDto
     // to the last few exchanges so the prompt doesn't grow unbounded.
     public List<ChatContextItemDto>? History { get; set; }
 
+    // Identifies which on-screen chat thread this question belongs to.
+    // Null/empty on the very first question of a new chat — the backend
+    // generates one and returns it for the frontend to reuse on every
+    // follow-up in that same thread.
+    public Guid? ConversationId { get; set; }
+
 }
 
 
@@ -31,6 +37,8 @@ public class ChatAnswerDto
 {
 
     public int Id { get; set; }
+
+    public Guid ConversationId { get; set; }
 
     public string Question { get; set; } = string.Empty;
 
@@ -78,6 +86,10 @@ public class ChatHistoryItemDto
 
     public int Id { get; set; }
 
+    // Which thread this specific saved answer belongs to — used to jump
+    // into the full conversation for context rather than an isolated answer.
+    public Guid ConversationId { get; set; }
+
     public string Question { get; set; } = string.Empty;
 
     public string Category { get; set; } = string.Empty;
@@ -87,6 +99,35 @@ public class ChatHistoryItemDto
     public bool IsSaved { get; set; }
 
     public DateTime CreatedAt { get; set; }
+
+}
+
+
+// One row per on-screen chat thread (grouped by ConversationId) rather than
+// one row per individual question — this is what "Recent Chats" / "My
+// Chats" lists. Field names deliberately mirror ChatHistoryItemDto (Id,
+// Question, CreatedAt, ...) so the existing history/saved-answers UI keeps
+// working against a Guid-typed Id without further changes.
+public class ChatConversationSummaryDto
+{
+
+    public Guid Id { get; set; }
+
+    // The first question asked in the thread — used as its title.
+    public string Question { get; set; } = string.Empty;
+
+    // Category of the most recent turn in the thread.
+    public string Category { get; set; } = string.Empty;
+
+    public string Language { get; set; } = string.Empty;
+
+    // True if any answer in the thread was saved.
+    public bool IsSaved { get; set; }
+
+    // Timestamp of the most recent turn — used for sorting/relative time.
+    public DateTime CreatedAt { get; set; }
+
+    public int MessageCount { get; set; }
 
 }
 

@@ -10,6 +10,13 @@ public class ChatMessage
     public int UserId { get; set; }
 
 
+    // Groups multiple question/answer turns into a single visible thread —
+    // every message asked in the same on-screen chat session shares this.
+    // Generated client-side (or server-side as a fallback) on the first
+    // question of a new chat, then reused for every follow-up in it.
+    public Guid ConversationId { get; set; }
+
+
     public string Question { get; set; } = string.Empty;
 
     public string Language { get; set; } = "English";

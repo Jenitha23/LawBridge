@@ -106,18 +106,99 @@ public class ChatController : ControllerBase
             await _chatRepository.GetByUser(userId.Value);
 
 
-        var result = messages.Select(m => new ChatHistoryItemDto
-        {
-            Id = m.Id,
-            Question = m.Question,
-            Category = m.Category,
-            Language = m.Language,
-            IsSaved = m.IsSaved,
-            CreatedAt = m.CreatedAt
-        }).ToList();
+        // One card per thread, not one per question — group everything
+        // asked in the same on-screen chat session together.
+        var result = messages
+            .GroupBy(m => m.ConversationId)
+            .Select(g =>
+            {
+                var ordered = g.OrderBy(m => m.CreatedAt).ToList();
+                var latest = ordered[^1];
+
+                return new ChatConversationSummaryDto
+                {
+                    Id = g.Key,
+                    Question = ordered[0].Question,
+                    Category = latest.Category,
+                    Language = latest.Language,
+                    IsSaved = ordered.Any(m => m.IsSaved),
+                    CreatedAt = latest.CreatedAt,
+                    MessageCount = ordered.Count
+                };
+            })
+            .OrderByDescending(c => c.CreatedAt)
+            .ToList();
 
 
         return Ok(result);
+
+    }
+
+
+
+    // ===========================
+    // GET: api/chat/conversations/{conversationId}
+    // Full ordered thread — every turn asked in one on-screen chat.
+    // ===========================
+    [HttpGet("conversations/{conversationId}")]
+    public async Task<IActionResult> ConversationDetail(Guid conversationId)
+    {
+
+        var userId = await GetUserId();
+
+        if (userId == null)
+        {
+            return Unauthorized(new
+            {
+                message = "Invalid token."
+            });
+        }
+
+
+        var messages =
+            await _chatRepository.GetByConversation(conversationId, userId.Value);
+
+        if (messages.Count == 0)
+        {
+            return NotFound(new
+            {
+                message = "Conversation not found"
+            });
+        }
+
+
+        return Ok(messages.Select(ToAnswerDto).ToList());
+
+    }
+
+
+
+    // ===========================
+    // DELETE: api/chat/conversations/{conversationId}
+    // Deletes an entire thread, not just one turn.
+    // ===========================
+    [HttpDelete("conversations/{conversationId}")]
+    public async Task<IActionResult> DeleteConversation(Guid conversationId)
+    {
+
+        var userId = await GetUserId();
+
+        if (userId == null)
+        {
+            return Unauthorized(new
+            {
+                message = "Invalid token."
+            });
+        }
+
+
+        await _chatRepository.DeleteConversation(conversationId, userId.Value);
+
+
+        return Ok(new
+        {
+            message = "Chat deleted successfully"
+        });
 
     }
 
@@ -275,6 +356,7 @@ public class ChatController : ControllerBase
         var result = messages.Select(m => new ChatHistoryItemDto
         {
             Id = m.Id,
+            ConversationId = m.ConversationId,
             Question = m.Question,
             Category = m.Category,
             Language = m.Language,
@@ -295,6 +377,7 @@ public class ChatController : ControllerBase
         return new ChatAnswerDto
         {
             Id = message.Id,
+            ConversationId = message.ConversationId,
             Question = message.Question,
             Language = message.Language,
             Category = message.Category,

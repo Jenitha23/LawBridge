@@ -65,6 +65,33 @@ public class ChatRepository : IChatRepository
 
 
 
+    public async Task<List<ChatMessage>> GetByConversation(Guid conversationId, int userId)
+    {
+
+        return await _context.ChatMessages
+            .Where(m => m.ConversationId == conversationId && m.UserId == userId)
+            .OrderBy(m => m.CreatedAt)
+            .ToListAsync();
+
+    }
+
+
+
+    public async Task DeleteConversation(Guid conversationId, int userId)
+    {
+
+        var messages = await _context.ChatMessages
+            .Where(m => m.ConversationId == conversationId && m.UserId == userId)
+            .ToListAsync();
+
+        _context.ChatMessages.RemoveRange(messages);
+
+        await _context.SaveChangesAsync();
+
+    }
+
+
+
     public async Task Update(ChatMessage message)
     {
 
