@@ -62,4 +62,15 @@ public class UserDocumentRepository : IUserDocumentRepository
 
     }
 
+
+
+    public async Task Delete(UserDocument document)
+    {
+
+        _context.UserDocuments.Remove(document);
+
+        await _context.SaveChangesAsync();
+
+    }
+
 }

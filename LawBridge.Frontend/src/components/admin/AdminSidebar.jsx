@@ -141,7 +141,7 @@ function AdminSidebar({ open, user })
     {
         adminLogout();
 
-        navigate("/admin/login");
+        navigate("/", { replace: true });
     };
 
 

@@ -18,4 +18,7 @@ public interface IUserDocumentRepository
 
     Task Update(UserDocument document);
 
+
+    Task Delete(UserDocument document);
+
 }
