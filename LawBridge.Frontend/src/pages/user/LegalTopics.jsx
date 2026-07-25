@@ -6,6 +6,7 @@ import {
     getTopicDetail,
     searchTopics
 } from "../../services/topicsService";
+import { useLanguage } from "../../context/LanguageContext";
 import "./MyDocuments.css";
 import "./LegalTopics.css";
 
@@ -20,6 +21,8 @@ function formatDate(dateString)
 
 function LegalTopics()
 {
+
+    const { t } = useLanguage();
 
     const [categories, setCategories] = useState([]);
 
@@ -56,7 +59,7 @@ function LegalTopics()
             {
                 setError(
                     err.response?.data?.message ||
-                    "Could not load legal topics."
+                    t("topics_could_not_load")
                 );
             })
             .finally(() => setLoadingCategories(false));
@@ -83,7 +86,7 @@ function LegalTopics()
         {
             setError(
                 err.response?.data?.message ||
-                "Could not load topics in this category."
+                t("topics_could_not_load_category")
             );
         }
         finally
@@ -122,7 +125,7 @@ function LegalTopics()
         {
             setError(
                 err.response?.data?.message ||
-                "Search failed. Please try again."
+                t("topics_search_failed")
             );
         }
         finally
@@ -158,7 +161,7 @@ function LegalTopics()
         {
             setError(
                 err.response?.data?.message ||
-                "Could not load this topic."
+                t("topics_could_not_load_topic")
             );
         }
         finally
@@ -171,7 +174,7 @@ function LegalTopics()
 
     return (
 
-        <DashboardLayout title="Legal Topics">
+        <DashboardLayout title={t("nav_legal_topics")}>
 
             {() => (
 
@@ -183,15 +186,15 @@ function LegalTopics()
 
                             <input
                                 type="text"
-                                placeholder="Search legal topics (e.g. 'deposit', 'termination', 'refund')"
+                                placeholder={t("topics_search_placeholder")}
                                 value={query}
                                 onChange={(e) => setQuery(e.target.value)}
                             />
 
-                            <button type="submit" disabled={searching}>{searching ? "Searching..." : "Search"}</button>
+                            <button type="submit" disabled={searching}>{searching ? t("topics_searching") : t("common_search")}</button>
 
                             {searchResults && (
-                                <button type="button" className="topics-clear-btn" onClick={clearSearch}>Clear</button>
+                                <button type="button" className="topics-clear-btn" onClick={clearSearch}>{t("topics_clear")}</button>
                             )}
 
                         </form>
@@ -204,11 +207,11 @@ function LegalTopics()
 
                             <>
 
-                                <h3>Search Results {searchResults.length > 0 && `(${searchResults.length})`}</h3>
+                                <h3>{t("topics_search_results")} {searchResults.length > 0 && `(${searchResults.length})`}</h3>
 
                                 {searchResults.length === 0 ? (
 
-                                    <p className="doc-muted">No topics matched "{query}".</p>
+                                    <p className="doc-muted">{t("topics_no_match")} "{query}".</p>
 
                                 ) : (
 
@@ -236,17 +239,17 @@ function LegalTopics()
 
                             <>
 
-                                <button className="topics-back-btn" onClick={() => setSelectedCategory(null)}>← All Categories</button>
+                                <button className="topics-back-btn" onClick={() => setSelectedCategory(null)}>← {t("topics_all_categories")}</button>
 
                                 <h3>{selectedCategory.name}</h3>
 
                                 {loadingDocs ? (
 
-                                    <p className="doc-muted">Loading…</p>
+                                    <p className="doc-muted">{t("common_loading")}</p>
 
                                 ) : categoryDocs.length === 0 ? (
 
-                                    <p className="doc-muted">No topics in this category yet.</p>
+                                    <p className="doc-muted">{t("topics_no_topics_in_category")}</p>
 
                                 ) : (
 
@@ -273,15 +276,15 @@ function LegalTopics()
 
                             <>
 
-                                <h3>Browse by Category</h3>
+                                <h3>{t("topics_browse_category")}</h3>
 
                                 {loadingCategories ? (
 
-                                    <p className="doc-muted">Loading…</p>
+                                    <p className="doc-muted">{t("common_loading")}</p>
 
                                 ) : categories.length === 0 ? (
 
-                                    <p className="doc-muted">No legal categories available yet.</p>
+                                    <p className="doc-muted">{t("topics_no_categories")}</p>
 
                                 ) : (
 
@@ -291,8 +294,10 @@ function LegalTopics()
 
                                             <button className="topics-category-card" key={c.id} onClick={() => openCategory(c)}>
                                                 <h4>{c.name}</h4>
-                                                <p>{c.description || "No description."}</p>
-                                                <span className="tag tag-purple">{c.documentCount} topic{c.documentCount === 1 ? "" : "s"}</span>
+                                                <p>{c.description || t("topics_no_description")}</p>
+                                                <span className="tag tag-purple">
+                                                    {c.documentCount} {c.documentCount === 1 ? t("topics_topic_singular") : t("topics_topic_plural")}
+                                                </span>
                                             </button>
 
                                         ))}
@@ -315,11 +320,11 @@ function LegalTopics()
                             <div className="doc-modal" onClick={(e) => e.stopPropagation()}>
 
                                 <div className="doc-modal-header">
-                                    <h3>{viewingTopic?.title || "Loading…"}</h3>
+                                    <h3>{viewingTopic?.title || t("common_loading")}</h3>
                                     <button className="doc-modal-close" onClick={() => setViewingTopic(null)}>×</button>
                                 </div>
 
-                                {viewLoading && <p className="doc-muted">Loading…</p>}
+                                {viewLoading && <p className="doc-muted">{t("common_loading")}</p>}
 
                                 {viewingTopic && (
 

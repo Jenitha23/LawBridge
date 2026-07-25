@@ -2,6 +2,7 @@ import { useRef, useState } from "react";
 import DashboardLayout from "../../layouts/DashboardLayout";
 import { updateProfile, uploadProfilePicture, changePassword } from "../../services/userService";
 import { getAssetUrl } from "../../utils/imageUrl";
+import { useLanguage } from "../../context/LanguageContext";
 import "./Profile.css";
 
 
@@ -11,9 +12,11 @@ const LANGUAGES = ["English", "Sinhala", "Tamil"];
 function Profile()
 {
 
+    const { t } = useLanguage();
+
     return (
 
-        <DashboardLayout title="My Profile" subtitle="Manage your personal information and account settings.">
+        <DashboardLayout title={t("profile_page_title")} subtitle={t("profile_page_subtitle")}>
 
             {({ user, refreshUser }) => (
                 <ProfileContent user={user} refreshUser={refreshUser} />
@@ -28,6 +31,8 @@ function Profile()
 
 function ProfileContent({ user, refreshUser })
 {
+
+    const { t, setLanguage } = useLanguage();
 
     const fileInputRef = useRef(null);
 
@@ -80,6 +85,13 @@ function ProfileContent({ user, refreshUser })
     const handleFormChange = (e) =>
     {
         setForm({ ...form, [e.target.name]: e.target.value });
+
+        // Translate the whole site immediately when the person picks a
+        // language, without waiting for them to save the form.
+        if (e.target.name === "preferredLanguage")
+        {
+            setLanguage(e.target.value);
+        }
     };
 
 
@@ -99,7 +111,7 @@ function ProfileContent({ user, refreshUser })
 
             setEditing(false);
 
-            setProfileMessage({ type: "success", text: "Profile updated successfully." });
+            setProfileMessage({ type: "success", text: t("profile_updated_success") });
         }
         catch (err)
         {
@@ -107,7 +119,7 @@ function ProfileContent({ user, refreshUser })
 
                 type: "error",
 
-                text: err.response?.data?.message || "Could not update your profile."
+                text: err.response?.data?.message || t("profile_update_failed")
 
             });
         }
@@ -147,7 +159,7 @@ function ProfileContent({ user, refreshUser })
         {
             setAvatarError(
 
-                err.response?.data?.message || "Could not upload image."
+                err.response?.data?.message || t("profile_upload_failed")
 
             );
         }
@@ -174,7 +186,7 @@ function ProfileContent({ user, refreshUser })
 
         if (passwordForm.newPassword !== passwordForm.confirmPassword)
         {
-            setPasswordMessage({ type: "error", text: "New passwords do not match." });
+            setPasswordMessage({ type: "error", text: t("profile_passwords_mismatch") });
 
             return;
         }
@@ -191,7 +203,7 @@ function ProfileContent({ user, refreshUser })
 
             });
 
-            setPasswordMessage({ type: "success", text: "Password changed successfully." });
+            setPasswordMessage({ type: "success", text: t("profile_password_changed") });
 
             setPasswordForm({ currentPassword: "", newPassword: "", confirmPassword: "" });
 
@@ -203,7 +215,7 @@ function ProfileContent({ user, refreshUser })
 
                 type: "error",
 
-                text: err.response?.data?.message || "Could not change password."
+                text: err.response?.data?.message || t("profile_password_change_failed")
 
             });
         }
@@ -269,20 +281,20 @@ function ProfileContent({ user, refreshUser })
                 </div>
 
 
-                {uploadingAvatar && <p className="avatar-status">Uploading...</p>}
+                {uploadingAvatar && <p className="avatar-status">{t("common_loading")}</p>}
 
                 {avatarError && <p className="avatar-status error">{avatarError}</p>}
 
                 {!uploadingAvatar && !avatarError && (
                     <button className="change-photo-btn" onClick={handleAvatarClick}>
-                        Change Photo
+                        {t("profile_change_photo")}
                     </button>
                 )}
 
 
                 <h2 className="avatar-name">{user.name}</h2>
 
-                <span className="member-badge">Member</span>
+                <span className="member-badge">{t("profile_member_badge")}</span>
 
 
                 <ul className="avatar-meta">
@@ -302,7 +314,7 @@ function ProfileContent({ user, refreshUser })
                     {memberSince && (
                         <li>
                             <CalendarIcon />
-                            <span>Member since {memberSince}</span>
+                            <span>{t("profile_member_since")} {memberSince}</span>
                         </li>
                     )}
 
@@ -328,11 +340,11 @@ function ProfileContent({ user, refreshUser })
 
                     <div className="card-header">
 
-                        <h3>Account Information</h3>
+                        <h3>{t("profile_account_info")}</h3>
 
                         {!editing && (
                             <button className="btn btn-outline btn-sm" onClick={startEditing}>
-                                Edit
+                                {t("common_edit")}
                             </button>
                         )}
 
@@ -353,27 +365,27 @@ function ProfileContent({ user, refreshUser })
                         <dl className="info-list">
 
                             <div className="info-row">
-                                <dt>Full Name</dt>
+                                <dt>{t("profile_full_name")}</dt>
                                 <dd>{user.name}</dd>
                             </div>
 
                             <div className="info-row">
-                                <dt>Email Address</dt>
+                                <dt>{t("profile_email")}</dt>
                                 <dd>{user.email}</dd>
                             </div>
 
                             <div className="info-row">
-                                <dt>Phone Number</dt>
+                                <dt>{t("profile_phone")}</dt>
                                 <dd>{user.phoneNumber || "—"}</dd>
                             </div>
 
                             <div className="info-row">
-                                <dt>Address</dt>
+                                <dt>{t("profile_address")}</dt>
                                 <dd>{user.address || "—"}</dd>
                             </div>
 
                             <div className="info-row">
-                                <dt>Language</dt>
+                                <dt>{t("profile_language")}</dt>
                                 <dd>{user.preferredLanguage}</dd>
                             </div>
 
@@ -385,7 +397,7 @@ function ProfileContent({ user, refreshUser })
 
                             <div className="form-field">
 
-                                <label>Full Name</label>
+                                <label>{t("profile_full_name")}</label>
 
                                 <input
                                     name="name"
@@ -399,7 +411,7 @@ function ProfileContent({ user, refreshUser })
 
                             <div className="form-field">
 
-                                <label>Email Address</label>
+                                <label>{t("profile_email")}</label>
 
                                 <input value={user.email} disabled />
 
@@ -408,13 +420,13 @@ function ProfileContent({ user, refreshUser })
 
                             <div className="form-field">
 
-                                <label>Phone Number</label>
+                                <label>{t("profile_phone")}</label>
 
                                 <input
                                     name="phoneNumber"
                                     value={form.phoneNumber}
                                     onChange={handleFormChange}
-                                    placeholder="+94 77 123 4567"
+                                    placeholder={t("profile_phone_placeholder")}
                                 />
 
                             </div>
@@ -422,13 +434,13 @@ function ProfileContent({ user, refreshUser })
 
                             <div className="form-field">
 
-                                <label>Address</label>
+                                <label>{t("profile_address")}</label>
 
                                 <input
                                     name="address"
                                     value={form.address}
                                     onChange={handleFormChange}
-                                    placeholder="Your address"
+                                    placeholder={t("profile_address_placeholder")}
                                 />
 
                             </div>
@@ -436,7 +448,7 @@ function ProfileContent({ user, refreshUser })
 
                             <div className="form-field">
 
-                                <label>Language</label>
+                                <label>{t("profile_language")}</label>
 
                                 <select
                                     name="preferredLanguage"
@@ -470,11 +482,11 @@ function ProfileContent({ user, refreshUser })
                                     onClick={() => setEditing(false)}
                                     disabled={savingProfile}
                                 >
-                                    Cancel
+                                    {t("common_cancel")}
                                 </button>
 
                                 <button type="submit" className="btn btn-primary btn-sm" disabled={savingProfile}>
-                                    {savingProfile ? "Saving..." : "Save Changes"}
+                                    {savingProfile ? t("profile_saving") : t("profile_save_changes")}
                                 </button>
 
                             </div>
@@ -492,7 +504,7 @@ function ProfileContent({ user, refreshUser })
 
                     <div className="card-header">
 
-                        <h3>Security</h3>
+                        <h3>{t("profile_security")}</h3>
 
                         {!showPasswordForm && (
                             <button
@@ -502,7 +514,7 @@ function ProfileContent({ user, refreshUser })
                                     setShowPasswordForm(true);
                                 }}
                             >
-                                Change Password
+                                {t("profile_change_password")}
                             </button>
                         )}
 
@@ -512,7 +524,7 @@ function ProfileContent({ user, refreshUser })
                     {!showPasswordForm && (
 
                         <p className="security-hint">
-                            Keep your account secure with a strong, unique password.
+                            {t("profile_security_hint")}
                         </p>
 
                     )}
@@ -533,7 +545,7 @@ function ProfileContent({ user, refreshUser })
 
                             <div className="form-field">
 
-                                <label>Current Password</label>
+                                <label>{t("profile_current_password")}</label>
 
                                 <input
                                     type="password"
@@ -548,7 +560,7 @@ function ProfileContent({ user, refreshUser })
 
                             <div className="form-field">
 
-                                <label>New Password</label>
+                                <label>{t("profile_new_password")}</label>
 
                                 <input
                                     type="password"
@@ -564,7 +576,7 @@ function ProfileContent({ user, refreshUser })
 
                             <div className="form-field">
 
-                                <label>Confirm New Password</label>
+                                <label>{t("profile_confirm_password")}</label>
 
                                 <input
                                     type="password"
@@ -595,11 +607,11 @@ function ProfileContent({ user, refreshUser })
                                     onClick={() => setShowPasswordForm(false)}
                                     disabled={savingPassword}
                                 >
-                                    Cancel
+                                    {t("common_cancel")}
                                 </button>
 
                                 <button type="submit" className="btn btn-primary btn-sm" disabled={savingPassword}>
-                                    {savingPassword ? "Updating..." : "Update Password"}
+                                    {savingPassword ? t("profile_updating") : t("profile_update_password")}
                                 </button>
 
                             </div>

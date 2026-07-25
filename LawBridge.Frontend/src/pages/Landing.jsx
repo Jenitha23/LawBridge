@@ -8,12 +8,22 @@ import stepAskIcon from "../assets/step-ask.png";
 import stepSearchIcon from "../assets/step-search.png";
 import stepAiIcon from "../assets/step-ai.png";
 import stepChecklistIcon from "../assets/step-checklist.png";
+import { useLanguage } from "../context/LanguageContext";
+
+
+const LANGUAGE_PILLS = [
+    { label: "සිංහල", value: "Sinhala" },
+    { label: "தமிழ்", value: "Tamil" },
+    { label: "English", value: "English" }
+];
 
 
 function Landing()
 {
 
     const navigate = useNavigate();
+
+    const { language, setLanguage, t } = useLanguage();
 
 
     return (
@@ -29,19 +39,19 @@ function Landing()
                     </div>
 
                     <nav className="nav-links">
-                        <a className="active">Home</a>
-                        <a href="#about">About</a>
-                        <a href="#how-it-works">How It Works</a>
-                        <a href="#features">Legal Topics</a>
-                        <a href="#contact">Contact</a>
+                        <a className="active">{t("landing_nav_home")}</a>
+                        <a href="#about">{t("landing_nav_about")}</a>
+                        <a href="#how-it-works">{t("landing_nav_how")}</a>
+                        <a href="#features">{t("landing_nav_topics")}</a>
+                        <a href="#contact">{t("landing_nav_contact")}</a>
                     </nav>
 
                     <div className="nav-actions">
                         <button className="btn btn-outline" onClick={() => navigate("/login")}>
-                            Log In
+                            {t("landing_login")}
                         </button>
                         <button className="btn btn-primary" onClick={() => navigate("/register")}>
-                            Get Started
+                            {t("landing_get_started")}
                         </button>
                     </div>
 
@@ -54,27 +64,35 @@ function Landing()
 
                     <div className="hero-content">
                         <h1>
-                            Your Rights.<br/>
-                            Your Voice.<br/>
-                            <span className="accent">Our Support.</span>
+                            {t("landing_hero_line1")}<br/>
+                            {t("landing_hero_line2")}<br/>
+                            <span className="accent">{t("landing_hero_accent")}</span>
                         </h1>
 
                         <p className="hero-sub">
-                            AI-powered legal awareness and first-step guidance in Sinhala, Tamil, and English.
+                            {t("landing_hero_sub")}
                         </p>
 
                         <div className="lang-pills">
-                            <span className="pill">සිංහල</span>
-                            <span className="pill">தமிழ்</span>
-                            <span className="pill">English</span>
+                            {LANGUAGE_PILLS.map((lp) => (
+                                <button
+                                    key={lp.value}
+                                    type="button"
+                                    className={`pill ${language === lp.value ? "active" : ""}`}
+                                    onClick={() => setLanguage(lp.value)}
+                                    aria-pressed={language === lp.value}
+                                >
+                                    {lp.label}
+                                </button>
+                            ))}
                         </div>
 
                         <div className="hero-actions">
                             <button className="btn btn-primary btn-lg" onClick={() => navigate("/register")}>
-                                Get Started
+                                {t("landing_get_started")}
                             </button>
                             <button className="btn btn-secondary btn-lg" onClick={() => navigate("/login")}>
-                                Learn More
+                                {t("landing_learn_more")}
                             </button>
                         </div>
                     </div>
@@ -94,8 +112,8 @@ function Landing()
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M20 12v9H4v-9M2 7h20v5H2V7zM12 22V7M12 7H7.5a2.5 2.5 0 1 1 0-5C11 2 12 7 12 7zM12 7h4.5a2.5 2.5 0 1 0 0-5C13 2 12 7 12 7z" stroke="#4F32C4" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/></svg>
                     </div>
                     <div>
-                        <h4>Free</h4>
-                        <p>Always free to use</p>
+                        <h4>{t("landing_trust_free_title")}</h4>
+                        <p>{t("landing_trust_free_desc")}</p>
                     </div>
                 </div>
 
@@ -104,7 +122,7 @@ function Landing()
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="#4F32C4" strokeWidth="1.6"/><path d="M2 12h20M12 2a15 15 0 0 1 0 20 15 15 0 0 1 0-20z" stroke="#4F32C4" strokeWidth="1.6"/></svg>
                     </div>
                     <div>
-                        <h4>Multilingual</h4>
+                        <h4>{t("landing_trust_multilingual_title")}</h4>
                         <p>සිංහල | தமிழ் | English</p>
                     </div>
                 </div>
@@ -114,8 +132,8 @@ function Landing()
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 2 4 5v6c0 5 3.4 9 8 11 4.6-2 8-6 8-11V5l-8-3z" stroke="#4F32C4" strokeWidth="1.6" strokeLinejoin="round"/><path d="m9.5 12 1.8 1.8L15 10" stroke="#4F32C4" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/></svg>
                     </div>
                     <div>
-                        <h4>Trusted Info</h4>
-                        <p>Based on Sri Lankan laws</p>
+                        <h4>{t("landing_trust_reliable_title")}</h4>
+                        <p>{t("landing_trust_reliable_desc")}</p>
                     </div>
                 </div>
 
@@ -124,8 +142,8 @@ function Landing()
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="5" y="11" width="14" height="9" rx="2" stroke="#4F32C4" strokeWidth="1.6"/><path d="M8 11V7a4 4 0 0 1 8 0v4" stroke="#4F32C4" strokeWidth="1.6" strokeLinecap="round"/></svg>
                     </div>
                     <div>
-                        <h4>Your Privacy</h4>
-                        <p>We protect your data</p>
+                        <h4>{t("landing_trust_privacy_title")}</h4>
+                        <p>{t("landing_trust_privacy_desc")}</p>
                     </div>
                 </div>
             </div>
@@ -143,27 +161,18 @@ function Landing()
 
                     <div className="about-content">
                         <h2 className="align-left">
-                            About <span className="accent">LawBridge</span>
+                            {t("landing_about_title")} <span className="accent">LawBridge</span>
                         </h2>
                         <p className="about-lead">
-                            Empowering every Sri Lankan with accessible legal knowledge.
+                            {t("landing_about_lead")}
                         </p>
 
                         <p>
-                            LawBridge is an AI-powered legal awareness platform designed to help
-                            people understand their legal rights in simple language. Many
-                            individuals struggle to access reliable legal information because
-                            legal documents are often complex and difficult to understand.
-                            LawBridge bridges this gap by providing first-step legal guidance
-                            using Artificial Intelligence and Retrieval-Augmented Generation (RAG).
+                            {t("landing_about_p1")}
                         </p>
 
                         <p>
-                            The platform supports Sinhala, Tamil, and English, making legal
-                            information more accessible to everyone in Sri Lanka. While LawBridge
-                            does not replace professional legal advice, it helps users understand
-                            their rights, relevant laws, and possible next steps before consulting
-                            a lawyer.
+                            {t("landing_about_p2")}
                         </p>
                     </div>
 
@@ -174,8 +183,8 @@ function Landing()
                                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="#4F32C4" strokeWidth="1.6"/><path d="M12 8v4l3 2" stroke="#4F32C4" strokeWidth="1.6" strokeLinecap="round"/></svg>
                             </div>
                             <div>
-                                <h4>AI Legal Assistant</h4>
-                                <p>Receive instant answers to common legal questions.</p>
+                                <h4>{t("landing_about_point1_title")}</h4>
+                                <p>{t("landing_about_point1_desc")}</p>
                             </div>
                         </div>
 
@@ -184,8 +193,8 @@ function Landing()
                                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 3 3 7v4c0 5.2 3.6 9.4 9 10 5.4-.6 9-4.8 9-10V7l-9-4z" stroke="#4F32C4" strokeWidth="1.6" strokeLinejoin="round"/></svg>
                             </div>
                             <div>
-                                <h4>Multilingual Support</h4>
-                                <p>Get legal guidance in Sinhala, Tamil, and English.</p>
+                                <h4>{t("landing_about_point2_title")}</h4>
+                                <p>{t("landing_about_point2_desc")}</p>
                             </div>
                         </div>
 
@@ -194,8 +203,8 @@ function Landing()
                                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="3" stroke="#4F32C4" strokeWidth="1.6"/><path d="M12 3v3M12 18v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M3 12h3M18 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1" stroke="#4F32C4" strokeWidth="1.6" strokeLinecap="round"/></svg>
                             </div>
                             <div>
-                                <h4>Reliable Legal Sources</h4>
-                                <p>Answers are generated using verified Sri Lankan legal documents.</p>
+                                <h4>{t("landing_about_point3_title")}</h4>
+                                <p>{t("landing_about_point3_desc")}</p>
                             </div>
                         </div>
 
@@ -204,8 +213,8 @@ function Landing()
                                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="5" y="11" width="14" height="9" rx="2" stroke="#4F32C4" strokeWidth="1.6"/><path d="M8 11V7a4 4 0 0 1 8 0v4" stroke="#4F32C4" strokeWidth="1.6" strokeLinecap="round"/></svg>
                             </div>
                             <div>
-                                <h4>Secure &amp; Private</h4>
-                                <p>Your conversations are securely stored and protected.</p>
+                                <h4>{t("landing_about_point4_title")}</h4>
+                                <p>{t("landing_about_point4_desc")}</p>
                             </div>
                         </div>
 
@@ -220,7 +229,7 @@ function Landing()
             <section className="section how-section" id="how-it-works">
 
                 <h2>
-                    How <span className="accent">LawBridge</span> Works
+                    {t("landing_how_title_pre")} <span className="accent">LawBridge</span> {t("landing_how_title_suffix")}
                 </h2>
 
                 <div className="steps-row">
@@ -230,9 +239,9 @@ function Landing()
                         <div className="step-icon">
                             <img src={stepAskIcon} alt="" />
                         </div>
-                        <h4>Ask Your Question</h4>
-                        <p>Type your legal question in Sinhala, Tamil, or English.</p>
-                        <p className="step-example">Example: My employer did not pay my salary. What should I do?</p>
+                        <h4>{t("landing_step1_title")}</h4>
+                        <p>{t("landing_step1_desc")}</p>
+                        <p className="step-example">{t("landing_step1_example")}</p>
                     </div>
 
                     <div className="step-arrow">&rarr;</div>
@@ -242,8 +251,8 @@ function Landing()
                         <div className="step-icon">
                             <img src={stepSearchIcon} alt="" />
                         </div>
-                        <h4>AI Searches Legal Knowledge</h4>
-                        <p>LawBridge searches its legal knowledge base to find the most relevant Sri Lankan laws and regulations related to your question.</p>
+                        <h4>{t("landing_step2_title")}</h4>
+                        <p>{t("landing_step2_desc")}</p>
                     </div>
 
                     <div className="step-arrow">&rarr;</div>
@@ -253,8 +262,8 @@ function Landing()
                         <div className="step-icon">
                             <img src={stepAiIcon} alt="" />
                         </div>
-                        <h4>AI Generates an Answer</h4>
-                        <p>Using the retrieved legal information, the AI generates a clear and easy-to-understand explanation.</p>
+                        <h4>{t("landing_step3_title")}</h4>
+                        <p>{t("landing_step3_desc")}</p>
                     </div>
 
                     <div className="step-arrow">&rarr;</div>
@@ -264,14 +273,14 @@ function Landing()
                         <div className="step-icon">
                             <img src={stepChecklistIcon} alt="" />
                         </div>
-                        <h4>Get Practical Guidance</h4>
-                        <p>The response includes:</p>
+                        <h4>{t("landing_step4_title")}</h4>
+                        <p>{t("landing_step4_intro")}</p>
                         <ul className="step-list">
-                            <li>Explanation</li>
-                            <li>Relevant legal information</li>
-                            <li>Possible actions</li>
-                            <li>Required documents</li>
-                            <li>When to consult a lawyer</li>
+                            <li>{t("landing_step4_item1")}</li>
+                            <li>{t("landing_step4_item2")}</li>
+                            <li>{t("landing_step4_item3")}</li>
+                            <li>{t("landing_step4_item4")}</li>
+                            <li>{t("landing_step4_item5")}</li>
                         </ul>
                     </div>
 
@@ -283,48 +292,48 @@ function Landing()
             {/* ---------- Legal Topics ---------- */}
             <section className="section topics-section">
 
-                <h2>Explore Legal Topics</h2>
+                <h2>{t("landing_topics_heading")}</h2>
 
                 <div className="topics-grid">
 
                     <div className="topic-card">
                         <svg width="26" height="26" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="5" r="2.5" stroke="#4F32C4" strokeWidth="1.6"/><path d="M4 21c1.5-5 5-7 8-7s6.5 2 8 7" stroke="#4F32C4" strokeWidth="1.6" strokeLinecap="round"/><path d="M9 12h6" stroke="#4F32C4" strokeWidth="1.6" strokeLinecap="round"/></svg>
-                        <span>Labour Law</span>
+                        <span>{t("landing_topic_labour")}</span>
                     </div>
 
                     <div className="topic-card">
                         <svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M4 11 12 4l8 7" stroke="#4F32C4" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/><path d="M6 10v10h12V10" stroke="#4F32C4" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/><path d="M10 20v-5h4v5" stroke="#4F32C4" strokeWidth="1.6"/></svg>
-                        <span>Landlord &amp; Tenant</span>
+                        <span>{t("landing_topic_tenant")}</span>
                     </div>
 
                     <div className="topic-card">
                         <svg width="26" height="26" viewBox="0 0 24 24" fill="none"><circle cx="8" cy="7" r="2.4" stroke="#4F32C4" strokeWidth="1.6"/><circle cx="16" cy="7" r="2.4" stroke="#4F32C4" strokeWidth="1.6"/><path d="M2.5 20c.8-3.3 3-5 5.5-5s4.7 1.7 5.5 5M10.5 20c.8-3.3 3-5 5.5-5s4.7 1.7 5.5 5" stroke="#4F32C4" strokeWidth="1.6" strokeLinecap="round"/></svg>
-                        <span>Family Law</span>
+                        <span>{t("landing_topic_family")}</span>
                     </div>
 
                     <div className="topic-card">
                         <svg width="26" height="26" viewBox="0 0 24 24" fill="none"><circle cx="7" cy="16" r="3" stroke="#4F32C4" strokeWidth="1.6"/><circle cx="17" cy="16" r="3" stroke="#4F32C4" strokeWidth="1.6"/><path d="M9 14l3-6 3 6M9 8h6" stroke="#4F32C4" strokeWidth="1.6" strokeLinecap="round"/></svg>
-                        <span>Criminal Law</span>
+                        <span>{t("landing_topic_criminal")}</span>
                     </div>
 
                     <div className="topic-card">
                         <svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M3 4h2l2.2 11a2 2 0 0 0 2 1.6h7a2 2 0 0 0 2-1.6L20 8H6" stroke="#4F32C4" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/><circle cx="9.5" cy="20" r="1.4" stroke="#4F32C4" strokeWidth="1.4"/><circle cx="17" cy="20" r="1.4" stroke="#4F32C4" strokeWidth="1.4"/></svg>
-                        <span>Consumer Rights</span>
+                        <span>{t("landing_topic_consumer")}</span>
                     </div>
 
                     <div className="topic-card">
                         <svg width="26" height="26" viewBox="0 0 24 24" fill="none"><rect x="4" y="8" width="16" height="11" rx="2" stroke="#4F32C4" strokeWidth="1.6"/><path d="M9 8V6a3 3 0 0 1 6 0v2" stroke="#4F32C4" strokeWidth="1.6" strokeLinecap="round"/></svg>
-                        <span>Employment</span>
+                        <span>{t("landing_topic_employment")}</span>
                     </div>
 
                     <div className="topic-card">
                         <svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M4 16 6 9a2 2 0 0 1 2-1.4h8A2 2 0 0 1 18 9l2 7" stroke="#4F32C4" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/><rect x="3" y="16" width="18" height="4" rx="1.5" stroke="#4F32C4" strokeWidth="1.6"/><circle cx="7.5" cy="20" r="1.2" stroke="#4F32C4" strokeWidth="1.4"/><circle cx="16.5" cy="20" r="1.2" stroke="#4F32C4" strokeWidth="1.4"/></svg>
-                        <span>Traffic Law</span>
+                        <span>{t("landing_topic_traffic")}</span>
                     </div>
 
                     <div className="topic-card">
                         <svg width="26" height="26" viewBox="0 0 24 24" fill="none"><circle cx="8" cy="8" r="2.6" stroke="#4F32C4" strokeWidth="1.6"/><circle cx="16" cy="8" r="2.6" stroke="#4F32C4" strokeWidth="1.6"/><path d="M2.5 19.5c.7-3 2.8-4.5 5.5-4.5s4.8 1.5 5.5 4.5M10.5 19.5c.7-3 2.8-4.5 5.5-4.5s4.8 1.5 5.5 4.5" stroke="#4F32C4" strokeWidth="1.6" strokeLinecap="round"/></svg>
-                        <span>Civil Rights</span>
+                        <span>{t("landing_topic_civil")}</span>
                     </div>
 
                 </div>
@@ -336,7 +345,7 @@ function Landing()
             <section className="why-section">
 
                 <h2>
-                    Why Choose <span className="accent">LawBridge</span>?
+                    {t("landing_why_title_pre")} <span className="accent">LawBridge</span>?
                 </h2>
 
                 <div className="why-grid">
@@ -344,40 +353,40 @@ function Landing()
                     <div className="why-item">
                         <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8z" stroke="#F5A623" strokeWidth="1.6" strokeLinejoin="round"/></svg>
                         <div>
-                            <h4>Instant Guidance</h4>
-                            <p>Get legal answers within seconds.</p>
+                            <h4>{t("landing_why_1_title")}</h4>
+                            <p>{t("landing_why_1_desc")}</p>
                         </div>
                     </div>
 
                     <div className="why-item">
                         <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="#4F32C4" strokeWidth="1.6"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18 14 14 0 0 1 0-18z" stroke="#4F32C4" strokeWidth="1.6"/></svg>
                         <div>
-                            <h4>Multilingual</h4>
-                            <p>Available in Sinhala, Tamil, and English.</p>
+                            <h4>{t("landing_why_2_title")}</h4>
+                            <p>{t("landing_why_2_desc")}</p>
                         </div>
                     </div>
 
                     <div className="why-item">
                         <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M4 5v13a2 2 0 0 0 2 2h4V5H4z" stroke="#4F32C4" strokeWidth="1.6" strokeLinejoin="round"/><path d="M20 5v13a2 2 0 0 1-2 2h-4V5h6z" stroke="#4F32C4" strokeWidth="1.6" strokeLinejoin="round"/></svg>
                         <div>
-                            <h4>Based on Sri Lankan Laws</h4>
-                            <p>Answers are generated using relevant legal documents.</p>
+                            <h4>{t("landing_why_3_title")}</h4>
+                            <p>{t("landing_why_3_desc")}</p>
                         </div>
                     </div>
 
                     <div className="why-item">
                         <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M12 2 4 5v6c0 5 3.4 9 8 11 4.6-2 8-6 8-11V5l-8-3z" stroke="#4F32C4" strokeWidth="1.6" strokeLinejoin="round"/><path d="m9.5 12 1.8 1.8L15 10" stroke="#4F32C4" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/></svg>
                         <div>
-                            <h4>Secure</h4>
-                            <p>User accounts and conversations are securely protected.</p>
+                            <h4>{t("landing_why_4_title")}</h4>
+                            <p>{t("landing_why_4_desc")}</p>
                         </div>
                     </div>
 
                     <div className="why-item">
                         <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="8" stroke="#4F32C4" strokeWidth="1.6"/><circle cx="12" cy="12" r="4" stroke="#4F32C4" strokeWidth="1.6"/><circle cx="12" cy="12" r="1" fill="#4F32C4"/></svg>
                         <div>
-                            <h4>Easy to Understand</h4>
-                            <p>Legal information is simplified into plain language.</p>
+                            <h4>{t("landing_why_5_title")}</h4>
+                            <p>{t("landing_why_5_desc")}</p>
                         </div>
                     </div>
 
@@ -392,8 +401,8 @@ function Landing()
                 <div className="contact-grid">
 
                     <div className="contact-info">
-                        <h2 className="align-left">Contact Us</h2>
-                        <p>Have questions or feedback? We'd love to hear from you.</p>
+                        <h2 className="align-left">{t("landing_contact_heading")}</h2>
+                        <p>{t("landing_contact_sub")}</p>
 
                         <div className="contact-line">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><rect x="3" y="5" width="18" height="14" rx="2" stroke="#4F32C4" strokeWidth="1.6"/><path d="m4 7 8 6 8-6" stroke="#4F32C4" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/></svg>
@@ -413,12 +422,12 @@ function Landing()
 
                     <form className="contact-form" onSubmit={(e) => e.preventDefault()}>
                         <div className="form-row">
-                            <input type="text" placeholder="Your Name" />
-                            <input type="email" placeholder="Email Address" />
+                            <input type="text" placeholder={t("landing_contact_name_placeholder")} />
+                            <input type="email" placeholder={t("landing_contact_email_placeholder")} />
                         </div>
-                        <input type="text" placeholder="Subject" />
-                        <textarea rows="4" placeholder="Message" />
-                        <button type="submit" className="btn btn-primary">Send Message</button>
+                        <input type="text" placeholder={t("landing_contact_subject_placeholder")} />
+                        <textarea rows="4" placeholder={t("landing_contact_message_placeholder")} />
+                        <button type="submit" className="btn btn-primary">{t("landing_contact_send")}</button>
                     </form>
 
                     <div
@@ -434,38 +443,38 @@ function Landing()
             {/* ---------- FAQ ---------- */}
             <section className="section faq-section">
 
-                <h2>Frequently Asked Questions</h2>
+                <h2>{t("landing_faq_heading")}</h2>
 
                 <div className="faq-grid">
 
                     <details className="faq-item">
-                        <summary>Is LawBridge free to use?<span className="chevron">&#9662;</span></summary>
-                        <p>Yes, LawBridge is completely free for everyone to use.</p>
+                        <summary>{t("landing_faq_q1")}<span className="chevron">&#9662;</span></summary>
+                        <p>{t("landing_faq_a1")}</p>
                     </details>
 
                     <details className="faq-item">
-                        <summary>Can I upload legal documents?<span className="chevron">&#9662;</span></summary>
-                        <p>Document upload and explanation support is being added to LawBridge.</p>
+                        <summary>{t("landing_faq_q2")}<span className="chevron">&#9662;</span></summary>
+                        <p>{t("landing_faq_a2")}</p>
                     </details>
 
                     <details className="faq-item">
-                        <summary>Does LawBridge replace a lawyer?<span className="chevron">&#9662;</span></summary>
-                        <p>No, LawBridge provides first-step guidance and does not replace professional legal advice.</p>
+                        <summary>{t("landing_faq_q3")}<span className="chevron">&#9662;</span></summary>
+                        <p>{t("landing_faq_a3")}</p>
                     </details>
 
                     <details className="faq-item">
-                        <summary>Are my chats private?<span className="chevron">&#9662;</span></summary>
-                        <p>Yes, your conversations are securely stored and protected.</p>
+                        <summary>{t("landing_faq_q4")}<span className="chevron">&#9662;</span></summary>
+                        <p>{t("landing_faq_a4")}</p>
                     </details>
 
                     <details className="faq-item">
-                        <summary>What languages are supported?<span className="chevron">&#9662;</span></summary>
-                        <p>LawBridge supports Sinhala, Tamil, and English.</p>
+                        <summary>{t("landing_faq_q5")}<span className="chevron">&#9662;</span></summary>
+                        <p>{t("landing_faq_a5")}</p>
                     </details>
 
                     <details className="faq-item">
-                        <summary>What if I need more help?<span className="chevron">&#9662;</span></summary>
-                        <p>You can reach our team anytime through the contact form above.</p>
+                        <summary>{t("landing_faq_q6")}<span className="chevron">&#9662;</span></summary>
+                        <p>{t("landing_faq_a6")}</p>
                     </details>
 
                 </div>
@@ -482,7 +491,7 @@ function Landing()
                             <img src={logo} alt="LawBridge logo" className="brand-logo" />
                             <span>LawBridge</span>
                         </div>
-                        <p>AI-powered legal awareness platform for everyone in Sri Lanka.</p>
+                        <p>{t("landing_footer_tagline")}</p>
                         <div className="social-icons">
                             <a href="#" aria-label="Facebook"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M15 8h2V5h-2a4 4 0 0 0-4 4v2H9v3h2v7h3v-7h2.5l.5-3H14v-2a1 1 0 0 1 1-1z" stroke="white" strokeWidth="1.3" strokeLinejoin="round"/></svg></a>
                             <a href="#" aria-label="Twitter"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M4 4l16 16M20 4 4 20" stroke="white" strokeWidth="1.5" strokeLinecap="round"/></svg></a>
@@ -492,22 +501,22 @@ function Landing()
                     </div>
 
                     <div className="footer-col">
-                        <h5>Quick Links</h5>
-                        <a>Home</a>
-                        <a href="#about">About</a>
-                        <a href="#how-it-works">How It Works</a>
-                        <a href="#features">Legal Topics</a>
-                        <a href="#contact">Contact</a>
+                        <h5>{t("landing_footer_quick_links")}</h5>
+                        <a>{t("landing_nav_home")}</a>
+                        <a href="#about">{t("landing_nav_about")}</a>
+                        <a href="#how-it-works">{t("landing_nav_how")}</a>
+                        <a href="#features">{t("landing_nav_topics")}</a>
+                        <a href="#contact">{t("landing_nav_contact")}</a>
                     </div>
 
                     <div className="footer-col">
-                        <h5>Resources</h5>
-                        <a>Privacy Policy</a>
-                        <a>Terms &amp; Conditions</a>
+                        <h5>{t("landing_footer_resources")}</h5>
+                        <a>{t("landing_footer_privacy")}</a>
+                        <a>{t("landing_footer_terms")}</a>
                     </div>
 
                     <div className="footer-col">
-                        <h5>Contact</h5>
+                        <h5>{t("landing_footer_contact")}</h5>
                         <span>support@lawbridge.lk</span>
                         <span>+94 71 XXX XXXX</span>
                         <span>Colombo, Sri Lanka</span>
@@ -516,7 +525,7 @@ function Landing()
                 </div>
 
                 <div className="footer-bottom">
-                    &copy; 2026 LawBridge. All Rights Reserved.
+                    {t("landing_footer_copyright")}
                 </div>
             </footer>
 

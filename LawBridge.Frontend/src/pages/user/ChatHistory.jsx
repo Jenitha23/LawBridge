@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import DashboardLayout from "../../layouts/DashboardLayout";
 import { getChatHistory, deleteChat } from "../../services/chatService";
+import { useLanguage } from "../../context/LanguageContext";
 import "./ChatHistory.css";
 
 
@@ -19,6 +20,8 @@ function ChatHistory()
 {
 
     const navigate = useNavigate();
+
+    const { t } = useLanguage();
 
     const [history, setHistory] = useState([]);
 
@@ -38,7 +41,7 @@ function ChatHistory()
             {
                 setError(
                     err.response?.data?.message ||
-                    "Could not load your chat history."
+                    t("chat_history_could_not_load")
                 );
             })
             .finally(() => setLoading(false));
@@ -51,7 +54,7 @@ function ChatHistory()
 
         e.stopPropagation();
 
-        if (!window.confirm("Delete this conversation? This can't be undone.")) return;
+        if (!window.confirm(t("chat_history_delete_confirm"))) return;
 
         setDeletingId(id);
 
@@ -65,7 +68,7 @@ function ChatHistory()
         {
             setError(
                 err.response?.data?.message ||
-                "Could not delete this conversation."
+                t("chat_history_could_not_delete")
             );
         }
         finally
@@ -78,15 +81,15 @@ function ChatHistory()
 
     return (
 
-        <DashboardLayout title="My Chats">
+        <DashboardLayout title={t("nav_my_chats")}>
 
             {() => (
 
                 <section className="chat-history-panel">
 
                     <div className="chat-history-header">
-                        <h3>Past Questions</h3>
-                        <button onClick={() => navigate("/dashboard?new=1")}>+ New Chat</button>
+                        <h3>{t("chat_history_past_questions")}</h3>
+                        <button onClick={() => navigate("/dashboard?new=1")}>+ {t("nav_new_chat")}</button>
                     </div>
 
 
@@ -95,13 +98,13 @@ function ChatHistory()
 
                     {loading ? (
 
-                        <p className="chat-muted">Loading…</p>
+                        <p className="chat-muted">{t("common_loading")}</p>
 
                     ) : history.length === 0 ? (
 
                         <div className="chat-history-empty">
-                            <p>You haven't asked any questions yet.</p>
-                            <button onClick={() => navigate("/dashboard?new=1")}>Ask your first question</button>
+                            <p>{t("chat_history_empty")}</p>
+                            <button onClick={() => navigate("/dashboard?new=1")}>{t("chat_history_ask_first")}</button>
                         </div>
 
                     ) : (
@@ -132,7 +135,7 @@ function ChatHistory()
                                             className="chat-history-delete"
                                             onClick={(e) => handleDelete(e, h.id)}
                                             disabled={deletingId === h.id}
-                                            title="Delete conversation"
+                                            title={t("chat_history_delete_title")}
                                         >
                                             ✕
                                         </button>
