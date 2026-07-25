@@ -19,6 +19,14 @@ public interface IChatRepository
     Task<ChatMessage?> GetByIdForUser(int id, int userId);
 
 
+    // All turns in one thread, oldest first — the full chat view.
+    Task<List<ChatMessage>> GetByConversation(Guid conversationId, int userId);
+
+
+    // Deletes every turn belonging to one thread ("My Chats" delete).
+    Task DeleteConversation(Guid conversationId, int userId);
+
+
     Task Update(ChatMessage message);
 
 

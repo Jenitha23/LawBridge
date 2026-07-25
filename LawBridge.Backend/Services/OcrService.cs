@@ -25,13 +25,22 @@ public class OcrService
     public async Task<string> ExtractTextFromImage(string imagePath, string language = "English")
     {
 
+        // `language` here is the language the person wants their AI
+        // EXPLANATION in — not necessarily the script the document itself
+        // is written in (an English notice can still be explained in
+        // Sinhala). Using it to pick the OCR trained-data pack was wrong:
+        // it made Tesseract try to read English text with Sinhala/Tamil
+        // recognition (or vice versa) whenever they didn't match, producing
+        // garbled extracted text. OCR must read whatever script is actually
+        // on the page, so it always runs with all bundled scripts combined
+        // — Tesseract picks the best match per line regardless of which
+        // language the explanation will be translated into afterward.
+
         return await Task.Run(() =>
         {
 
-            var tesseractLang = ToTesseractLanguageCode(language);
-
             using var engine =
-                new TesseractEngine(_tessDataPath, tesseractLang, EngineMode.Default);
+                new TesseractEngine(_tessDataPath, "eng+sin+tam", EngineMode.Default);
 
             using var img =
                 Pix.LoadFromFile(imagePath);
@@ -45,21 +54,5 @@ public class OcrService
 
     }
 
-
-
-    private static string ToTesseractLanguageCode(string language)
-    {
-
-        // Falls back to English if a trained-data file for the requested
-        // script isn't bundled — better a readable-but-wrong-language OCR
-        // pass than a hard failure.
-        return language.Trim().ToLowerInvariant() switch
-        {
-            "sinhala" => "sin",
-            "tamil" => "tam",
-            _ => "eng"
-        };
-
-    }
 
 }

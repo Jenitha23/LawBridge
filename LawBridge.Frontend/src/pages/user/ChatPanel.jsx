@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { askQuestion, getChatDetail, getChatHistory, setChatSaved } from "../../services/chatService";
+import { askQuestion, getConversation, getChatHistory, setChatSaved } from "../../services/chatService";
 import { useLanguage } from "../../context/LanguageContext";
 import chatLogo from "../../assets/logo.png";
 import "./ChatPanel.css";
@@ -190,6 +190,8 @@ function ChatPanel({ historyId, user })
 
     const [messages, setMessages] = useState([]);
 
+    const [conversationId, setConversationId] = useState(historyId || null);
+
     const [question, setQuestion] = useState("");
 
     const [answerLanguage, setAnswerLanguage] = useState("English");
@@ -206,6 +208,11 @@ function ChatPanel({ historyId, user })
 
     const bottomRef = useRef(null);
 
+    // When we update the URL ourselves (after the first answer of a new
+    // chat) the historyId prop changes and would otherwise trigger a
+    // refetch of messages we already have locally — this skips that one.
+    const skipNextHistoryLoad = useRef(false);
+
     const firstName = user?.name?.split(" ")[0] || "there";
 
 
@@ -214,7 +221,21 @@ function ChatPanel({ historyId, user })
 
         if (!historyId)
         {
+            // New chat: start a fresh thread id so every question asked in
+            // this session gets grouped together as one conversation.
             setMessages([]);
+
+            setConversationId(crypto.randomUUID());
+
+            setLoadingHistory(false);
+
+            return;
+        }
+
+
+        if (skipNextHistoryLoad.current)
+        {
+            skipNextHistoryLoad.current = false;
 
             setLoadingHistory(false);
 
@@ -228,15 +249,21 @@ function ChatPanel({ historyId, user })
 
         setError("");
 
+        setConversationId(historyId);
 
-        getChatDetail(historyId)
-            .then((detail) =>
+
+        getConversation(historyId)
+            .then((thread) =>
             {
                 if (cancelled) return;
 
-                setMessages([{ question: detail.question, answer: detail, askedAt: detail.createdAt }]);
+                setMessages(
+                    thread.map((turn) => ({ question: turn.question, answer: turn, askedAt: turn.createdAt }))
+                );
 
-                setAnswerLanguage(detail.language || "English");
+                const lastTurn = thread[thread.length - 1];
+
+                setAnswerLanguage(lastTurn?.language || "English");
             })
             .catch((err) =>
             {
@@ -313,15 +340,23 @@ function ChatPanel({ historyId, user })
 
         try
         {
-            // Send a short window of prior answered turns so the assistant
-            // can follow up naturally instead of treating every message
-            // as a brand-new, unrelated question.
+            // Send a short window of prior turns so the assistant can follow
+            // up naturally instead of treating every message as brand-new.
+            // Clarification turns are included too (as the clarifying
+            // question that was asked) — otherwise a multi-round
+            // clarification exchange loses all its own context and the
+            // model re-asks instead of using what it already learned.
             const conversationHistory = messages
-                .filter((m) => m.answer && !m.answer.needsClarification)
+                .filter((m) => m.answer)
                 .slice(-HISTORY_WINDOW)
-                .map((m) => ({ question: m.question, explanation: m.answer.explanation }));
+                .map((m) => ({
+                    question: m.question,
+                    explanation: m.answer.needsClarification
+                        ? `(I asked a clarifying question: "${m.answer.clarifyingQuestion}")`
+                        : m.answer.explanation
+                }));
 
-            const answer = await askQuestion(q, answerLanguage, conversationHistory);
+            const answer = await askQuestion(q, answerLanguage, conversationHistory, conversationId);
 
             setMessages((prev) =>
             {
@@ -331,6 +366,16 @@ function ChatPanel({ historyId, user })
 
                 return next;
             });
+
+            // First question of a new chat: put its thread id in the URL so
+            // refreshing the page (or coming back later) reopens the same
+            // conversation instead of starting a new one.
+            if (!historyId && answer?.conversationId)
+            {
+                skipNextHistoryLoad.current = true;
+
+                navigate(`/dashboard?id=${answer.conversationId}`, { replace: true });
+            }
         }
         catch (err)
         {

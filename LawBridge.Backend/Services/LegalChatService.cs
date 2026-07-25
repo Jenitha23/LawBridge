@@ -42,6 +42,14 @@ public class LegalChatService
     public async Task<ChatAnswerDto> Ask(int userId, AskQuestionDto dto)
     {
 
+        // Reuse the thread's id if this is a follow-up in the same
+        // on-screen chat; otherwise this is a new chat, so start one.
+        var conversationId =
+            dto.ConversationId.HasValue && dto.ConversationId.Value != Guid.Empty
+                ? dto.ConversationId.Value
+                : Guid.NewGuid();
+
+
         // ---- 1. Classify the question into a known legal category first ----
         //
         // This narrows retrieval to documents in that category, so the
@@ -114,12 +122,36 @@ public class LegalChatService
         // narrower step (translation-only tasks are more reliable for small
         // models than combined reasoning + generation).
 
-        var prompt = BuildPrompt(dto.Question, contextText, dto.History);
+        // Once the conversation already has a couple of exchanges, force an
+        // answer instead of allowing another clarifying question — this is
+        // the hard stop against the model clarifying indefinitely. (The
+        // prompt itself also gets a matching instruction below.)
+        var historyRounds = dto.History?.Count ?? 0;
+        var mustAnswerNow = historyRounds >= 2;
+
+        var prompt = BuildPrompt(dto.Question, contextText, dto.History, mustAnswerNow);
 
         var rawResponse =
             await _aiChatService.Generate(prompt);
 
         var englishAnswer = ParseAnswer(rawResponse);
+
+        if (mustAnswerNow && englishAnswer.NeedsClarification)
+        {
+            // Model ignored the "answer now" instruction — override rather
+            // than let the loop continue. Fall back to whatever the RAG
+            // context contains so the person still gets something useful.
+            englishAnswer.NeedsClarification = false;
+
+            if (string.IsNullOrWhiteSpace(englishAnswer.Explanation))
+            {
+                englishAnswer.Category = classifiedCategory ?? "General";
+                englishAnswer.Explanation =
+                    "Based on what you've shared so far, here's general guidance on this — for anything more specific to your exact situation, it's best to confirm with the relevant authority or a lawyer.";
+                englishAnswer.WhenToConsultLawyer =
+                    "If your situation has details not covered here, consult a qualified lawyer or the relevant government department directly.";
+            }
+        }
 
 
         // ---- 4. If the model needs more detail, ask instead of guessing ----
@@ -167,6 +199,7 @@ public class LegalChatService
             var clarifyMessage = new ChatMessage
             {
                 UserId = userId,
+                ConversationId = conversationId,
                 Question = dto.Question,
                 Language = dto.Language,
                 Category = classifiedCategory ?? string.Empty,
@@ -182,6 +215,7 @@ public class LegalChatService
             return new ChatAnswerDto
             {
                 Id = clarifyMessage.Id,
+                ConversationId = conversationId,
                 Question = dto.Question,
                 Language = dto.Language,
                 Category = classifiedCategory ?? string.Empty,
@@ -244,6 +278,7 @@ public class LegalChatService
         var message = new ChatMessage
         {
             UserId = userId,
+            ConversationId = conversationId,
             Question = dto.Question,
             Language = dto.Language,
             Category = finalAnswer.Category,
@@ -262,6 +297,7 @@ public class LegalChatService
         return new ChatAnswerDto
         {
             Id = message.Id,
+            ConversationId = conversationId,
             Question = dto.Question,
             Language = dto.Language,
             Category = finalAnswer.Category,
@@ -460,7 +496,8 @@ JSON TO TRANSLATE:
     private static string BuildPrompt(
         string question,
         string context,
-        List<ChatContextItemDto>? history
+        List<ChatContextItemDto>? history,
+        bool mustAnswerNow = false
     )
     {
 
@@ -485,6 +522,22 @@ JSON TO TRANSLATE:
         }
 
 
+        var clarificationRule = mustAnswerNow
+            ? """
+You have ALREADY asked clarifying questions earlier in this conversation
+(see PREVIOUS CONVERSATION above). Do NOT ask another clarifying question
+under any circumstances — set "needsClarification" to false and answer using
+everything discussed so far, even if some minor detail is still unknown.
+Give the best general guidance you reasonably can.
+"""
+            : """
+If the question is too vague to answer reliably — missing a key detail like
+how or when something happened — set "needsClarification" to true and put
+ONE short, specific follow-up question in "clarifyingQuestion" instead of
+guessing. Only do this when truly necessary; prefer answering when you can.
+""";
+
+
         return $$"""
 You are LawBridge, a legal awareness assistant for Sri Lankan citizens.
 You provide general legal information and first-step guidance, NOT professional legal advice.
@@ -494,10 +547,7 @@ Answer using ONLY the CONTEXT below. If the context does not clearly cover the
 question, say so honestly in the explanation and still give sensible general
 next steps (e.g. which government department or authority to contact).
 
-If the question is too vague to answer reliably — missing a key detail like
-how or when something happened — set "needsClarification" to true and put
-ONE short, specific follow-up question in "clarifyingQuestion" instead of
-guessing. Only do this when truly necessary; prefer answering when you can.
+{{clarificationRule}}
 
 Respond in English. Respond with a SINGLE JSON object and nothing else,
 using EXACTLY these keys:
