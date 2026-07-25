@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import DashboardLayout from "../../layouts/DashboardLayout";
 import { getSavedChats, setChatSaved } from "../../services/chatService";
+import { useLanguage } from "../../context/LanguageContext";
 import "./ChatHistory.css";
 
 
@@ -19,6 +20,8 @@ function SavedAnswers()
 {
 
     const navigate = useNavigate();
+
+    const { t } = useLanguage();
 
     const [saved, setSaved] = useState([]);
 
@@ -38,7 +41,7 @@ function SavedAnswers()
             {
                 setError(
                     err.response?.data?.message ||
-                    "Could not load your saved answers."
+                    t("saved_answers_could_not_load")
                 );
             })
             .finally(() => setLoading(false));
@@ -63,7 +66,7 @@ function SavedAnswers()
         {
             setError(
                 err.response?.data?.message ||
-                "Could not remove this answer."
+                t("saved_answers_could_not_remove")
             );
         }
         finally
@@ -76,15 +79,15 @@ function SavedAnswers()
 
     return (
 
-        <DashboardLayout title="Saved Answers">
+        <DashboardLayout title={t("nav_saved_answers")}>
 
             {() => (
 
                 <section className="chat-history-panel">
 
                     <div className="chat-history-header">
-                        <h3>Saved Answers</h3>
-                        <button onClick={() => navigate("/dashboard?new=1")}>+ New Chat</button>
+                        <h3>{t("nav_saved_answers")}</h3>
+                        <button onClick={() => navigate("/dashboard?new=1")}>+ {t("nav_new_chat")}</button>
                     </div>
 
 
@@ -93,13 +96,13 @@ function SavedAnswers()
 
                     {loading ? (
 
-                        <p className="chat-muted">Loading…</p>
+                        <p className="chat-muted">{t("common_loading")}</p>
 
                     ) : saved.length === 0 ? (
 
                         <div className="chat-history-empty">
-                            <p>You haven't saved any answers yet. Tap ☆ Save on an answer in chat to keep it here.</p>
-                            <button onClick={() => navigate("/dashboard?new=1")}>Ask a question</button>
+                            <p>{t("saved_answers_empty")}</p>
+                            <button onClick={() => navigate("/dashboard?new=1")}>{t("saved_answers_ask")}</button>
                         </div>
 
                     ) : (
@@ -130,7 +133,7 @@ function SavedAnswers()
                                             className="chat-history-delete"
                                             onClick={(e) => handleUnsave(e, s.id)}
                                             disabled={removingId === s.id}
-                                            title="Remove from saved"
+                                            title={t("saved_answers_remove_title")}
                                         >
                                             ✕
                                         </button>

@@ -8,6 +8,7 @@ const translations = {
     English: {
 
         // Sidebar
+        nav_home: "Home",
         nav_dashboard: "Dashboard",
         nav_new_chat: "New Chat",
         nav_my_chats: "My Chats",
@@ -202,12 +203,126 @@ const translations = {
         settings_clearing: "Clearing...",
         settings_clear_confirm: "Clear your entire chat history? This can't be undone.",
         settings_clear_success: "Your chat history has been cleared.",
-        settings_clear_failed: "Could not clear your chat history."
+        settings_clear_failed: "Could not clear your chat history.",
+        // Landing page — nav
+        landing_nav_home: "Home",
+        landing_nav_about: "About",
+        landing_nav_how: "How It Works",
+        landing_nav_topics: "Legal Topics",
+        landing_nav_contact: "Contact",
+        landing_login: "Log In",
+        landing_get_started: "Get Started",
+        landing_learn_more: "Learn More",
+
+        // Landing page — hero
+        landing_hero_line1: "Your Rights.",
+        landing_hero_line2: "Your Voice.",
+        landing_hero_accent: "Our Support.",
+        landing_hero_sub: "AI-powered legal awareness and first-step guidance in Sinhala, Tamil, and English.",
+
+        // Landing page — trust strip
+        landing_trust_free_title: "Free",
+        landing_trust_free_desc: "Always free to use",
+        landing_trust_multilingual_title: "Multilingual",
+        landing_trust_reliable_title: "Trusted Info",
+        landing_trust_reliable_desc: "Based on Sri Lankan laws",
+        landing_trust_privacy_title: "Your Privacy",
+        landing_trust_privacy_desc: "We protect your data",
+
+        // Landing page — about
+        landing_about_title: "About",
+        landing_about_lead: "Empowering every Sri Lankan with accessible legal knowledge.",
+        landing_about_p1: "LawBridge is an AI-powered legal awareness platform designed to help people understand their legal rights in simple language. Many individuals struggle to access reliable legal information because legal documents are often complex and difficult to understand. LawBridge bridges this gap by providing first-step legal guidance using Artificial Intelligence and Retrieval-Augmented Generation (RAG).",
+        landing_about_p2: "The platform supports Sinhala, Tamil, and English, making legal information more accessible to everyone in Sri Lanka. While LawBridge does not replace professional legal advice, it helps users understand their rights, relevant laws, and possible next steps before consulting a lawyer.",
+        landing_about_point1_title: "AI Legal Assistant",
+        landing_about_point1_desc: "Receive instant answers to common legal questions.",
+        landing_about_point2_title: "Multilingual Support",
+        landing_about_point2_desc: "Get legal guidance in Sinhala, Tamil, and English.",
+        landing_about_point3_title: "Reliable Legal Sources",
+        landing_about_point3_desc: "Answers are generated using verified Sri Lankan legal documents.",
+        landing_about_point4_title: "Secure & Private",
+        landing_about_point4_desc: "Your conversations are securely stored and protected.",
+
+        // Landing page — how it works
+        landing_how_title_pre: "How",
+        landing_how_title_suffix: "Works",
+        landing_step1_title: "Ask Your Question",
+        landing_step1_desc: "Type your legal question in Sinhala, Tamil, or English.",
+        landing_step1_example: "Example: My employer did not pay my salary. What should I do?",
+        landing_step2_title: "AI Searches Legal Knowledge",
+        landing_step2_desc: "LawBridge searches its legal knowledge base to find the most relevant Sri Lankan laws and regulations related to your question.",
+        landing_step3_title: "AI Generates an Answer",
+        landing_step3_desc: "Using the retrieved legal information, the AI generates a clear and easy-to-understand explanation.",
+        landing_step4_title: "Get Practical Guidance",
+        landing_step4_intro: "The response includes:",
+        landing_step4_item1: "Explanation",
+        landing_step4_item2: "Relevant legal information",
+        landing_step4_item3: "Possible actions",
+        landing_step4_item4: "Required documents",
+        landing_step4_item5: "When to consult a lawyer",
+
+        // Landing page — topics
+        landing_topics_heading: "Explore Legal Topics",
+        landing_topic_labour: "Labour Law",
+        landing_topic_tenant: "Landlord & Tenant",
+        landing_topic_family: "Family Law",
+        landing_topic_criminal: "Criminal Law",
+        landing_topic_consumer: "Consumer Rights",
+        landing_topic_employment: "Employment",
+        landing_topic_traffic: "Traffic Law",
+        landing_topic_civil: "Civil Rights",
+
+        // Landing page — why choose
+        landing_why_title_pre: "Why Choose",
+        landing_why_1_title: "Instant Guidance",
+        landing_why_1_desc: "Get legal answers within seconds.",
+        landing_why_2_title: "Multilingual",
+        landing_why_2_desc: "Available in Sinhala, Tamil, and English.",
+        landing_why_3_title: "Based on Sri Lankan Laws",
+        landing_why_3_desc: "Answers are generated using relevant legal documents.",
+        landing_why_4_title: "Secure",
+        landing_why_4_desc: "User accounts and conversations are securely protected.",
+        landing_why_5_title: "Easy to Understand",
+        landing_why_5_desc: "Legal information is simplified into plain language.",
+
+        // Landing page — contact
+        landing_contact_heading: "Contact Us",
+        landing_contact_sub: "Have questions or feedback? We'd love to hear from you.",
+        landing_contact_name_placeholder: "Your Name",
+        landing_contact_email_placeholder: "Email Address",
+        landing_contact_subject_placeholder: "Subject",
+        landing_contact_message_placeholder: "Message",
+        landing_contact_send: "Send Message",
+
+        // Landing page — FAQ
+        landing_faq_heading: "Frequently Asked Questions",
+        landing_faq_q1: "Is LawBridge free to use?",
+        landing_faq_a1: "Yes, LawBridge is completely free for everyone to use.",
+        landing_faq_q2: "Can I upload legal documents?",
+        landing_faq_a2: "Document upload and explanation support is being added to LawBridge.",
+        landing_faq_q3: "Does LawBridge replace a lawyer?",
+        landing_faq_a3: "No, LawBridge provides first-step guidance and does not replace professional legal advice.",
+        landing_faq_q4: "Are my chats private?",
+        landing_faq_a4: "Yes, your conversations are securely stored and protected.",
+        landing_faq_q5: "What languages are supported?",
+        landing_faq_a5: "LawBridge supports Sinhala, Tamil, and English.",
+        landing_faq_q6: "What if I need more help?",
+        landing_faq_a6: "You can reach our team anytime through the contact form above.",
+
+        // Landing page — footer
+        landing_footer_tagline: "AI-powered legal awareness platform for everyone in Sri Lanka.",
+        landing_footer_quick_links: "Quick Links",
+        landing_footer_resources: "Resources",
+        landing_footer_contact: "Contact",
+        landing_footer_privacy: "Privacy Policy",
+        landing_footer_terms: "Terms & Conditions",
+        landing_footer_copyright: "© 2026 LawBridge. All Rights Reserved."
 
     },
 
     Sinhala: {
 
+        nav_home: "මුල් පිටුව",
         nav_dashboard: "උපකරණ පුවරුව",
         nav_new_chat: "නව සංවාදය",
         nav_my_chats: "මගේ සංවාද",
@@ -397,12 +512,126 @@ const translations = {
         settings_clearing: "මකමින්...",
         settings_clear_confirm: "ඔබේ සම්පූර්ණ සංවාද ඉතිහාසය මකන්නද? මෙය නැවත පෙර තත්වයට පත් කළ නොහැක.",
         settings_clear_success: "ඔබේ සංවාද ඉතිහාසය මකා දමන ලදී.",
-        settings_clear_failed: "ඔබේ සංවාද ඉතිහාසය මකා දැමිය නොහැකි විය."
+        settings_clear_failed: "ඔබේ සංවාද ඉතිහාසය මකා දැමිය නොහැකි විය.",
+        // Landing page — nav
+        landing_nav_home: "මුල් පිටුව",
+        landing_nav_about: "අප ගැන",
+        landing_nav_how: "ක්‍රියා කරන ආකාරය",
+        landing_nav_topics: "නීති විෂයයන්",
+        landing_nav_contact: "සම්බන්ධ වන්න",
+        landing_login: "පිවිසෙන්න",
+        landing_get_started: "ආරම්භ කරන්න",
+        landing_learn_more: "තව දැනගන්න",
+
+        // Landing page — hero
+        landing_hero_line1: "ඔබේ අයිතිවාසිකම්.",
+        landing_hero_line2: "ඔබේ හඬ.",
+        landing_hero_accent: "අපේ සහාය.",
+        landing_hero_sub: "සිංහල, දෙමළ සහ ඉංග්‍රීසි භාෂාවෙන් AI මගින් ලබාදෙන නීතිමය දැනුවත්කම සහ ප්‍රථම පියවර මග පෙන්වීම.",
+
+        // Landing page — trust strip
+        landing_trust_free_title: "නොමිලේ",
+        landing_trust_free_desc: "සැමවිටම නොමිලේ භාවිතා කළ හැක",
+        landing_trust_multilingual_title: "බහුභාෂා",
+        landing_trust_reliable_title: "විශ්වාසනීය තොරතුරු",
+        landing_trust_reliable_desc: "ශ්‍රී ලංකා නීතිය මත පදනම්ව",
+        landing_trust_privacy_title: "ඔබේ පෞද්ගලිකත්වය",
+        landing_trust_privacy_desc: "අපි ඔබේ දත්ත ආරක්ෂා කරමු",
+
+        // Landing page — about
+        landing_about_title: "අප ගැන",
+        landing_about_lead: "සෑම ශ්‍රී ලාංකිකයෙකුටම ලබාගත හැකි නීතිමය දැනුම ලබාදීම.",
+        landing_about_p1: "LawBridge යනු සරල භාෂාවකින් ජනතාවට තම නීතිමය අයිතිවාසිකම් තේරුම් ගැනීමට උපකාර වන AI බලගැන්වූ නීතිමය දැනුවත්කම් වේදිකාවකි. නීති ලේඛන බොහෝවිට සංකීර්ණ හා තේරුම් ගැනීමට අපහසු වන බැවින් බොහෝ අය විශ්වාසනීය නීතිමය තොරතුරු ලබාගැනීමට අපහසුතාවයට පත් වේ. කෘත්‍රිම බුද්ධිය සහ Retrieval-Augmented Generation (RAG) තාක්ෂණය භාවිතා කරමින් LawBridge මෙම පරතරය පියවයි.",
+        landing_about_p2: "මෙම වේදිකාව සිංහල, දෙමළ සහ ඉංග්‍රීසි භාෂාවලට සහාය දක්වන අතර, එමගින් ශ්‍රී ලංකාවේ සියලුදෙනාට නීතිමය තොරතුරු ලබාගැනීම පහසු කරයි. LawBridge වෘත්තීය නීති උපදෙස් වෙනුවට ආදේශ නොවුනත්, නීතිඥවරයෙකු හමුවීමට පෙර ඔබේ අයිතිවාසිකම්, අදාළ නීති සහ කළ හැකි ඊළඟ පියවර තේරුම් ගැනීමට උපකාරී වේ.",
+        landing_about_point1_title: "AI නීති සහායක",
+        landing_about_point1_desc: "සාමාන්‍ය නීතිමය ප්‍රශ්නවලට ක්ෂණික පිළිතුරු ලබාගන්න.",
+        landing_about_point2_title: "බහුභාෂා සහාය",
+        landing_about_point2_desc: "සිංහල, දෙමළ සහ ඉංග්‍රීසි භාෂාවෙන් නීතිමය මග පෙන්වීම ලබාගන්න.",
+        landing_about_point3_title: "විශ්වාසනීය නීති මූලාශ්‍ර",
+        landing_about_point3_desc: "සත්‍යාපිත ශ්‍රී ලංකා නීති ලේඛන භාවිතයෙන් පිළිතුරු ජනනය කෙරේ.",
+        landing_about_point4_title: "ආරක්ෂිත සහ පෞද්ගලික",
+        landing_about_point4_desc: "ඔබේ සංවාද ආරක්ෂිතව ගබඩා කර සුරක්ෂිත කෙරේ.",
+
+        // Landing page — how it works
+        landing_how_title_pre: "LawBridge",
+        landing_how_title_suffix: "ක්‍රියා කරන්නේ කෙසේද",
+        landing_step1_title: "ඔබේ ප්‍රශ්නය අසන්න",
+        landing_step1_desc: "සිංහල, දෙමළ හෝ ඉංග්‍රීසි භාෂාවෙන් ඔබේ නීතිමය ප්‍රශ්නය ටයිප් කරන්න.",
+        landing_step1_example: "උදාහරණය: මගේ සේවායෝජකයා මගේ වැටුප ගෙවුවේ නැත, මා කුමක් කළ යුතුද?",
+        landing_step2_title: "AI නීති දැනුම සොයයි",
+        landing_step2_desc: "ඔබේ ප්‍රශ්නයට අදාළ වඩාත් ගැළපෙන ශ්‍රී ලංකා නීති සහ රෙගුලාසි සොයා ගැනීමට LawBridge එහි නීති දැනුම් සමුදාය සොයයි.",
+        landing_step3_title: "AI පිළිතුරක් ජනනය කරයි",
+        landing_step3_desc: "ලබාගත් නීතිමය තොරතුරු භාවිතා කරමින් AI පැහැදිලි හා තේරුම්ගත හැකි පැහැදිලි කිරීමක් ජනනය කරයි.",
+        landing_step4_title: "ප්‍රායෝගික මග පෙන්වීමක් ලබාගන්න",
+        landing_step4_intro: "පිළිතුරෙහි ඇතුළත් වන්නේ:",
+        landing_step4_item1: "පැහැදිලි කිරීම",
+        landing_step4_item2: "අදාළ නීතිමය තොරතුරු",
+        landing_step4_item3: "කළ හැකි ක්‍රියාමාර්ග",
+        landing_step4_item4: "අවශ්‍ය ලේඛන",
+        landing_step4_item5: "නීතිඥයෙකු හමුවිය යුත්තේ කවදාද",
+
+        // Landing page — topics
+        landing_topics_heading: "නීති විෂයයන් ගවේෂණය කරන්න",
+        landing_topic_labour: "කම්කරු නීතිය",
+        landing_topic_tenant: "ඉඩම් හිමියා සහ කුලී නිවැසියා",
+        landing_topic_family: "පවුල් නීතිය",
+        landing_topic_criminal: "අපරාධ නීතිය",
+        landing_topic_consumer: "පාරිභෝගික අයිතිවාසිකම්",
+        landing_topic_employment: "රැකියාව",
+        landing_topic_traffic: "ගමනාගමන නීතිය",
+        landing_topic_civil: "සිවිල් අයිතිවාසිකම්",
+
+        // Landing page — why choose
+        landing_why_title_pre: "LawBridge තෝරාගත යුත්තේ ඇයි",
+        landing_why_1_title: "ක්ෂණික මග පෙන්වීම",
+        landing_why_1_desc: "තත්පර කිහිපයකින් නීතිමය පිළිතුරු ලබාගන්න.",
+        landing_why_2_title: "බහුභාෂා",
+        landing_why_2_desc: "සිංහල, දෙමළ සහ ඉංග්‍රීසි භාෂාවලින් ලබාගත හැක.",
+        landing_why_3_title: "ශ්‍රී ලංකා නීතිය මත පදනම්ව",
+        landing_why_3_desc: "අදාළ නීති ලේඛන භාවිතයෙන් පිළිතුරු ජනනය කෙරේ.",
+        landing_why_4_title: "ආරක්ෂිත",
+        landing_why_4_desc: "පරිශීලක ගිණුම් සහ සංවාද ආරක්ෂිතව ආරක්ෂා කෙරේ.",
+        landing_why_5_title: "තේරුම්ගැනීමට පහසුයි",
+        landing_why_5_desc: "නීතිමය තොරතුරු සරල භාෂාවට සරල කර ඇත.",
+
+        // Landing page — contact
+        landing_contact_heading: "අප හා සම්බන්ධ වන්න",
+        landing_contact_sub: "ප්‍රශ්න හෝ අදහස් තිබේද? ඔබෙන් අසන්නට අපි කැමතියි.",
+        landing_contact_name_placeholder: "ඔබේ නම",
+        landing_contact_email_placeholder: "විද්‍යුත් තැපැල් ලිපිනය",
+        landing_contact_subject_placeholder: "විෂය",
+        landing_contact_message_placeholder: "පණිවිඩය",
+        landing_contact_send: "පණිවිඩය යවන්න",
+
+        // Landing page — FAQ
+        landing_faq_heading: "නිතර අසන ප්‍රශ්න",
+        landing_faq_q1: "LawBridge නොමිලේ භාවිතා කළ හැකිද?",
+        landing_faq_a1: "ඔව්, LawBridge සම්පූර්ණයෙන්ම නොමිලේ සියලුදෙනාට භාවිතා කළ හැක.",
+        landing_faq_q2: "මට නීති ලේඛන උඩුගත කළ හැකිද?",
+        landing_faq_a2: "ලේඛන උඩුගත කිරීම සහ පැහැදිලි කිරීමේ සහාය LawBridge වෙත එකතු කරමින් පවතී.",
+        landing_faq_q3: "LawBridge නීතිඥයෙකුට ආදේශ වේද?",
+        landing_faq_a3: "නැත, LawBridge ප්‍රථම පියවර මග පෙන්වීමක් ලබාදෙන අතර වෘත්තීය නීති උපදෙස් වෙනුවට ආදේශ නොවේ.",
+        landing_faq_q4: "මගේ සංවාද පෞද්ගලිකද?",
+        landing_faq_a4: "ඔව්, ඔබේ සංවාද ආරක්ෂිතව ගබඩා කර සුරක්ෂිත කෙරේ.",
+        landing_faq_q5: "කුමන භාෂාවලට සහාය දක්වයිද?",
+        landing_faq_a5: "LawBridge සිංහල, දෙමළ සහ ඉංග්‍රීසි භාෂාවලට සහාය දක්වයි.",
+        landing_faq_q6: "මට තවත් උදව් අවශ්‍ය නම් කුමක් කළ යුතුද?",
+        landing_faq_a6: "ඉහත සම්බන්ධතා පෝරමය හරහා ඕනෑම වේලාවක අපගේ කණ්ඩායම හා සම්බන්ධ විය හැක.",
+
+        // Landing page — footer
+        landing_footer_tagline: "ශ්‍රී ලංකාවේ සියලුදෙනා සඳහා AI බලගැන්වූ නීතිමය දැනුවත්කම් වේදිකාව.",
+        landing_footer_quick_links: "ඉක්මන් සබැඳි",
+        landing_footer_resources: "සම්පත්",
+        landing_footer_contact: "සම්බන්ධතා",
+        landing_footer_privacy: "පෞද්ගලිකත්ව ප්‍රතිපත්තිය",
+        landing_footer_terms: "නියම සහ කොන්දේසි",
+        landing_footer_copyright: "© 2026 LawBridge. සියලු හිමිකම් ඇවිරිණි."
 
     },
 
     Tamil: {
 
+        nav_home: "முகப்பு",
         nav_dashboard: "டாஷ்போர்டு",
         nav_new_chat: "புதிய உரையாடல்",
         nav_my_chats: "எனது உரையாடல்கள்",
@@ -592,7 +821,120 @@ const translations = {
         settings_clearing: "அழிக்கிறது...",
         settings_clear_confirm: "உங்கள் முழு உரையாடல் வரலாற்றையும் அழிக்கவா? இதை மீட்டெடுக்க முடியாது.",
         settings_clear_success: "உங்கள் உரையாடல் வரலாறு அழிக்கப்பட்டது.",
-        settings_clear_failed: "உங்கள் உரையாடல் வரலாற்றை அழிக்க முடியவில்லை."
+        settings_clear_failed: "உங்கள் உரையாடல் வரலாற்றை அழிக்க முடியவில்லை.",
+        // Landing page — nav
+        landing_nav_home: "முகப்பு",
+        landing_nav_about: "எங்களைப் பற்றி",
+        landing_nav_how: "இது எவ்வாறு செயல்படுகிறது",
+        landing_nav_topics: "சட்ட தலைப்புகள்",
+        landing_nav_contact: "தொடர்பு கொள்ள",
+        landing_login: "உள்நுழைய",
+        landing_get_started: "தொடங்குங்கள்",
+        landing_learn_more: "மேலும் அறிக",
+
+        // Landing page — hero
+        landing_hero_line1: "உங்கள் உரிமைகள்.",
+        landing_hero_line2: "உங்கள் குரல்.",
+        landing_hero_accent: "எங்கள் ஆதரவு.",
+        landing_hero_sub: "சிங்களம், தமிழ் மற்றும் ஆங்கிலத்தில் AI-இயங்கும் சட்ட விழிப்புணர்வு மற்றும் முதல்-படி வழிகாட்டுதல்.",
+
+        // Landing page — trust strip
+        landing_trust_free_title: "இலவசம்",
+        landing_trust_free_desc: "எப்போதும் இலவசமாக பயன்படுத்தலாம்",
+        landing_trust_multilingual_title: "பல மொழிகள்",
+        landing_trust_reliable_title: "நம்பகமான தகவல்",
+        landing_trust_reliable_desc: "இலங்கை சட்டங்களை அடிப்படையாகக் கொண்டது",
+        landing_trust_privacy_title: "உங்கள் தனியுரிமை",
+        landing_trust_privacy_desc: "நாங்கள் உங்கள் தரவைப் பாதுகாக்கிறோம்",
+
+        // Landing page — about
+        landing_about_title: "எங்களைப் பற்றி",
+        landing_about_lead: "ஒவ்வொரு இலங்கையரையும் அணுகக்கூடிய சட்ட அறிவால் மேம்படுத்துதல்.",
+        landing_about_p1: "LawBridge என்பது எளிய மொழியில் மக்கள் தங்கள் சட்ட உரிமைகளைப் புரிந்துகொள்ள உதவும் AI-இயங்கும் சட்ட விழிப்புணர்வு தளமாகும். சட்ட ஆவணங்கள் பெரும்பாலும் சிக்கலானதாகவும் புரிந்துகொள்ள கடினமாகவும் இருப்பதால், நம்பகமான சட்டத் தகவல்களை அணுக பலர் சிரமப்படுகின்றனர். செயற்கை நுண்ணறிவு மற்றும் Retrieval-Augmented Generation (RAG) தொழில்நுட்பத்தைப் பயன்படுத்தி LawBridge இந்த இடைவெளியை இணைக்கிறது.",
+        landing_about_p2: "இந்த தளம் சிங்களம், தமிழ் மற்றும் ஆங்கிலத்தை ஆதரிக்கிறது, இதனால் இலங்கையில் உள்ள அனைவருக்கும் சட்டத் தகவல் அணுகக்கூடியதாக மாறுகிறது. LawBridge தொழில்முறை சட்ட ஆலோசனைக்கு மாற்றாக இல்லாவிட்டாலும், ஒரு வழக்கறிஞரை அணுகுவதற்கு முன் உங்கள் உரிமைகள், தொடர்புடைய சட்டங்கள் மற்றும் சாத்தியமான அடுத்த படிகளைப் புரிந்துகொள்ள உதவுகிறது.",
+        landing_about_point1_title: "AI சட்ட உதவியாளர்",
+        landing_about_point1_desc: "பொதுவான சட்டக் கேள்விகளுக்கு உடனடி பதில்களைப் பெறுங்கள்.",
+        landing_about_point2_title: "பல மொழி ஆதரவு",
+        landing_about_point2_desc: "சிங்களம், தமிழ் மற்றும் ஆங்கிலத்தில் சட்ட வழிகாட்டுதலைப் பெறுங்கள்.",
+        landing_about_point3_title: "நம்பகமான சட்ட ஆதாரங்கள்",
+        landing_about_point3_desc: "சரிபார்க்கப்பட்ட இலங்கை சட்ட ஆவணங்களைப் பயன்படுத்தி பதில்கள் உருவாக்கப்படுகின்றன.",
+        landing_about_point4_title: "பாதுகாப்பானது & தனிப்பட்டது",
+        landing_about_point4_desc: "உங்கள் உரையாடல்கள் பாதுகாப்பாக சேமிக்கப்பட்டு பாதுகாக்கப்படுகின்றன.",
+
+        // Landing page — how it works
+        landing_how_title_pre: "LawBridge",
+        landing_how_title_suffix: "எவ்வாறு செயல்படுகிறது",
+        landing_step1_title: "உங்கள் கேள்வியைக் கேளுங்கள்",
+        landing_step1_desc: "சிங்களம், தமிழ் அல்லது ஆங்கிலத்தில் உங்கள் சட்டக் கேள்வியைத் தட்டச்சு செய்யவும்.",
+        landing_step1_example: "உதாரணம்: என் முதலாளி என் சம்பளத்தை கொடுக்கவில்லை, நான் என்ன செய்ய வேண்டும்?",
+        landing_step2_title: "AI சட்ட அறிவைத் தேடுகிறது",
+        landing_step2_desc: "உங்கள் கேள்விக்கு தொடர்புடைய மிகவும் பொருத்தமான இலங்கை சட்டங்கள் மற்றும் ஒழுங்குமுறைகளைக் கண்டறிய LawBridge அதன் சட்ட அறிவுத் தளத்தைத் தேடுகிறது.",
+        landing_step3_title: "AI ஒரு பதிலை உருவாக்குகிறது",
+        landing_step3_desc: "பெறப்பட்ட சட்டத் தகவலைப் பயன்படுத்தி, AI தெளிவான மற்றும் எளிதில் புரிந்துகொள்ளக்கூடிய விளக்கத்தை உருவாக்குகிறது.",
+        landing_step4_title: "நடைமுறை வழிகாட்டுதலைப் பெறுங்கள்",
+        landing_step4_intro: "பதிலில் அடங்கியவை:",
+        landing_step4_item1: "விளக்கம்",
+        landing_step4_item2: "தொடர்புடைய சட்டத் தகவல்",
+        landing_step4_item3: "சாத்தியமான நடவடிக்கைகள்",
+        landing_step4_item4: "தேவையான ஆவணங்கள்",
+        landing_step4_item5: "எப்போது ஒரு வழக்கறிஞரை அணுக வேண்டும்",
+
+        // Landing page — topics
+        landing_topics_heading: "சட்ட தலைப்புகளை ஆராயுங்கள்",
+        landing_topic_labour: "தொழிலாளர் சட்டம்",
+        landing_topic_tenant: "வீட்டு உரிமையாளர் & குடியிருப்பாளர்",
+        landing_topic_family: "குடும்ப சட்டம்",
+        landing_topic_criminal: "குற்றவியல் சட்டம்",
+        landing_topic_consumer: "நுகர்வோர் உரிமைகள்",
+        landing_topic_employment: "வேலைவாய்ப்பு",
+        landing_topic_traffic: "போக்குவரத்து சட்டம்",
+        landing_topic_civil: "சிவில் உரிமைகள்",
+
+        // Landing page — why choose
+        landing_why_title_pre: "LawBridge ஐ ஏன் தேர்ந்தெடுக்க வேண்டும்",
+        landing_why_1_title: "உடனடி வழிகாட்டுதல்",
+        landing_why_1_desc: "சில விநாடிகளில் சட்டப் பதில்களைப் பெறுங்கள்.",
+        landing_why_2_title: "பல மொழிகள்",
+        landing_why_2_desc: "சிங்களம், தமிழ் மற்றும் ஆங்கிலத்தில் கிடைக்கிறது.",
+        landing_why_3_title: "இலங்கை சட்டங்களை அடிப்படையாகக் கொண்டது",
+        landing_why_3_desc: "தொடர்புடைய சட்ட ஆவணங்களைப் பயன்படுத்தி பதில்கள் உருவாக்கப்படுகின்றன.",
+        landing_why_4_title: "பாதுகாப்பானது",
+        landing_why_4_desc: "பயனர் கணக்குகள் மற்றும் உரையாடல்கள் பாதுகாப்பாக பாதுகாக்கப்படுகின்றன.",
+        landing_why_5_title: "புரிந்துகொள்ள எளிது",
+        landing_why_5_desc: "சட்டத் தகவல் எளிய மொழியில் எளிமையாக்கப்பட்டுள்ளது.",
+
+        // Landing page — contact
+        landing_contact_heading: "எங்களை தொடர்பு கொள்ளுங்கள்",
+        landing_contact_sub: "கேள்விகள் அல்லது கருத்துகள் உள்ளதா? உங்களிடமிருந்து கேட்க விரும்புகிறோம்.",
+        landing_contact_name_placeholder: "உங்கள் பெயர்",
+        landing_contact_email_placeholder: "மின்னஞ்சல் முகவரி",
+        landing_contact_subject_placeholder: "பொருள்",
+        landing_contact_message_placeholder: "செய்தி",
+        landing_contact_send: "செய்தியை அனுப்பு",
+
+        // Landing page — FAQ
+        landing_faq_heading: "அடிக்கடி கேட்கப்படும் கேள்விகள்",
+        landing_faq_q1: "LawBridge பயன்படுத்த இலவசமா?",
+        landing_faq_a1: "ஆம், LawBridge அனைவருக்கும் முழுமையாக இலவசமாகப் பயன்படுத்தலாம்.",
+        landing_faq_q2: "என்னால் சட்ட ஆவணங்களைப் பதிவேற்ற முடியுமா?",
+        landing_faq_a2: "ஆவணப் பதிவேற்றம் மற்றும் விளக்க ஆதரவு LawBridge-இல் சேர்க்கப்பட்டு வருகிறது.",
+        landing_faq_q3: "LawBridge ஒரு வழக்கறிஞருக்கு மாற்றாக இருக்குமா?",
+        landing_faq_a3: "இல்லை, LawBridge முதல்-படி வழிகாட்டுதலை வழங்குகிறது மற்றும் தொழில்முறை சட்ட ஆலோசனைக்கு மாற்றாக இல்லை.",
+        landing_faq_q4: "என் உரையாடல்கள் தனிப்பட்டவையா?",
+        landing_faq_a4: "ஆம், உங்கள் உரையாடல்கள் பாதுகாப்பாக சேமிக்கப்பட்டு பாதுகாக்கப்படுகின்றன.",
+        landing_faq_q5: "எந்த மொழிகள் ஆதரிக்கப்படுகின்றன?",
+        landing_faq_a5: "LawBridge சிங்களம், தமிழ் மற்றும் ஆங்கிலத்தை ஆதரிக்கிறது.",
+        landing_faq_q6: "எனக்கு மேலும் உதவி தேவைப்பட்டால் என்ன செய்வது?",
+        landing_faq_a6: "மேலே உள்ள தொடர்பு படிவத்தின் மூலம் எந்த நேரத்திலும் எங்கள் குழுவை அணுகலாம்.",
+
+        // Landing page — footer
+        landing_footer_tagline: "இலங்கையில் உள்ள அனைவருக்குமான AI-இயங்கும் சட்ட விழிப்புணர்வு தளம்.",
+        landing_footer_quick_links: "விரைவு இணைப்புகள்",
+        landing_footer_resources: "வளங்கள்",
+        landing_footer_contact: "தொடர்பு",
+        landing_footer_privacy: "தனியுரிமைக் கொள்கை",
+        landing_footer_terms: "விதிமுறைகள் & நிபந்தனைகள்",
+        landing_footer_copyright: "© 2026 LawBridge. அனைத்து உரிமைகளும் பாதுகாக்கப்பட்டவை."
 
     }
 

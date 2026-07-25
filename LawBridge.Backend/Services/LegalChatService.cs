@@ -503,7 +503,7 @@ Respond in English. Respond with a SINGLE JSON object and nothing else,
 using EXACTLY these keys:
 
 {
-  "needsClarification": false,
+  "needsClarification": true,
   "clarifyingQuestion": "",
   "category": "short legal category/subcategory, e.g. 'Labour Law - Employment Termination'",
   "explanation": "plain-language explanation of the issue",

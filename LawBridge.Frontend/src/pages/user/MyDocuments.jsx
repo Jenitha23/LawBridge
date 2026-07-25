@@ -6,6 +6,7 @@ import {
     getUserDocuments,
     getUserDocumentById
 } from "../../services/userDocumentService";
+import { useLanguage } from "../../context/LanguageContext";
 import "./MyDocuments.css";
 
 
@@ -35,6 +36,8 @@ function formatDate(dateString)
 function MyDocuments()
 {
 
+    const { t } = useLanguage();
+
     const [documents, setDocuments] = useState([]);
 
     const [loading, setLoading] = useState(true);
@@ -46,7 +49,7 @@ function MyDocuments()
 
     const [title, setTitle] = useState("");
 
-    const [language, setLanguage] = useState("English");
+    const [docLanguage, setDocLanguage] = useState("English");
 
     const [dragActive, setDragActive] = useState(false);
 
@@ -78,7 +81,7 @@ function MyDocuments()
         {
             setLoadError(
                 err.response?.data?.message ||
-                "Could not load your documents."
+                t("docs_could_not_load")
             );
         }
         finally
@@ -104,14 +107,14 @@ function MyDocuments()
 
         if (!allowed.includes(selected.type))
         {
-            setFormError("Only PDF, JPG, or PNG files are supported.");
+            setFormError(t("docs_only_pdf_jpg_png"));
 
             return;
         }
 
         if (selected.size > 10 * 1024 * 1024)
         {
-            setFormError("File is too large — max size is 10MB.");
+            setFormError(t("docs_file_too_large"));
 
             return;
         }
@@ -143,7 +146,7 @@ function MyDocuments()
 
         setTitle("");
 
-        setLanguage("English");
+        setDocLanguage("English");
 
         if (fileInputRef.current) fileInputRef.current.value = "";
     };
@@ -157,14 +160,14 @@ function MyDocuments()
 
         if (!file)
         {
-            setFormError("Please choose a file to upload.");
+            setFormError(t("docs_choose_file_required"));
 
             return;
         }
 
         if (!title.trim())
         {
-            setFormError("Title is required.");
+            setFormError(t("docs_title_required"));
 
             return;
         }
@@ -173,7 +176,7 @@ function MyDocuments()
 
         try
         {
-            const result = await uploadUserDocument({ file, title: title.trim(), language });
+            const result = await uploadUserDocument({ file, title: title.trim(), language: docLanguage });
 
             resetForm();
 
@@ -185,7 +188,7 @@ function MyDocuments()
         {
             setFormError(
                 err.response?.data?.message ||
-                "Upload failed. Please try again."
+                t("docs_upload_failed")
             );
         }
         finally
@@ -213,7 +216,7 @@ function MyDocuments()
         {
             setViewError(
                 err.response?.data?.message ||
-                "Could not load this document."
+                t("docs_could_not_load_doc")
             );
         }
         finally
@@ -225,7 +228,7 @@ function MyDocuments()
 
     return (
 
-        <DashboardLayout title="My Documents">
+        <DashboardLayout title={t("nav_my_documents")}>
 
             {() => (
 
@@ -235,8 +238,8 @@ function MyDocuments()
 
                         <div className="doc-panel doc-upload-panel">
 
-                            <h3>Upload a Document</h3>
-                            <p className="doc-panel-sub">Agreements, notices, contracts, or letters — PDF, JPG, or PNG (max 10MB).</p>
+                            <h3>{t("docs_upload_heading")}</h3>
+                            <p className="doc-panel-sub">{t("docs_upload_sub")}</p>
 
                             <form onSubmit={handleSubmit}>
 
@@ -259,13 +262,13 @@ function MyDocuments()
                                         <>
                                             <span className="doc-file-name">{file.name}</span>
                                             <span className="doc-file-size">{(file.size / 1024 / 1024).toFixed(2)} MB</span>
-                                            <span className="doc-browse-link">Choose a different file</span>
+                                            <span className="doc-browse-link">{t("docs_choose_different")}</span>
                                         </>
                                     ) : (
                                         <>
-                                            <span className="doc-drop-text">Drag and drop your file here</span>
-                                            <span className="doc-or">or</span>
-                                            <span className="doc-browse-btn">Browse File</span>
+                                            <span className="doc-drop-text">{t("docs_drop_text")}</span>
+                                            <span className="doc-or">{t("docs_or")}</span>
+                                            <span className="doc-browse-btn">{t("docs_browse_btn")}</span>
                                         </>
                                     )}
 
@@ -273,19 +276,19 @@ function MyDocuments()
 
 
                                 <div className="doc-field">
-                                    <label>Title <em>*</em></label>
+                                    <label>{t("docs_title_label")} <em>*</em></label>
                                     <input
                                         type="text"
                                         value={title}
                                         onChange={(e) => setTitle(e.target.value)}
-                                        placeholder="e.g. Rental Agreement"
+                                        placeholder={t("docs_title_placeholder")}
                                     />
                                 </div>
 
 
                                 <div className="doc-field">
-                                    <label>Explanation Language <em>*</em></label>
-                                    <select value={language} onChange={(e) => setLanguage(e.target.value)}>
+                                    <label>{t("docs_language_label")} <em>*</em></label>
+                                    <select value={docLanguage} onChange={(e) => setDocLanguage(e.target.value)}>
                                         {LANGUAGES.map((l) => <option key={l} value={l}>{l}</option>)}
                                     </select>
                                 </div>
@@ -294,12 +297,12 @@ function MyDocuments()
                                 {formError && <div className="doc-message error">{formError}</div>}
 
                                 <button type="submit" className="doc-submit-btn" disabled={uploading}>
-                                    {uploading ? "Processing..." : "Upload & Explain"}
+                                    {uploading ? t("docs_processing_btn") : t("docs_submit_btn")}
                                 </button>
 
                                 {uploading && (
                                     <p className="doc-processing-note">
-                                        Extracting text and generating an explanation — this may take a moment.
+                                        {t("docs_processing_note")}
                                     </p>
                                 )}
 
@@ -310,17 +313,17 @@ function MyDocuments()
 
                         <div className="doc-panel doc-history-panel">
 
-                            <h3>Document History</h3>
+                            <h3>{t("docs_history_heading")}</h3>
 
                             {loadError && <div className="doc-message error">{loadError}</div>}
 
                             {loading ? (
 
-                                <p className="doc-muted">Loading…</p>
+                                <p className="doc-muted">{t("common_loading")}</p>
 
                             ) : documents.length === 0 ? (
 
-                                <p className="doc-muted">You haven't uploaded any documents yet.</p>
+                                <p className="doc-muted">{t("docs_no_documents")}</p>
 
                             ) : (
 
@@ -357,11 +360,11 @@ function MyDocuments()
                             <div className="doc-modal" onClick={(e) => e.stopPropagation()}>
 
                                 <div className="doc-modal-header">
-                                    <h3>{viewingDoc?.title || "Document"}</h3>
+                                    <h3>{viewingDoc?.title || t("docs_modal_default_title")}</h3>
                                     <button className="doc-modal-close" onClick={() => { setViewingDoc(null); setViewError(""); }}>×</button>
                                 </div>
 
-                                {viewLoading && <p className="doc-muted">Loading…</p>}
+                                {viewLoading && <p className="doc-muted">{t("common_loading")}</p>}
 
                                 {viewError && <div className="doc-message error">{viewError}</div>}
 
@@ -377,7 +380,7 @@ function MyDocuments()
 
                                             {viewingDoc.filePath && (
                                                 <a href={getAssetUrl(viewingDoc.filePath.replace(/^\//, ""))} target="_blank" rel="noreferrer">
-                                                    Open original file
+                                                    {t("docs_open_original")}
                                                 </a>
                                             )}
 
@@ -386,25 +389,25 @@ function MyDocuments()
 
                                         {viewingDoc.status === "Failed" && (
                                             <div className="doc-message error">
-                                                {viewingDoc.errorMessage || "This document could not be processed."}
+                                                {viewingDoc.errorMessage || t("docs_could_not_process")}
                                             </div>
                                         )}
 
                                         {viewingDoc.status === "Processing" && (
-                                            <p className="doc-muted">Still processing — check back in a moment.</p>
+                                            <p className="doc-muted">{t("docs_still_processing")}</p>
                                         )}
 
                                         {viewingDoc.status === "Completed" && (
 
                                             <>
 
-                                                <h4>AI Explanation</h4>
+                                                <h4>{t("docs_ai_explanation")}</h4>
                                                 <p className="doc-explanation">{viewingDoc.explanation}</p>
 
                                                 {viewingDoc.extractedText && (
 
                                                     <details className="doc-extracted-text">
-                                                        <summary>View extracted text</summary>
+                                                        <summary>{t("docs_view_extracted_text")}</summary>
                                                         <p>{viewingDoc.extractedText}</p>
                                                     </details>
 
