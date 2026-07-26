@@ -50,6 +50,12 @@ public class ChatMessage
 
     public string? ClarifyingQuestion { get; set; }
 
+    // True when this turn was a conversational follow-up (an
+    // acknowledgment or short continuation of the previous turn) rather
+    // than a new legal question — the full structured breakdown was
+    // skipped in favor of a short natural reply.
+    public bool IsFollowUp { get; set; } = false;
+
 
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 

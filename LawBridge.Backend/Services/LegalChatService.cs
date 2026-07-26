@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Text;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
@@ -42,12 +43,49 @@ public class LegalChatService
     public async Task<ChatAnswerDto> Ask(int userId, AskQuestionDto dto)
     {
 
+        // ---- Real, timed trace of every step this specific request takes ----
+        //
+        // Purely additive: the pipeline's behavior below is unchanged. Each
+        // stage records what actually happened (real category, real match
+        // count, real timings, real guardrail decisions) so the frontend
+        // can show the true agentic flow — classify -> retrieve -> reason
+        // -> guardrail? -> (clarify | translate) -> persist — for this
+        // exact question, not a scripted animation.
+
+        var trace = new List<AgentTraceStepDto>();
+
+        void AddStep(string key, string title, string detail, string status, long durationMs)
+        {
+            trace.Add(new AgentTraceStepDto
+            {
+                Step = trace.Count + 1,
+                Key = key,
+                Title = title,
+                Detail = detail,
+                Status = status,
+                DurationMs = durationMs
+            });
+        }
+
+
         // Reuse the thread's id if this is a follow-up in the same
         // on-screen chat; otherwise this is a new chat, so start one.
+        var isNewConversation =
+            !dto.ConversationId.HasValue || dto.ConversationId.Value == Guid.Empty;
+
         var conversationId =
-            dto.ConversationId.HasValue && dto.ConversationId.Value != Guid.Empty
-                ? dto.ConversationId.Value
-                : Guid.NewGuid();
+            isNewConversation ? Guid.NewGuid() : dto.ConversationId!.Value;
+
+        AddStep(
+            "understand",
+            "Understanding the question",
+            $"Received a {dto.Question.Length}-character question, answer requested in {dto.Language}. " +
+                (isNewConversation
+                    ? "Starting a new conversation thread."
+                    : $"Continuing conversation thread {conversationId} with {dto.History?.Count ?? 0} prior turn(s) of context."),
+            "done",
+            0
+        );
 
 
         // ---- 1. Classify the question into a known legal category first ----
@@ -57,8 +95,12 @@ public class LegalChatService
         // inconclusive (or nothing in that category exists), we fall back
         // to an unrestricted search rather than returning nothing.
 
+        var classifySw = Stopwatch.StartNew();
+
         var classifiedCategory =
             await ClassifyCategory(dto.Question);
+
+        classifySw.Stop();
 
         List<int>? allowedDocumentIds = null;
 
@@ -70,13 +112,50 @@ public class LegalChatService
                 .Select(d => d.Id)
                 .ToListAsync();
 
+            AddStep(
+                "classify",
+                "Classifying legal category",
+                $"Gemini classified this question as \"{classifiedCategory}\" — retrieval will be narrowed to that category first.",
+                "done",
+                classifySw.ElapsedMilliseconds
+            );
+
+        }
+        else
+        {
+
+            AddStep(
+                "classify",
+                "Classifying legal category",
+                "No confident single-category match — falling back to an unrestricted search across every legal category.",
+                "fallback",
+                classifySw.ElapsedMilliseconds
+            );
+
         }
 
 
         // ---- 2. Embed the question and retrieve relevant chunks (FR-07) ----
 
+        var embedSw = Stopwatch.StartNew();
+
         var queryEmbedding =
             await _embeddingService.GenerateEmbedding(dto.Question);
+
+        embedSw.Stop();
+
+        var embeddingDimensions = queryEmbedding.ToArray().Length;
+
+        AddStep(
+            "embed",
+            "Generating embedding",
+            $"Converted the question into a {embeddingDimensions}-dimension vector using gemini-embedding-001.",
+            "done",
+            embedSw.ElapsedMilliseconds
+        );
+
+
+        var retrieveSw = Stopwatch.StartNew();
 
         var matches =
             await _searchService.Search(queryEmbedding, topK: 5, allowedDocumentIds: allowedDocumentIds);
@@ -84,9 +163,39 @@ public class LegalChatService
         // Classification matched a category, but nothing in it was
         // relevant enough / no chunks — widen back out rather than
         // answering from nothing.
+        var widenedSearch = false;
+
         if (matches.Count == 0 && allowedDocumentIds != null)
         {
             matches = await _searchService.Search(queryEmbedding, topK: 5);
+            widenedSearch = true;
+        }
+
+        retrieveSw.Stop();
+
+        if (widenedSearch)
+        {
+
+            AddStep(
+                "retrieve",
+                "Searching legal database",
+                $"Zero matches inside \"{classifiedCategory}\" — widened to a full-database pgvector cosine-similarity search and found {matches.Count} chunk(s).",
+                "fallback",
+                retrieveSw.ElapsedMilliseconds
+            );
+
+        }
+        else
+        {
+
+            AddStep(
+                "retrieve",
+                "Searching legal database",
+                $"pgvector cosine-similarity search over embedded legal chunks{(allowedDocumentIds != null ? $" (scoped to \"{classifiedCategory}\")" : " (all categories)")} returned {matches.Count} of top-5 requested match(es).",
+                matches.Count > 0 ? "done" : "warning",
+                retrieveSw.ElapsedMilliseconds
+            );
+
         }
 
 
@@ -108,8 +217,30 @@ public class LegalChatService
             .Distinct()
             .ToList();
 
+        AddStep(
+            "sources",
+            "Retrieved legal sections",
+            sourceTitles.Count > 0
+                ? $"Found {sourceTitles.Count} source document(s): {string.Join(", ", sourceTitles)}."
+                : "No source documents matched closely enough to cite.",
+            sourceTitles.Count > 0 ? "done" : "warning",
+            0
+        );
+
+
+        var contextSw = Stopwatch.StartNew();
 
         var contextText = BuildContext(matches, documentsById);
+
+        contextSw.Stop();
+
+        AddStep(
+            "context",
+            "Building legal context",
+            $"Assembled {matches.Count} retrieved chunk(s) into {contextText.Length} characters of grounding context for the model.",
+            "done",
+            contextSw.ElapsedMilliseconds
+        );
 
 
         // ---- 3. Ask the local LLM for a structured answer (FR-06, FR-07, FR-08) ----
@@ -131,10 +262,26 @@ public class LegalChatService
 
         var prompt = BuildPrompt(dto.Question, contextText, dto.History, mustAnswerNow);
 
+        var reasonSw = Stopwatch.StartNew();
+
         var rawResponse =
             await _aiChatService.Generate(prompt);
 
+        reasonSw.Stop();
+
         var englishAnswer = ParseAnswer(rawResponse);
+
+        AddStep(
+            "reason",
+            "AI legal reasoning",
+            englishAnswer.IsFollowUp
+                ? "Gemini (gemini-3.1-flash-lite) judged this as a conversational follow-up rather than a new legal question and drafted a short natural reply."
+                : englishAnswer.NeedsClarification
+                    ? "Gemini (gemini-3.1-flash-lite) judged the question too vague to answer reliably and is asking a clarifying follow-up instead of guessing."
+                    : $"Gemini (gemini-3.1-flash-lite) reasoned over the retrieved context and produced a structured answer categorized as \"{englishAnswer.Category}\".",
+            "done",
+            reasonSw.ElapsedMilliseconds
+        );
 
         if (mustAnswerNow && englishAnswer.NeedsClarification)
         {
@@ -143,7 +290,9 @@ public class LegalChatService
             // context contains so the person still gets something useful.
             englishAnswer.NeedsClarification = false;
 
-            if (string.IsNullOrWhiteSpace(englishAnswer.Explanation))
+            var hadNoDraftAnswer = string.IsNullOrWhiteSpace(englishAnswer.Explanation);
+
+            if (hadNoDraftAnswer)
             {
                 englishAnswer.Category = classifiedCategory ?? "General";
                 englishAnswer.Explanation =
@@ -151,6 +300,16 @@ public class LegalChatService
                 englishAnswer.WhenToConsultLawyer =
                     "If your situation has details not covered here, consult a qualified lawyer or the relevant government department directly.";
             }
+
+            AddStep(
+                "guardrail",
+                "Preventing a clarification loop",
+                $"{historyRounds} clarifying round(s) already happened in this thread, so the agent overrode the model's request for yet another clarifying question and forced a real answer" +
+                    (hadNoDraftAnswer ? " using general fallback guidance." : " using the model's own draft."),
+                "fallback",
+                0
+            );
+
         }
 
 
@@ -168,6 +327,8 @@ public class LegalChatService
             if (wantsClarificationTranslation)
             {
 
+                var clarifyTranslateSw = Stopwatch.StartNew();
+
                 try
                 {
 
@@ -176,14 +337,46 @@ public class LegalChatService
                         dto.Language
                     );
 
+                    clarifyTranslateSw.Stop();
+
                     if (LooksTranslated(translated, dto.Language))
                     {
                         clarifyingQuestion = translated.Explanation;
+
+                        AddStep(
+                            "translate",
+                            "Translating clarifying question",
+                            $"Translated the clarifying question into {dto.Language} via a separate Gemini translation-only call.",
+                            "done",
+                            clarifyTranslateSw.ElapsedMilliseconds
+                        );
+                    }
+                    else
+                    {
+
+                        AddStep(
+                            "translate",
+                            "Translating clarifying question",
+                            $"Translation into {dto.Language} didn't reliably switch script — showing the English clarifying question instead.",
+                            "warning",
+                            clarifyTranslateSw.ElapsedMilliseconds
+                        );
+
                     }
 
                 }
                 catch (Exception ex)
                 {
+
+                    clarifyTranslateSw.Stop();
+
+                    AddStep(
+                        "translate",
+                        "Translating clarifying question",
+                        $"Translation call to {dto.Language} failed — showing the English clarifying question instead.",
+                        "warning",
+                        clarifyTranslateSw.ElapsedMilliseconds
+                    );
 
                     _logger.LogWarning(
                         ex,
@@ -194,6 +387,15 @@ public class LegalChatService
                 }
 
             }
+
+
+            AddStep(
+                "clarify",
+                "Asking a clarifying question",
+                $"Question is too vague to answer reliably — asking: \"{clarifyingQuestion}\"",
+                "done",
+                0
+            );
 
 
             var clarifyMessage = new ChatMessage
@@ -209,7 +411,19 @@ public class LegalChatService
                 CreatedAt = DateTime.UtcNow
             };
 
+            var clarifyMemorySw = Stopwatch.StartNew();
+
             await _chatRepository.Add(clarifyMessage);
+
+            clarifyMemorySw.Stop();
+
+            AddStep(
+                "memory",
+                "Saving to chat history",
+                $"Stored this clarification turn as chat message #{clarifyMessage.Id} in thread {conversationId}.",
+                "done",
+                clarifyMemorySw.ElapsedMilliseconds
+            );
 
 
             return new ChatAnswerDto
@@ -222,7 +436,8 @@ public class LegalChatService
                 NeedsClarification = true,
                 ClarifyingQuestion = clarifyingQuestion,
                 Sources = sourceTitles,
-                CreatedAt = clarifyMessage.CreatedAt
+                CreatedAt = clarifyMessage.CreatedAt,
+                Trace = trace
             };
 
         }
@@ -238,25 +453,55 @@ public class LegalChatService
         if (wantsTranslation)
         {
 
+            var translateSw = Stopwatch.StartNew();
+
             try
             {
 
                 var translated =
                     await TranslateAnswer(englishAnswer, dto.Language);
 
+                translateSw.Stop();
+
                 if (LooksTranslated(translated, dto.Language))
                 {
                     finalAnswer = translated;
+
+                    AddStep(
+                        "translate",
+                        "Translating answer",
+                        $"Translated the finished English answer into {dto.Language} via a separate, narrower Gemini call (script-verified).",
+                        "done",
+                        translateSw.ElapsedMilliseconds
+                    );
                 }
                 else
                 {
                     translationNote =
                         $"We couldn't reliably translate this answer into {dto.Language}, so it's shown in English below.";
+
+                    AddStep(
+                        "translate",
+                        "Translating answer",
+                        $"Translation into {dto.Language} didn't reliably switch script — falling back to the English answer.",
+                        "warning",
+                        translateSw.ElapsedMilliseconds
+                    );
                 }
 
             }
             catch (Exception ex)
             {
+
+                translateSw.Stop();
+
+                AddStep(
+                    "translate",
+                    "Translating answer",
+                    $"Translation call to {dto.Language} failed — falling back to the English answer.",
+                    "warning",
+                    translateSw.ElapsedMilliseconds
+                );
 
                 _logger.LogWarning(
                     ex,
@@ -275,6 +520,10 @@ public class LegalChatService
 
         // ---- 5. Persist to chat history ----
 
+        // A follow-up reply isn't a new retrieval — don't attach source
+        // titles to a plain "okay, I will pay" acknowledgment.
+        var displaySources = finalAnswer.IsFollowUp ? new List<string>() : sourceTitles;
+
         var message = new ChatMessage
         {
             UserId = userId,
@@ -287,11 +536,24 @@ public class LegalChatService
             PossibleActions = JsonSerializer.Serialize(finalAnswer.PossibleActions),
             RequiredDocuments = JsonSerializer.Serialize(finalAnswer.RequiredDocuments),
             WhenToConsultLawyer = finalAnswer.WhenToConsultLawyer,
-            SourceDocuments = JsonSerializer.Serialize(sourceTitles),
+            SourceDocuments = JsonSerializer.Serialize(displaySources),
+            IsFollowUp = finalAnswer.IsFollowUp,
             CreatedAt = DateTime.UtcNow
         };
 
+        var memorySw = Stopwatch.StartNew();
+
         await _chatRepository.Add(message);
+
+        memorySw.Stop();
+
+        AddStep(
+            "memory",
+            "Saving to chat history",
+            $"Stored as chat message #{message.Id} in thread {conversationId} with {displaySources.Count} cited source(s).",
+            "done",
+            memorySw.ElapsedMilliseconds
+        );
 
 
         return new ChatAnswerDto
@@ -306,9 +568,11 @@ public class LegalChatService
             PossibleActions = finalAnswer.PossibleActions,
             RequiredDocuments = finalAnswer.RequiredDocuments,
             WhenToConsultLawyer = finalAnswer.WhenToConsultLawyer,
-            Sources = sourceTitles,
+            Sources = displaySources,
+            IsFollowUp = finalAnswer.IsFollowUp,
             TranslationNote = translationNote,
-            CreatedAt = message.CreatedAt
+            CreatedAt = message.CreatedAt,
+            Trace = trace
         };
 
     }
@@ -503,6 +767,8 @@ JSON TO TRANSLATE:
 
         var historySection = "";
 
+        var answeringClarification = false;
+
         if (history != null && history.Count > 0)
         {
 
@@ -518,6 +784,12 @@ JSON TO TRANSLATE:
             }
 
             historySection = sb.ToString();
+
+            // The frontend marks a clarifying-question turn with this exact
+            // prefix (see ChatPanel.jsx) — if that was the LAST turn, the
+            // new message below is answering it, not making small talk.
+            answeringClarification =
+                history[^1].Explanation.StartsWith("(I asked a clarifying question:");
 
         }
 
@@ -538,6 +810,32 @@ guessing. Only do this when truly necessary; prefer answering when you can.
 """;
 
 
+        var followUpRule = answeringClarification
+            ? """
+CONVERSATION FLOW:
+The user's message below is answering the clarifying question you just asked
+in PREVIOUS CONVERSATION above — it is NOT a conversational follow-up, even
+though it may be short (e.g. just "monthly salary" or "yes"). Combine it with
+the original question from that same turn and give the FULL structured legal
+answer now (populate category, relevantLegalInfo, possibleActions,
+requiredDocuments, whenToConsultLawyer as normal). Set "isFollowUp" to false.
+"""
+            : """
+CONVERSATION FLOW:
+If the user's message is a conversational follow-up rather than a new legal
+question — an acknowledgment, a short reply like "okay I will pay", "thanks",
+"got it", or simply continuing the same issue already covered above — set
+"isFollowUp" to true. In that case:
+- Put ONLY a short, natural, conversational reply in "explanation" (a couple
+  of sentences — e.g. next practical step, or encouragement) instead of
+  repeating the legal background, category, or list structure again.
+- Leave "category", "relevantLegalInfo", and "whenToConsultLawyer" as empty
+  strings, and "possibleActions"/"requiredDocuments" as empty arrays.
+Only set "isFollowUp" to false — and give the full structured answer — for a
+genuinely new legal question or one that needs its own legal background.
+""";
+
+
         return $$"""
 You are LawBridge, a legal awareness assistant for Sri Lankan citizens.
 You provide general legal information and first-step guidance, NOT professional legal advice.
@@ -549,12 +847,15 @@ next steps (e.g. which government department or authority to contact).
 
 {{clarificationRule}}
 
+{{followUpRule}}
+
 Respond in English. Respond with a SINGLE JSON object and nothing else,
 using EXACTLY these keys:
 
 {
   "needsClarification": true,
   "clarifyingQuestion": "",
+  "isFollowUp": false,
   "category": "short legal category/subcategory, e.g. 'Labour Law - Employment Termination'",
   "explanation": "plain-language explanation of the issue",
   "relevantLegalInfo": "the relevant legal information found in the context",
@@ -616,6 +917,7 @@ USER QUESTION:
             {
                 NeedsClarification = GetBool("needsClarification"),
                 ClarifyingQuestion = GetString("clarifyingQuestion"),
+                IsFollowUp = GetBool("isFollowUp"),
                 Category = GetString("category"),
                 Explanation = GetString("explanation"),
                 RelevantLegalInfo = GetString("relevantLegalInfo"),

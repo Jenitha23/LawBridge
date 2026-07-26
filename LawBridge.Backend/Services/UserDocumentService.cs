@@ -1,8 +1,23 @@
+using System.Diagnostics;
 using System.Text.Json;
+using LawBridge.Backend.DTOs.UserDocuments;
 using LawBridge.Backend.Interfaces;
 using LawBridge.Backend.Models;
 
 namespace LawBridge.Backend.Services;
+
+
+// Wraps the persisted document together with the real, timed trace of the
+// steps the agent took to produce it for THIS specific upload. The trace
+// is never persisted — it's only meaningful for the request that just ran.
+public class DocumentProcessResult
+{
+
+    public UserDocument Document { get; set; } = null!;
+
+    public List<DocumentAgentTraceStepDto> Trace { get; set; } = new();
+
+}
 
 
 public class UserDocumentService
@@ -38,7 +53,7 @@ public class UserDocumentService
 
 
     // ---- FR-09, FR-10 ----
-    public async Task<UserDocument> Process(
+    public async Task<DocumentProcessResult> Process(
         int userId,
         string title,
         string diskPath,
@@ -48,6 +63,30 @@ public class UserDocumentService
         string language
     )
     {
+
+        // ---- Real, timed trace of every step this specific upload takes ----
+        //
+        // Purely additive: the pipeline's behavior below is unchanged. Each
+        // stage records what actually happened (real character counts,
+        // real timings, real success/fallback outcomes) so the frontend can
+        // show the true agentic flow — extract -> explain -> translate? ->
+        // persist — for this exact document, not a scripted animation.
+
+        var trace = new List<DocumentAgentTraceStepDto>();
+
+        void AddStep(string key, string title2, string detail, string status, long durationMs)
+        {
+            trace.Add(new DocumentAgentTraceStepDto
+            {
+                Step = trace.Count + 1,
+                Key = key,
+                Title = title2,
+                Detail = detail,
+                Status = status,
+                DurationMs = durationMs
+            });
+        }
+
 
         var document = new UserDocument
         {
@@ -63,15 +102,27 @@ public class UserDocumentService
 
         await _repository.Add(document);
 
+        AddStep(
+            "understand",
+            "Understanding the upload",
+            $"Received \"{fileName}\" ({fileType.ToUpperInvariant()}), explanation requested in {language}.",
+            "done",
+            0
+        );
+
 
         try
         {
 
             // ---- FR-10: extract text ----
 
+            var extractSw = Stopwatch.StartNew();
+
             var text = fileType == "pdf"
                 ? await _pdfService.ExtractTextAsync(diskPath)
                 : await _ocrService.ExtractTextFromImage(diskPath, language);
+
+            extractSw.Stop();
 
             text = (text ?? string.Empty).Trim();
 
@@ -79,18 +130,50 @@ public class UserDocumentService
             if (string.IsNullOrWhiteSpace(text))
             {
 
+                AddStep(
+                    "extract",
+                    fileType == "pdf" ? "Extracting text (PDF)" : "Extracting text (OCR)",
+                    "No readable text was found — this may be a low-quality scan or a blank page.",
+                    "warning",
+                    extractSw.ElapsedMilliseconds
+                );
+
                 document.Status = "Failed";
                 document.ErrorMessage =
                     "No readable text was found in this document. It may be a low-quality scan or a blank page.";
 
+                var failMemorySw = Stopwatch.StartNew();
+
                 await _repository.Update(document);
 
-                return document;
+                failMemorySw.Stop();
+
+                AddStep(
+                    "memory",
+                    "Saving document record",
+                    $"Marked document #{document.Id} as Failed — nothing to explain.",
+                    "warning",
+                    failMemorySw.ElapsedMilliseconds
+                );
+
+                return new DocumentProcessResult { Document = document, Trace = trace };
 
             }
 
 
-            if (text.Length > MaxExtractedTextChars)
+            var truncated = text.Length > MaxExtractedTextChars;
+
+            AddStep(
+                "extract",
+                fileType == "pdf" ? "Extracting text (PDF)" : "Extracting text (OCR)",
+                fileType == "pdf"
+                    ? $"Extracted {text.Length} characters of text directly from the PDF."
+                    : $"Ran Tesseract OCR in {language} and extracted {text.Length} characters of text.",
+                "done",
+                extractSw.ElapsedMilliseconds
+            );
+
+            if (truncated)
             {
                 text = text[..MaxExtractedTextChars];
             }
@@ -100,13 +183,27 @@ public class UserDocumentService
 
             // ---- FR-11: AI explanation (English first, then translate) ----
 
+            var explainSw = Stopwatch.StartNew();
+
             var englishExplanation =
                 await GenerateExplanation(text);
+
+            explainSw.Stop();
+
+            AddStep(
+                "explain",
+                "AI plain-language explanation",
+                $"Gemini (gemini-3.1-flash-lite) read {(truncated ? $"the first {MaxExtractedTextChars} characters of " : "")}the document and generated a {englishExplanation.Length}-character plain-English explanation.",
+                "done",
+                explainSw.ElapsedMilliseconds
+            );
 
             var finalExplanation = englishExplanation;
 
             if (!language.Equals("English", StringComparison.OrdinalIgnoreCase))
             {
+
+                var translateSw = Stopwatch.StartNew();
 
                 try
                 {
@@ -114,13 +211,46 @@ public class UserDocumentService
                     var translated =
                         await TranslateExplanation(englishExplanation, language);
 
-                    finalExplanation = LooksTranslated(translated, language)
-                        ? translated
-                        : englishExplanation;
+                    translateSw.Stop();
+
+                    if (LooksTranslated(translated, language))
+                    {
+                        finalExplanation = translated;
+
+                        AddStep(
+                            "translate",
+                            "Translating explanation",
+                            $"Translated the explanation into {language} via a separate, narrower Gemini call (script-verified).",
+                            "done",
+                            translateSw.ElapsedMilliseconds
+                        );
+                    }
+                    else
+                    {
+                        finalExplanation = englishExplanation;
+
+                        AddStep(
+                            "translate",
+                            "Translating explanation",
+                            $"Translation into {language} didn't reliably switch script — falling back to the English explanation.",
+                            "warning",
+                            translateSw.ElapsedMilliseconds
+                        );
+                    }
 
                 }
                 catch (Exception ex)
                 {
+
+                    translateSw.Stop();
+
+                    AddStep(
+                        "translate",
+                        "Translating explanation",
+                        $"Translation call to {language} failed — falling back to the English explanation.",
+                        "warning",
+                        translateSw.ElapsedMilliseconds
+                    );
 
                     _logger.LogWarning(
                         ex,
@@ -151,13 +281,35 @@ public class UserDocumentService
             document.ErrorMessage =
                 "Something went wrong while processing this document. Please check the OpenAI API key/connection and try again.";
 
+            AddStep(
+                "explain",
+                "AI plain-language explanation",
+                "Processing failed unexpectedly — see server logs for details.",
+                "warning",
+                0
+            );
+
         }
 
 
+        var memorySw = Stopwatch.StartNew();
+
         await _repository.Update(document);
 
+        memorySw.Stop();
 
-        return document;
+        AddStep(
+            "memory",
+            "Saving document record",
+            document.Status == "Completed"
+                ? $"Stored document #{document.Id} as Completed, ready to view in My Documents."
+                : $"Stored document #{document.Id} as {document.Status}.",
+            document.Status == "Completed" ? "done" : "warning",
+            memorySw.ElapsedMilliseconds
+        );
+
+
+        return new DocumentProcessResult { Document = document, Trace = trace };
 
     }
 
