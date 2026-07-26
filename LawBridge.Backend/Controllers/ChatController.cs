@@ -390,6 +390,7 @@ public class ChatController : ControllerBase
             IsSaved = message.IsSaved,
             NeedsClarification = message.NeedsClarification,
             ClarifyingQuestion = message.ClarifyingQuestion,
+            IsFollowUp = message.IsFollowUp,
             CreatedAt = message.CreatedAt
         };
 

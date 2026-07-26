@@ -1,0 +1,321 @@
+/* ============================================
+   AI AGENT PROCESS PANEL
+   Dev / demo panel — shows the real trace the
+   backend agent returns for each answered
+   question. Purely additive, toggled from the
+   chat header.
+============================================ */
+
+.agent-process-panel {
+
+    width: 320px;
+    flex-shrink: 0;
+
+    display: flex;
+    flex-direction: column;
+
+    height: 100%;
+
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+
+    overflow: hidden;
+
+}
+
+
+.agent-process-header {
+
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 10px;
+
+    padding: 18px 18px 14px 18px;
+    border-bottom: 1px solid var(--border);
+
+}
+
+
+.agent-process-title {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+}
+
+
+.agent-process-icon {
+    font-size: 20px;
+    line-height: 1;
+    margin-top: 2px;
+}
+
+
+.agent-process-title h3 {
+    font-size: 15px;
+    font-weight: 800;
+    color: var(--text-heading);
+}
+
+
+.agent-process-title p {
+    margin-top: 2px;
+    font-size: 11.5px;
+    color: var(--text-muted);
+}
+
+
+.agent-process-close {
+
+    flex-shrink: 0;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    border: none;
+    background: var(--primary-soft-2);
+    color: var(--text-muted);
+    font-size: 12px;
+
+}
+
+
+.agent-process-close:hover {
+    background: var(--primary-soft);
+    color: var(--primary);
+}
+
+
+.agent-process-question {
+
+    margin: 12px 18px 0 18px;
+    padding: 10px 12px;
+    background: var(--primary-soft-2);
+    border-radius: var(--radius-sm);
+
+    font-size: 12px;
+    color: var(--text);
+    line-height: 1.5;
+
+}
+
+
+.agent-process-question span {
+    font-weight: 700;
+    color: var(--text-muted);
+}
+
+
+.agent-process-steps {
+
+    flex: 1;
+    overflow-y: auto;
+
+    padding: 16px 18px 8px 18px;
+
+    display: flex;
+    flex-direction: column;
+
+}
+
+
+.agent-process-empty {
+    font-size: 12.5px;
+    line-height: 1.6;
+    color: var(--text-muted);
+    padding: 8px 2px;
+}
+
+
+.agent-step {
+
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+
+}
+
+
+.agent-step-rail {
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex-shrink: 0;
+
+}
+
+
+.agent-step-number {
+
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: var(--primary);
+    color: #fff;
+    font-size: 10.5px;
+    font-weight: 800;
+
+}
+
+
+.agent-step-line {
+
+    width: 2px;
+    flex: 1;
+    min-height: 22px;
+    background: var(--border);
+    margin: 3px 0;
+
+}
+
+
+.agent-step-icon-badge {
+
+    flex-shrink: 0;
+    width: 30px;
+    height: 30px;
+    border-radius: 9px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: var(--primary-soft-2);
+    font-size: 14px;
+
+    margin-top: -1px;
+
+}
+
+
+.agent-step-body {
+
+    flex: 1;
+    min-width: 0;
+    padding-bottom: 18px;
+
+}
+
+
+.agent-step-top {
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+
+}
+
+
+.agent-step-body h4 {
+    font-size: 12.5px;
+    font-weight: 800;
+    color: var(--text-heading);
+}
+
+
+.agent-step-badge {
+
+    flex-shrink: 0;
+    font-size: 10px;
+    font-weight: 800;
+    padding: 2px 7px;
+    border-radius: 999px;
+
+}
+
+
+.agent-step-badge-done {
+    background: #DCFCE7;
+    color: #16A34A;
+}
+
+
+.agent-step-badge-fallback {
+    background: #FEF3C7;
+    color: #92400E;
+}
+
+
+.agent-step-badge-warning {
+    background: #FEF3C7;
+    color: #92400E;
+}
+
+
+:root[data-theme="dark"] .agent-step-badge-done {
+    background: #14301F;
+    color: #4ADE80;
+}
+
+
+:root[data-theme="dark"] .agent-step-badge-fallback,
+:root[data-theme="dark"] .agent-step-badge-warning {
+    background: #3A2E12;
+    color: #FBBF24;
+}
+
+
+.agent-step-body p {
+    margin-top: 4px;
+    font-size: 12px;
+    line-height: 1.55;
+    color: var(--text-muted);
+}
+
+
+.agent-step-duration {
+
+    display: inline-block;
+    margin-top: 6px;
+    font-size: 10.5px;
+    font-weight: 700;
+    color: var(--primary);
+    background: var(--primary-soft-2);
+    padding: 2px 8px;
+    border-radius: 999px;
+
+}
+
+
+.agent-process-footer {
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+
+    padding: 10px 18px 14px 18px;
+    border-top: 1px solid var(--border);
+
+    font-size: 11.5px;
+    font-weight: 700;
+    color: var(--text-muted);
+
+}
+
+
+@media (max-width: 1180px) {
+
+    .agent-process-panel {
+        width: 280px;
+    }
+
+}
+
+
+@media (max-width: 900px) {
+
+    .agent-process-panel {
+        width: 100%;
+        height: 420px;
+    }
+
+}

@@ -116,7 +116,7 @@ public class DocumentController : ControllerBase
         try
         {
 
-            var document = await _documentService.Process(
+            var result = await _documentService.Process(
                 userId.Value,
                 title,
                 fullPath,
@@ -126,7 +126,7 @@ public class DocumentController : ControllerBase
                 string.IsNullOrWhiteSpace(language) ? "English" : language
             );
 
-            return Ok(ToDetailDto(document));
+            return Ok(ToDetailDto(result.Document, result.Trace));
 
         }
         catch (HttpRequestException)
@@ -271,7 +271,10 @@ public class DocumentController : ControllerBase
 
 
 
-    private static UserDocumentDetailDto ToDetailDto(Models.UserDocument d)
+    private static UserDocumentDetailDto ToDetailDto(
+        Models.UserDocument d,
+        List<DocumentAgentTraceStepDto>? trace = null
+    )
     {
 
         return new UserDocumentDetailDto
@@ -286,7 +289,8 @@ public class DocumentController : ControllerBase
             Explanation = d.Explanation,
             Status = d.Status,
             ErrorMessage = d.ErrorMessage,
-            CreatedAt = d.CreatedAt
+            CreatedAt = d.CreatedAt,
+            Trace = trace ?? new List<DocumentAgentTraceStepDto>()
         };
 
     }

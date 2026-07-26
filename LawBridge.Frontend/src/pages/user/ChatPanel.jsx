@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { askQuestion, getConversation, getChatHistory, setChatSaved } from "../../services/chatService";
 import { useLanguage } from "../../context/LanguageContext";
+import AgentProcessPanel from "./AgentProcessPanel";
 import chatLogo from "../../assets/logo.png";
 import "./ChatPanel.css";
 
@@ -87,6 +88,22 @@ function AnswerCard({ answer, onToggleSave, t })
                 <span className="chat-clarify-label">{t("chat_clarify_label")}</span>
 
                 <p className="chat-clarify-question">{answer.clarifyingQuestion}</p>
+
+            </div>
+
+        );
+
+    }
+
+
+    if (answer.isFollowUp)
+    {
+
+        return (
+
+            <div className="chat-answer-card chat-followup-card">
+
+                <p>{answer.explanation}</p>
 
             </div>
 
@@ -205,6 +222,11 @@ function ChatPanel({ historyId, user })
     const [recentChats, setRecentChats] = useState([]);
 
     const [loadingRecent, setLoadingRecent] = useState(true);
+
+    // Dev/demo toggle — shows the real, timed agent trace the backend
+    // produced for the most recently answered question. Purely additive
+    // to the chat UI; hidden by default so end users see a clean chat.
+    const [showAgentPanel, setShowAgentPanel] = useState(false);
 
     const bottomRef = useRef(null);
 
@@ -433,6 +455,13 @@ function ChatPanel({ historyId, user })
     ];
 
 
+    // The agent panel always reflects the most recently answered turn —
+    // that's the request whose real trace is freshest and most relevant.
+    const latestAnsweredMessage = [...messages].reverse().find((m) => m.answer);
+    const latestTrace = latestAnsweredMessage?.answer?.trace;
+    const latestTraceQuestion = latestAnsweredMessage?.question;
+
+
     return (
 
         <div className="chat-layout">
@@ -493,13 +522,26 @@ function ChatPanel({ historyId, user })
                         <p>{t("chat_subtitle")}</p>
                     </div>
 
-                    <select
-                        className="chat-language-select"
-                        value={answerLanguage}
-                        onChange={(e) => setAnswerLanguage(e.target.value)}
-                    >
-                        {LANGUAGES.map((l) => <option key={l} value={l}>{l}</option>)}
-                    </select>
+                    <div className="chat-header-actions">
+
+                        <select
+                            className="chat-language-select"
+                            value={answerLanguage}
+                            onChange={(e) => setAnswerLanguage(e.target.value)}
+                        >
+                            {LANGUAGES.map((l) => <option key={l} value={l}>{l}</option>)}
+                        </select>
+
+                        <button
+                            type="button"
+                            className={`agent-panel-toggle-btn ${showAgentPanel ? "active" : ""}`}
+                            onClick={() => setShowAgentPanel((v) => !v)}
+                            title="Show the real backend agent steps for the last question (dev/demo view)"
+                        >
+                            🤖 {showAgentPanel ? "Hide" : "Show"} Agent Process
+                        </button>
+
+                    </div>
 
                 </div>
 
@@ -638,6 +680,17 @@ function ChatPanel({ historyId, user })
                 </p>
 
             </section>
+
+
+            {showAgentPanel && (
+
+                <AgentProcessPanel
+                    trace={latestTrace}
+                    question={latestTraceQuestion}
+                    onClose={() => setShowAgentPanel(false)}
+                />
+
+            )}
 
         </div>
 

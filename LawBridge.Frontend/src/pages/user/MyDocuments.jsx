@@ -8,6 +8,7 @@ import {
     deleteUserDocument
 } from "../../services/userDocumentService";
 import { useLanguage } from "../../context/LanguageContext";
+import AgentProcessPanel from "./AgentProcessPanel";
 import "./MyDocuments.css";
 
 
@@ -68,6 +69,16 @@ function MyDocuments()
     const [viewError, setViewError] = useState("");
 
     const [deletingId, setDeletingId] = useState(null);
+
+
+    // Dev/demo toggle — shows the real, timed agent trace the backend
+    // produced for the most recently processed upload. Purely additive;
+    // hidden by default so end users see a clean documents page.
+    const [showAgentPanel, setShowAgentPanel] = useState(false);
+
+    const [lastTrace, setLastTrace] = useState(null);
+
+    const [lastTraceTitle, setLastTraceTitle] = useState("");
 
 
     const loadDocuments = async () =>
@@ -186,6 +197,12 @@ function MyDocuments()
             await loadDocuments();
 
             setViewingDoc(result);
+
+            if (result?.trace?.length)
+            {
+                setLastTrace(result.trace);
+                setLastTraceTitle(result.title);
+            }
         }
         catch (err)
         {
@@ -272,7 +289,21 @@ function MyDocuments()
 
                 <>
 
-                    <section className="doc-grid">
+                    <div className="doc-toolbar">
+
+                        <button
+                            type="button"
+                            className={`agent-panel-toggle-btn ${showAgentPanel ? "active" : ""}`}
+                            onClick={() => setShowAgentPanel((v) => !v)}
+                            title="Show the real backend agent steps for the last upload (dev/demo view)"
+                        >
+                            🤖 {showAgentPanel ? "Hide" : "Show"} Agent Process
+                        </button>
+
+                    </div>
+
+
+                    <section className={`doc-grid ${showAgentPanel ? "doc-grid-with-agent" : ""}`}>
 
                         <div className="doc-panel doc-upload-panel">
 
@@ -400,6 +431,19 @@ function MyDocuments()
                             )}
 
                         </div>
+
+
+                        {showAgentPanel && (
+
+                            <AgentProcessPanel
+                                trace={lastTrace}
+                                question={lastTraceTitle}
+                                label="Document:"
+                                emptyHint="Upload a document — every real step the agent takes (text extraction, AI explanation, translation, saving) will appear here as it actually happens."
+                                onClose={() => setShowAgentPanel(false)}
+                            />
+
+                        )}
 
                     </section>
 
