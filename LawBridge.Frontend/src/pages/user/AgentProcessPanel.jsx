@@ -19,6 +19,9 @@ const STEP_ICON = {
     memory: "💾",
     extract: "🔎",
     explain: "🧠",
+    store: "💾",
+    chunk: "✂️",
+    index: "🗄️",
 };
 
 

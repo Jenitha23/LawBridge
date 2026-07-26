@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -59,6 +60,37 @@ public class AdminDocumentController : ControllerBase
         }
 
 
+        // ---- Real, timed trace of every step this specific ingestion takes ----
+        //
+        // Purely additive: the pipeline's behavior below is unchanged. Each
+        // stage records what actually happened (real character counts, real
+        // chunk/embedding counts, real timings) so the frontend can show the
+        // true agentic flow — extract -> store -> chunk -> embed -> index —
+        // for this exact document, not a scripted animation.
+
+        var trace = new List<AdminDocumentTraceStepDto>();
+
+        void AddStep(string key, string stepTitle, string detail, string status, long durationMs)
+        {
+            trace.Add(new AdminDocumentTraceStepDto
+            {
+                Step = trace.Count + 1,
+                Key = key,
+                Title = stepTitle,
+                Detail = detail,
+                Status = status,
+                DurationMs = durationMs
+            });
+        }
+
+        AddStep(
+            "understand",
+            "Understanding the upload",
+            $"Received \"{file.FileName}\" for category #{categoryId}, language {language}.",
+            "done",
+            0
+        );
+
 
         var fileName =
             Guid.NewGuid()
@@ -99,8 +131,25 @@ public class AdminDocumentController : ControllerBase
             await file.CopyToAsync(stream);
             
         }
+
+        var extractSw = Stopwatch.StartNew();
+
         var extractedText =
     await _pdfService.ExtractTextAsync(path);
+
+        extractSw.Stop();
+
+        extractedText ??= string.Empty;
+
+        AddStep(
+            "extract",
+            "Extracting text (PDF)",
+            extractedText.Length > 0
+                ? $"Extracted {extractedText.Length} characters of text directly from the PDF."
+                : "No readable text was found in this PDF.",
+            extractedText.Length > 0 ? "done" : "warning",
+            extractSw.ElapsedMilliseconds
+        );
 
 
         var document =
@@ -122,13 +171,43 @@ public class AdminDocumentController : ControllerBase
         };
 
 
+        var storeSw = Stopwatch.StartNew();
 
         await _repository.Add(document);
+
+        storeSw.Stop();
+
+        AddStep(
+            "store",
+            "Saving document record",
+            $"Stored document #{document.Id} (\"{title}\") in the legal document library.",
+            "done",
+            storeSw.ElapsedMilliseconds
+        );
+
+        var chunkSw = Stopwatch.StartNew();
+
         var chunks =
     _chunkService.CreateChunks(
         extractedText
     );
 
+        chunkSw.Stop();
+
+        AddStep(
+            "chunk",
+            "Splitting into chunks",
+            chunks.Count > 0
+                ? $"Split the document into {chunks.Count} chunk(s) of up to 1000 characters each, ready to embed."
+                : "No text to split into chunks — nothing will be added to the searchable knowledge base.",
+            chunks.Count > 0 ? "done" : "warning",
+            chunkSw.ElapsedMilliseconds
+        );
+
+
+        var embedSw = Stopwatch.StartNew();
+
+        var embeddedDimensions = 0;
 
 foreach(var chunk in chunks)
 {
@@ -136,6 +215,11 @@ foreach(var chunk in chunks)
     var embedding =
         await _embeddingService
         .GenerateEmbedding(chunk);
+
+    if (embeddedDimensions == 0)
+    {
+        embeddedDimensions = embedding.ToArray().Length;
+    }
 
     var legalChunk =
     new LegalChunk
@@ -155,14 +239,58 @@ foreach(var chunk in chunks)
 
 }
 
+        embedSw.Stop();
+
+        if (chunks.Count > 0)
+        {
+
+            AddStep(
+                "embed",
+                "Generating embeddings",
+                $"Called gemini-embedding-001 once per chunk to generate {chunks.Count} {embeddedDimensions}-dimension vector(s) (avg {embedSw.ElapsedMilliseconds / chunks.Count}ms/chunk).",
+                "done",
+                embedSw.ElapsedMilliseconds
+            );
+
+        }
+
+
+var indexSw = Stopwatch.StartNew();
 
 await _ragContext.SaveChangesAsync();
 
+        indexSw.Stop();
+
+        AddStep(
+            "index",
+            "Indexing into vector database",
+            chunks.Count > 0
+                ? $"Wrote {chunks.Count} embedded chunk(s) into the pgvector-backed knowledge base — now searchable by the chat agent."
+                : "Nothing was indexed — the knowledge base was not updated.",
+            chunks.Count > 0 ? "done" : "warning",
+            indexSw.ElapsedMilliseconds
+        );
 
 
-        return Ok(new
+        var saved =
+            await _repository.GetById(document.Id);
+
+
+        return Ok(new DocumentUploadResultDto
         {
-            message="Document uploaded successfully"
+            Id = document.Id,
+            Title = document.Title,
+            FileName = file.FileName,
+            CategoryId = document.CategoryId,
+            CategoryName = saved?.Category?.Name ?? "Uncategorized",
+            Language = document.Language,
+            Source = document.Source,
+            CreatedAt = document.CreatedAt,
+            Status = chunks.Count > 0 ? "Processed" : "Failed",
+            ChunkCount = chunks.Count,
+            EmbeddedChunkCount = chunks.Count,
+            Message = "Document uploaded successfully",
+            Trace = trace
         });
 
     }

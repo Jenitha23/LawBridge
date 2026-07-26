@@ -9,6 +9,7 @@ import {
     uploadDocument,
     deleteDocument
 } from "../../services/documentService";
+import AgentProcessPanel from "../user/AgentProcessPanel";
 import "./UploadDocument.css";
 
 
@@ -87,6 +88,16 @@ function UploadDocument()
     const [manageSaving, setManageSaving] = useState(false);
 
     const [editForm, setEditForm] = useState({ title: "", categoryId: "", language: "English" });
+
+
+    // Dev/demo toggle — shows the real, timed agent trace the backend
+    // produced for the most recently ingested document (extract -> chunk
+    // -> embed -> index). Purely additive; hidden by default.
+    const [showAgentPanel, setShowAgentPanel] = useState(false);
+
+    const [lastTrace, setLastTrace] = useState(null);
+
+    const [lastTraceTitle, setLastTraceTitle] = useState("");
 
 
     const loadData = async () =>
@@ -214,7 +225,7 @@ function UploadDocument()
 
         try
         {
-            await uploadDocument(
+            const result = await uploadDocument(
                 { file, title: title.trim(), categoryId, language },
                 (progressEvent) =>
                 {
@@ -227,6 +238,12 @@ function UploadDocument()
             );
 
             setFormSuccess("Document uploaded and processed successfully.");
+
+            if (result?.trace?.length)
+            {
+                setLastTrace(result.trace);
+                setLastTraceTitle(result.title || title.trim());
+            }
 
             resetForm();
 
@@ -399,7 +416,21 @@ function UploadDocument()
                     )}
 
 
-                    <section className="upload-grid">
+                    <div className="doc-toolbar">
+
+                        <button
+                            type="button"
+                            className={`agent-panel-toggle-btn ${showAgentPanel ? "active" : ""}`}
+                            onClick={() => setShowAgentPanel((v) => !v)}
+                            title="Show the real backend agent steps for the last ingested document (dev/demo view)"
+                        >
+                            🤖 {showAgentPanel ? "Hide" : "Show"} Agent Process
+                        </button>
+
+                    </div>
+
+
+                    <section className={`upload-grid ${showAgentPanel ? "upload-grid-with-agent" : ""}`}>
 
                         <div className="admin-panel upload-form-panel">
 
@@ -658,6 +689,19 @@ function UploadDocument()
                             )}
 
                         </div>
+
+
+                        {showAgentPanel && (
+
+                            <AgentProcessPanel
+                                trace={lastTrace}
+                                question={lastTraceTitle}
+                                label="Document:"
+                                emptyHint="Upload a legal document — every real step the agent takes (PDF extraction, chunking, embedding each chunk, indexing into the vector database) will appear here as it actually happens."
+                                onClose={() => setShowAgentPanel(false)}
+                            />
+
+                        )}
 
                     </section>
 
