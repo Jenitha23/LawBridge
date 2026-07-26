@@ -146,20 +146,11 @@ DotNetEnv.Env.Load();
 var app = builder.Build();
 
 // ===============================
-// Auto Database Migration
+// Database migrations are applied by the Docker entrypoint (efbundle)
+// before this process starts — see entrypoint.sh / LawBridge.Backend.Dockerfile.
+// For local (non-Docker) development, run `dotnet ef database update`
+// manually before `dotnet run`.
 // ===============================
-
-using(var scope = app.Services.CreateScope())
-{
-
-    var db =
-    scope.ServiceProvider
-    .GetRequiredService<AppDbContext>();
-
-
-    db.Database.Migrate();
-
-}
 
 
 
