@@ -2,12 +2,14 @@ import api from "../api/axios";
 
 
 // ===========================
-// GET /api/topics/categories
+// GET /api/topics/categories?language=...
+// language is optional — when given, documentCount only reflects
+// documents actually available in that language.
 // returns: [{ id, name, description, documentCount }]
 // ===========================
-export const getTopicCategories = async () =>
+export const getTopicCategories = async (language) =>
 {
-    const response = await api.get("/topics/categories");
+    const response = await api.get("/topics/categories", { params: { language } });
 
     return response.data;
 };
@@ -15,12 +17,12 @@ export const getTopicCategories = async () =>
 
 
 // ===========================
-// GET /api/topics/categories/{id}/documents
+// GET /api/topics/categories/{id}/documents?language=...
 // returns: [{ id, title, language, createdAt }]
 // ===========================
-export const getTopicsInCategory = async (categoryId) =>
+export const getTopicsInCategory = async (categoryId, language) =>
 {
-    const response = await api.get(`/topics/categories/${categoryId}/documents`);
+    const response = await api.get(`/topics/categories/${categoryId}/documents`, { params: { language } });
 
     return response.data;
 };
@@ -41,12 +43,14 @@ export const getTopicDetail = async (id) =>
 
 
 // ===========================
-// GET /api/topics/search?q=...
-// returns: [{ id, title, categoryName, language, snippet }]
+// GET /api/topics/search?q=...&language=...
+// Hybrid search: exact substring match merged with semantic (pgvector)
+// match over the same embeddings the chat feature uses.
+// returns: [{ id, title, categoryName, language, snippet, isSemanticMatch }]
 // ===========================
-export const searchTopics = async (query) =>
+export const searchTopics = async (query, language) =>
 {
-    const response = await api.get("/topics/search", { params: { q: query } });
+    const response = await api.get("/topics/search", { params: { q: query, language } });
 
     return response.data;
 };

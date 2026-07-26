@@ -36,6 +36,10 @@ public class AdminCategoryController : ControllerBase
                 Id = c.Id,
                 Name = c.Name,
                 Description = c.Description,
+                NameSinhala = c.NameSinhala,
+                DescriptionSinhala = c.DescriptionSinhala,
+                NameTamil = c.NameTamil,
+                DescriptionTamil = c.DescriptionTamil,
                 DocumentCount = c.LegalDocuments.Count
             })
             .OrderBy(c => c.Name)
@@ -76,7 +80,11 @@ public class AdminCategoryController : ControllerBase
         var category = new LegalCategory
         {
             Name = dto.Name.Trim(),
-            Description = dto.Description
+            Description = dto.Description,
+            NameSinhala = string.IsNullOrWhiteSpace(dto.NameSinhala) ? null : dto.NameSinhala.Trim(),
+            DescriptionSinhala = dto.DescriptionSinhala,
+            NameTamil = string.IsNullOrWhiteSpace(dto.NameTamil) ? null : dto.NameTamil.Trim(),
+            DescriptionTamil = dto.DescriptionTamil
         };
 
 
@@ -90,6 +98,10 @@ public class AdminCategoryController : ControllerBase
             Id = category.Id,
             Name = category.Name,
             Description = category.Description,
+            NameSinhala = category.NameSinhala,
+            DescriptionSinhala = category.DescriptionSinhala,
+            NameTamil = category.NameTamil,
+            DescriptionTamil = category.DescriptionTamil,
             DocumentCount = 0
         });
 
@@ -137,6 +149,10 @@ public class AdminCategoryController : ControllerBase
 
         category.Name = dto.Name.Trim();
         category.Description = dto.Description;
+        category.NameSinhala = string.IsNullOrWhiteSpace(dto.NameSinhala) ? null : dto.NameSinhala.Trim();
+        category.DescriptionSinhala = dto.DescriptionSinhala;
+        category.NameTamil = string.IsNullOrWhiteSpace(dto.NameTamil) ? null : dto.NameTamil.Trim();
+        category.DescriptionTamil = dto.DescriptionTamil;
 
 
         await _context.SaveChangesAsync();

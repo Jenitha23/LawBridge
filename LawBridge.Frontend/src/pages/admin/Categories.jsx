@@ -24,7 +24,14 @@ function Categories()
 
     const [editingId, setEditingId] = useState(null);
 
-    const [form, setForm] = useState({ name: "", description: "" });
+    const [form, setForm] = useState({
+        name: "",
+        description: "",
+        nameSinhala: "",
+        descriptionSinhala: "",
+        nameTamil: "",
+        descriptionTamil: ""
+    });
 
     const [formError, setFormError] = useState("");
 
@@ -69,7 +76,14 @@ function Categories()
     {
         setEditingId(null);
 
-        setForm({ name: "", description: "" });
+        setForm({
+            name: "",
+            description: "",
+            nameSinhala: "",
+            descriptionSinhala: "",
+            nameTamil: "",
+            descriptionTamil: ""
+        });
 
         setFormError("");
 
@@ -81,7 +95,14 @@ function Categories()
     {
         setEditingId(category.id);
 
-        setForm({ name: category.name, description: category.description });
+        setForm({
+            name: category.name,
+            description: category.description,
+            nameSinhala: category.nameSinhala || "",
+            descriptionSinhala: category.descriptionSinhala || "",
+            nameTamil: category.nameTamil || "",
+            descriptionTamil: category.descriptionTamil || ""
+        });
 
         setFormError("");
 
@@ -210,6 +231,12 @@ function Categories()
 
                                         <p>{c.description || "No description."}</p>
 
+                                        {(!c.nameSinhala || !c.nameTamil) && (
+                                            <p className="categories-missing-translation">
+                                                Missing: {[!c.nameSinhala && "Sinhala", !c.nameTamil && "Tamil"].filter(Boolean).join(", ")}
+                                            </p>
+                                        )}
+
                                         <div className="category-card-actions">
 
                                             <button onClick={() => openEdit(c)}>
@@ -267,6 +294,51 @@ function Categories()
                                             value={form.description}
                                             onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
                                             placeholder="Short description (optional)"
+                                        />
+                                    </div>
+
+                                    <p className="categories-translation-hint">
+                                        Sinhala and Tamil translations shown to users when they switch language.
+                                        Leave blank to fall back to English.
+                                    </p>
+
+                                    <div className="upload-field">
+                                        <label>Name (Sinhala)</label>
+                                        <input
+                                            type="text"
+                                            value={form.nameSinhala}
+                                            onChange={(e) => setForm((f) => ({ ...f, nameSinhala: e.target.value }))}
+                                            placeholder="සිංහල නම"
+                                        />
+                                    </div>
+
+                                    <div className="upload-field">
+                                        <label>Description (Sinhala)</label>
+                                        <input
+                                            type="text"
+                                            value={form.descriptionSinhala}
+                                            onChange={(e) => setForm((f) => ({ ...f, descriptionSinhala: e.target.value }))}
+                                            placeholder="සිංහල විස්තරය (optional)"
+                                        />
+                                    </div>
+
+                                    <div className="upload-field">
+                                        <label>Name (Tamil)</label>
+                                        <input
+                                            type="text"
+                                            value={form.nameTamil}
+                                            onChange={(e) => setForm((f) => ({ ...f, nameTamil: e.target.value }))}
+                                            placeholder="தமிழ் பெயர்"
+                                        />
+                                    </div>
+
+                                    <div className="upload-field">
+                                        <label>Description (Tamil)</label>
+                                        <input
+                                            type="text"
+                                            value={form.descriptionTamil}
+                                            onChange={(e) => setForm((f) => ({ ...f, descriptionTamil: e.target.value }))}
+                                            placeholder="தமிழ் விளக்கம் (optional)"
                                         />
                                     </div>
 

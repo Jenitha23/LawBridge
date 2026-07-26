@@ -7,6 +7,7 @@ import {
     searchTopics
 } from "../../services/topicsService";
 import { useLanguage } from "../../context/LanguageContext";
+import { getAssetUrl } from "../../utils/imageUrl";
 import "./MyDocuments.css";
 import "./LegalTopics.css";
 
@@ -22,7 +23,7 @@ function formatDate(dateString)
 function LegalTopics()
 {
 
-    const { t } = useLanguage();
+    const { t, language } = useLanguage();
 
     const [categories, setCategories] = useState([]);
 
@@ -53,7 +54,16 @@ function LegalTopics()
     useEffect(() =>
     {
 
-        getTopicCategories()
+        setLoadingCategories(true);
+
+        // The list the user was looking at may not exist in the newly
+        // selected language — drop back to browsing categories fresh
+        // rather than showing a stale, wrong-language view.
+        setSelectedCategory(null);
+        setCategoryDocs([]);
+        setSearchResults(null);
+
+        getTopicCategories(language)
             .then(setCategories)
             .catch((err) =>
             {
@@ -64,7 +74,7 @@ function LegalTopics()
             })
             .finally(() => setLoadingCategories(false));
 
-    }, []);
+    }, [language]);
 
 
     const openCategory = async (category) =>
@@ -78,7 +88,7 @@ function LegalTopics()
 
         try
         {
-            const docs = await getTopicsInCategory(category.id);
+            const docs = await getTopicsInCategory(category.id, language);
 
             setCategoryDocs(docs);
         }
@@ -117,7 +127,7 @@ function LegalTopics()
 
         try
         {
-            const results = await searchTopics(q);
+            const results = await searchTopics(q, language);
 
             setSearchResults(results);
         }
@@ -221,7 +231,14 @@ function LegalTopics()
 
                                             <button className="topics-doc-item" key={r.id} onClick={() => openTopic(r.id)}>
                                                 <div>
-                                                    <p className="topics-doc-title">{r.title}</p>
+                                                    <p className="topics-doc-title">
+                                                        {r.title}
+                                                        {r.isSemanticMatch && (
+                                                            <span className="tag tag-orange topics-semantic-tag">
+                                                                {t("topics_semantic_match")}
+                                                            </span>
+                                                        )}
+                                                    </p>
                                                     <p className="topics-snippet">{r.snippet}</p>
                                                 </div>
                                                 <span className="tag tag-purple">{r.categoryName}</span>
@@ -334,6 +351,12 @@ function LegalTopics()
                                             <span className="tag tag-purple">{viewingTopic.categoryName}</span>
                                             <span>{viewingTopic.language}</span>
                                             <span>{formatDate(viewingTopic.createdAt)}</span>
+
+                                            {viewingTopic.source && (
+                                                <a href={getAssetUrl(viewingTopic.source.replace(/^\//, ""))} target="_blank" rel="noreferrer">
+                                                    {t("docs_open_original")}
+                                                </a>
+                                            )}
                                         </div>
 
                                         <p className="doc-explanation">{viewingTopic.content}</p>
