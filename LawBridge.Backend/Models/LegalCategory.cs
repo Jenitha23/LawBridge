@@ -19,6 +19,19 @@ public class LegalCategory
 
 
 
+    // Optional translations — the topic browser falls back to the
+    // English Name/Description above when these are blank, so filling
+    // them in is encouraged but not required to keep a category usable.
+    public string? NameSinhala { get; set; }
+
+    public string? DescriptionSinhala { get; set; }
+
+    public string? NameTamil { get; set; }
+
+    public string? DescriptionTamil { get; set; }
+
+
+
     // Navigation property
 
     public ICollection<LegalDocument> LegalDocuments { get; set; }
