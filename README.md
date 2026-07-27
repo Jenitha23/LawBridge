@@ -131,7 +131,7 @@ Two separate PostgreSQL databases are used: `LawBridge` (users, chats, documents
 
 ## 🤖 AI Agent Workflow (Open Category)
 
-LawBridge uses a **Goal-Based Legal Guidance Agent**. Every request executes a real multi-step reasoning pipeline — no step is simulated — and each stage is recorded in a live **Agent Trace** returned with the answer, so users and judges can see exactly what the agent did.
+LawBridge uses a **Goal-Based Legal Guidance Agent**. Every request executes a real multi-step reasoning pipeline — no step is simulated — and each stage is recorded in a live **Agent Trace** returned with the answer, so users can see exactly what the agent did.
 
 **Chat pipeline:**
 
