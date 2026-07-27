@@ -1,135 +1,277 @@
-# LawBridge
+# ⚖️ LawBridge
 
-**AI-powered multilingual legal awareness platform for Sri Lankan citizens**
+> **AI-Powered Multilingual Legal Awareness Platform for Sri Lankan Citizens**
 
-IDEALIZE 2026 — Team CodeNova | Open Category | Web
+**IDEALIZE 2026 – Team CodeNova**
+**Category:** Open Category (Web)
 
-## Purpose
+---
 
-Many Sri Lankan citizens face legal problems — unpaid salary, EPF issues, rental disputes, online scams, defective products — but don't clearly understand their rights or the correct first step to take. Legal language is difficult, consultation is expensive and hard to access, and guidance often isn't available in Sinhala or Tamil.
+## 📌 Project Purpose
 
-LawBridge is a multilingual legal awareness web application that lets a user describe a legal problem or upload a legal document, and returns a plain-language explanation, the relevant legal information, and practical next steps — in Sinhala, Tamil, or English. It does not replace a lawyer; it helps people understand their situation well enough to take an informed first step, including knowing when to consult a professional.
+Many Sri Lankan citizens face legal issues — unpaid salaries, EPF disputes, tenancy conflicts, and consumer rights violations — but don't know their legal rights or the correct first step to take. Legal information is often written in complex legal language, expensive to obtain through professional consultation, and rarely available in Sinhala or Tamil.
 
-The current prototype focuses on three legal areas: **Labour Law, Tenancy Issues, and Consumer Protection.**
+**LawBridge** is a multilingual legal awareness platform that helps users understand legal issues through plain-language explanations, document analysis, and practical first-step guidance — in Sinhala, Tamil, and English.
 
-## Tech Stack
+LawBridge does **not** replace lawyers. It helps citizens understand their situation and identify the right next step before seeking professional legal advice.
 
-This matches the architecture in the team proposal.
+The current prototype focuses on three legal domains:
+
+- Labour Law
+- Tenancy Issues
+- Consumer Protection
+
+---
+
+## 🧠 Why an AI Agent, Not a Chatbot
+
+Instead of answering purely from an LLM's memory, every question LawBridge receives goes through a real multi-step reasoning pipeline — retrieval-augmented, classified, source-grounded, and self-correcting rather than a single prompt-in/response-out wrapper. This is detailed in [AI Agent Workflow](#-ai-agent-workflow-open-category) below.
+
+---
+
+## ✨ Core Features
+
+### 🤖 AI Legal Chat Assistant
+Ask legal questions in Sinhala, Tamil, or English and receive structured, source-grounded legal explanations, with follow-up questions handled conversationally within the same thread.
+
+### 🏷️ Legal Issue Classification
+Every question is classified into a legal category before retrieval, so search is scoped to the right area of law.
+
+### 📚 RAG-Based Legal Information Retrieval
+Answers are generated from Sri Lankan legal knowledge retrieved via vector similarity search (pgvector), not solely from the model's own memory.
+
+### ❓ Clarification Guardrail
+If a question is too vague to answer safely, the agent asks a clarifying question instead of guessing — and correctly resumes the full structured answer once the user responds.
+
+### 📄 OCR Document Analysis
+Users can upload legal notices, agreements, and contracts. Tesseract OCR (English, Sinhala, Tamil trained data) extracts the text, and the AI explains it in plain language.
+
+### 🔍 Legal Topics Browser
+Hybrid search (exact keyword + semantic vector search) across legal categories and documents, with per-language filtering and "related" match badges.
+
+### 💾 Saved Conversations & Chat History
+Conversations are grouped by thread, can be saved, revisited, or deleted.
+
+### 👤 User Profile Management
+Registration, login, profile details, and profile picture management.
+
+### 🔐 Admin Dashboard
+Administrators can manage legal topics and categories (with per-language translations), review uploaded documents, manage users, view AI chat logs across all users, and monitor platform analytics (questions asked, popular legal topics, most-viewed documents).
+
+### 🌐 Multilingual Interface
+The full application UI — not just AI answers — supports English, Sinhala, and Tamil.
+
+---
+
+## 🏗️ System Architecture
+
+```text
+                    User
+                      │
+                      ▼
+           React Frontend (Vite)
+                      │
+               REST API (HTTPS)
+                      │
+                      ▼
+       ASP.NET Core Web API (.NET 8)
+                      │
+        ┌─────────────┼─────────────┐
+        ▼             ▼             ▼
+ Authentication    OCR Service    AI Agent
+  JWT + BCrypt    Tesseract OCR   Gemini API
+        │                           │
+        │                           ▼
+        │                 Intent Classification
+        │                           │
+        │                           ▼
+        │                   Embedding Generation
+        │                           │
+        │                           ▼
+        │                 pgvector Similarity Search
+        │                           │
+        │                           ▼
+        │                Grounded Legal Reasoning
+        │                           │
+        └──────────────► PostgreSQL Databases
+               Users • Chats • Documents • Legal Knowledge
+```
+
+Two separate PostgreSQL databases are used: `LawBridge` (users, chats, documents, categories) and `LawBridgeRAG` (pgvector store for legal chunk embeddings).
+
+---
+
+## 🛠️ Tech Stack
 
 | Layer | Technology |
 |---|---|
-| Frontend | React 19 (Vite), React Router, Axios |
+| Frontend | React 19, Vite, React Router v7, Axios |
 | Backend | ASP.NET Core Web API (.NET 8) |
-| Database | PostgreSQL, with a dedicated `pgvector`-enabled instance for embeddings |
-| ORM | Entity Framework Core 9 (Npgsql) |
-| AI / LLM | Gemini (`gemini-3.1-flash-lite` for reasoning, translation, and category classification; `gemini-embedding-001` for embeddings) |
-| OCR | Tesseract (`eng+sin+tam` trained data) |
-| Auth | JWT Bearer authentication, BCrypt password hashing |
-| PDF handling | iText7 |
+| Database | PostgreSQL (two databases) |
+| Vector Search | pgvector |
+| ORM | Entity Framework Core 9 |
+| AI Reasoning | Google Gemini (`gemini-3.1-flash-lite`) |
+| Embeddings | Gemini `gemini-embedding-001` (truncated to 1536 dims) |
+| OCR | Tesseract OCR (`eng`, `sin`, `tam` trained data) |
+| Authentication | JWT Bearer + BCrypt |
+| PDF Processing | iText7 |
 | Validation | FluentValidation |
-| API docs | Swagger / OpenAPI |
+| API Documentation | Swagger / OpenAPI |
 
-### Licensing
+> The original proposal listed Gemini, OpenAI, and Claude as candidate AI providers. The team settled on the Gemini API for the prototype — see [Pivots From the Original Proposal](#-pivots-from-the-original-proposal) below.
 
-All third-party tools and APIs used are properly licensed for this use case:
+---
 
-- **Gemini API (Google)** — used under Google's API terms, accessed via a project-issued API key.
-- **Tesseract OCR** — Apache License 2.0 (open-source), bundled with `eng`, `sin`, and `tam` trained data.
-- **React, ASP.NET Core, Entity Framework Core, Npgsql, Pgvector, iText7 (AGPL/commercial dual-licensed — used here under its open-source terms), FluentValidation, Swashbuckle** — all open-source, used under their respective MIT/Apache/BSD licenses.
-- **BCrypt.Net-Next, System.IdentityModel.Tokens.Jwt** — open-source, MIT-licensed.
+## 🤖 AI Agent Workflow (Open Category)
 
-No proprietary or unlicensed third-party assets are used in this prototype.
+LawBridge uses a **Goal-Based Legal Guidance Agent**. Every request executes a real multi-step reasoning pipeline — no step is simulated — and each stage is recorded in a live **Agent Trace** returned with the answer, so users and judges can see exactly what the agent did.
 
-## Core Features
+**Chat pipeline:**
 
-- **AI Legal Chat Assistant** — ask a legal question in Sinhala, Tamil, or English and get a structured explanation with sources.
-- **Legal issue classification** — questions are automatically classified into a legal category before retrieval.
-- **RAG-based legal information retrieval** — answers are grounded in a `pgvector` similarity search over an embedded legal knowledge base, not the model's own memory.
-- **OCR-based document explanation** — upload a notice, agreement, or contract; the system extracts the text and explains it in plain language.
-- **Legal topics browsing** — browse legal categories and documents directly.
-- **Saved answers & user profile management** — users can save useful answers and manage their account.
-- **Chat history** — conversations are persisted per user and can be continued.
-- **Admin dashboard** — review, update, and manage legal content, categories, uploaded documents, users, and chat logs, with analytics.
-- **Multilingual UI** — the interface itself, not just the AI answers, supports Sinhala, Tamil, and English.
+```text
+User Question
+      │
+      ▼
+Understand User Intent (follow-up? clarification answer? new question?)
+      │
+      ▼
+Legal Category Classification
+      │
+      ▼
+Embedding Generation (Gemini)
+      │
+      ▼
+pgvector Similarity Search (scoped to classified category)
+      │
+      ▼
+Retrieve Relevant Legal Sources
+      │
+      ▼
+Build Grounding Context
+      │
+      ▼
+Gemini Legal Reasoning → Structured JSON Answer
+      │
+      ▼
+Guardrail Check (ask a clarifying question if too vague)
+      │
+      ▼
+Translation (English-first, then verified translation if needed)
+      │
+      ▼
+Save to Conversation Memory (threaded by ConversationId)
+```
 
-## AI Agent Workflow (Open Category)
+**Document explanation pipeline:**
 
-LawBridge uses a **Goal-Based Legal Guidance Agent**. For every question, the backend (`LegalChatService`) runs a real, multi-step pipeline — not a single prompt — and returns a live trace of what actually happened for that specific request:
+```text
+Upload Document (PDF / JPG / PNG)
+      │
+      ▼
+OCR Text Extraction (Tesseract, eng+sin+tam combined)
+      │
+      ▼
+Legal Context Retrieval (pgvector)
+      │
+      ▼
+AI Explanation + First-Step Guidance
+      │
+      ▼
+Translation (if required)
+      │
+      ▼
+Save Document History
+```
 
-1. **Understand** — parses the incoming question, language, and any existing conversation thread.
-2. **Classify** — Gemini classifies the question into a legal category to narrow retrieval; if classification is inconclusive, the agent falls back to an unrestricted search.
-3. **Embed** — the question is converted into a vector using `gemini-embedding-001`.
-4. **Retrieve** — a `pgvector` cosine-similarity search returns the top matching legal chunks, scoped to the classified category first, and automatically widened to the full database if that scope returns nothing.
-5. **Build context** — retrieved chunks are assembled into grounding context for the model, together with source document titles.
-6. **Reason** — Gemini reasons over the retrieved context and produces a structured JSON answer (category, plain-language explanation, relevant legal info, possible actions, required documents, and when to consult a lawyer).
-7. **Guardrail** — if the model tries to ask a clarifying question indefinitely, the agent detects the repeated clarification loop and forces a real answer using the best available context instead.
-8. **Clarify (conditional)** — if the question is genuinely too vague, the agent asks one targeted follow-up question instead of guessing, and remembers the answer on the next turn.
-9. **Translate (conditional)** — if the user requested Sinhala or Tamil, the finished English answer is translated in a separate, narrower Gemini call, with a script check to confirm the translation actually switched script before it's shown to the user; otherwise it falls back to English.
-10. **Persist** — the exchange is saved to chat history under the conversation thread.
+**Agent Trace stages exposed to the user:** `classify → embed → retrieve → sources → context → reason → guardrail → clarify → translate → memory`
 
-For document uploads, a parallel agentic flow applies: **OCR extraction → AI explanation in plain language → structured guidance**, using the same reasoning and translation steps described above.
+---
 
-This is a real, running agent — every step above executes against live services (Gemini, `pgvector`, Tesseract) for each request; no step is simulated or hard-coded to look like reasoning.
+## 📁 Repository Structure
 
-## Setup Instructions
+```text
+LawBridge
+│
+├── LawBridge.Frontend
+│   ├── src
+│   │   ├── pages        (admin, auth, user)
+│   │   ├── components
+│   │   ├── services
+│   │   ├── context       (e.g. language context)
+│   │   ├── i18n
+│   │   └── layouts
+│   └── package.json
+│
+├── LawBridge.Backend
+│   ├── Controllers
+│   ├── Services
+│   ├── Repositories
+│   ├── Interfaces
+│   ├── Models
+│   ├── DTOs
+│   ├── Validators
+│   ├── Migrations
+│   ├── Data              (AppDbContext, RagDbContext)
+│   ├── tessdata           (eng, sin, tam)
+│   └── Program.cs
+│
+└── README.md
+```
+
+---
+
+## ⚙️ Setup Instructions
 
 ### Prerequisites
 
 - .NET 8 SDK
-- Node.js 18+ and npm
-- PostgreSQL 14+ with the `pgvector` extension available
+- Node.js 18+
+- PostgreSQL 14+ with the `pgvector` extension
 - A Gemini API key
 
 ### 1. Database
 
-Create two PostgreSQL databases (or two instances) — one for application data, one for the RAG/embeddings store with `pgvector` enabled:
+Create two PostgreSQL databases:
 
 ```sql
 CREATE DATABASE "LawBridge";
 CREATE DATABASE "LawBridgeRAG";
--- on the RAG database:
+
+\c LawBridgeRAG
 CREATE EXTENSION IF NOT EXISTS vector;
 ```
 
-### 2. Backend (`LawBridge.Backend`)
+### 2. Backend
 
 ```bash
 cd LawBridge.Backend
+dotnet restore
 ```
 
-Set the following in `appsettings.Development.json` or environment variables (do **not** commit real secrets):
+Configure `appsettings.json` with:
 
-```json
-{
-  "ConnectionStrings": {
-    "DefaultConnection": "Host=localhost;Port=5432;Database=LawBridge;Username=<user>;Password=<password>",
-    "RagConnection": "Host=localhost;Port=5433;Database=LawBridgeRAG;Username=<user>;Password=<password>"
-  },
-  "Jwt": {
-    "Key": "<a long random secret>",
-    "Issuer": "LawBridge",
-    "Audience": "LawBridgeUsers",
-    "ExpireMinutes": 60
-  },
-  "Gemini": {
-    "ApiKey": "<your Gemini API key>",
-    "EmbeddingModel": "gemini-embedding-001",
-    "EmbeddingDimensions": 1536,
-    "ChatModel": "gemini-3.1-flash-lite"
-  }
-}
-```
+- `ConnectionStrings:DefaultConnection` and `ConnectionStrings:RagConnection`
+- `Jwt:Key` / `Issuer` / `Audience`
+- `Gemini:ApiKey`, `EmbeddingModel`, `ChatModel`
 
-Then run:
+> ⚠️ **Do not commit real secrets.** Use a placeholder key in the repo and keep the real key in a local, git-ignored `appsettings.Development.json` or environment variable before pushing/submitting.
+
+Apply migrations to both databases:
 
 ```bash
-dotnet restore
+dotnet ef database update --context AppDbContext
+dotnet ef database update --context RagDbContext
+```
+
+Run the API:
+
+```bash
 dotnet run
 ```
 
-Database migrations are applied automatically on startup. The API is served with Swagger UI enabled for exploring endpoints. Tesseract's `tessdata` folder is bundled with the project (`eng`, `sin`, `tam`) — no separate install is required.
+Swagger UI is available once the API is running.
 
-### 3. Frontend (`LawBridge.Frontend`)
+### 3. Frontend
 
 ```bash
 cd LawBridge.Frontend
@@ -137,28 +279,117 @@ npm install
 npm run dev
 ```
 
-The frontend runs on `http://localhost:5173` by default and is pre-configured (CORS) to talk to the backend. Confirm the API base URL in `src/api/axios.js` / `src/api/adminAxios.js` matches your backend's running port.
+Frontend runs on `http://localhost:5173`.
 
 ### 4. Login
 
-Register a new user from the app's Register page, or use the admin login route for the admin dashboard (seeded/created separately depending on your setup).
+- **Users**: register a new account from the Register page (`http://localhost:5173/register`), then log in at `http://localhost:5173/login`.
+- **Admins**: navigate to `http://localhost:5173/admin/login`, which authenticates against `POST /api/admin/auth/login` and routes to the protected `/admin/dashboard` on success.
 
-## Pivots from the Original Proposal
+---
 
-The core tech stack, feature set, and agent concept (Goal-Based Legal Guidance Agent: classify → retrieve → reason → respond) all match the original proposal without change. One refinement was made during implementation:
+## 📡 API Overview
 
-- **Added a real-time agent trace and a clarification-loop guardrail.** The original proposal described the 5-step agent flow at a conceptual level. During development, the agent was extended so that each step (classify, embed, retrieve, reason, translate, etc.) is logged with real timing and status and returned to the frontend, so the AI Agent's reasoning is visible rather than only described. A guardrail was also added to stop the model from asking clarifying questions indefinitely — after a couple of clarification rounds, the agent forces a real answer using the best available context. This is an enhancement to agent *behavior*, not a change to the tech stack, the proposed features, or the problem being solved.
+### Authentication
+```
+POST /api/auth/register
+POST /api/auth/login
+POST /api/auth/logout
+```
 
-If any further pivots occur before the next submission stage (e.g. a change in AI provider, database, or scope beyond Labour Law/Tenancy/Consumer Protection), they will be documented here with justification, as required by the guidelines.
+### Chat
+```
+POST   /api/chat/ask
+GET    /api/chat/history
+GET    /api/chat/conversations/{conversationId}
+DELETE /api/chat/conversations/{conversationId}
+PUT    /api/chat/history/{id}/save
+GET    /api/chat/saved
+```
 
-## Future Plans
+### Documents
+```
+POST   /api/documents/upload
+GET    /api/documents
+GET    /api/documents/{id}
+DELETE /api/documents/{id}
+```
 
-- Expand legal coverage beyond Labour Law, Tenancy, and Consumer Protection into Family Law, Land Law, Business Law, and Traffic Law.
-- Partnerships with universities, NGOs, legal aid centers, and community organizations to extend reach and keep the legal knowledge base verified and current.
-- Mobile app support.
-- Expert review workflow for legal content updates.
+### Legal Topics
+```
+GET /api/topics/categories
+GET /api/topics/categories/{id}/documents
+GET /api/topics/documents/{id}
+GET /api/topics/search
+```
 
-## Team
+### User Profile
+```
+GET  /api/users/profile
+PUT  /api/users/profile
+POST /api/users/profile-picture
+PUT  /api/users/change-password
+```
+
+### Admin
+```
+POST   /api/admin/auth/login
+GET    /api/admin/dashboard/stats
+GET    /api/admin/documents
+POST   /api/admin/documents/upload
+GET    /api/admin/categories
+GET    /api/admin/users
+GET    /api/admin/chat-logs
+```
+
+---
+
+## 🔐 Security
+
+- JWT Bearer authentication
+- BCrypt password hashing
+- Role-based, protected admin routes
+- FluentValidation on inputs
+- Environment/config-based secret management
+
+---
+
+## ⚖️ AI Safety
+
+LawBridge is designed for **legal awareness**, not legal advice. The agent:
+
+- Grounds every answer in retrieved Sri Lankan legal information (RAG), rather than answering from model memory alone
+- Asks a clarifying question when the user's input is too ambiguous to answer safely, instead of guessing
+- Consistently reminds users to consult a qualified legal professional for their specific case
+
+---
+
+## 🔁 Pivots From the Original Proposal
+
+The overall architecture, tech stack category, and project vision remain consistent with the original proposal. The original proposal listed Gemini, OpenAI, and Claude as candidate AI providers; the team implemented the prototype using the **Gemini API** (`gemini-embedding-001` for embeddings, `gemini-3.1-flash-lite` for reasoning) — one of the originally proposed options, selected for its multilingual output quality.
+
+Two enhancements were added during implementation, beyond the original proposal:
+
+1. **Live AI Agent Trace**: every request returns its full step-by-step reasoning trace, so the agent's decision-making is visible rather than a black box.
+2. **Clarification guardrail**: the agent asks a follow-up question on ambiguous input instead of repeatedly guessing or looping.
+
+These changes improve reliability and transparency without changing LawBridge's original objectives.
+
+---
+
+## 🚀 Future Plans
+
+- Additional legal domains: Family Law, Land Law, Business Law, Traffic Law
+- Voice-based legal assistant
+- Mobile application
+- Lawyer directory and referral integration
+- Government service integration
+- Admin-side auto-translation for newly uploaded legal documents (Sinhala/Tamil coverage gap)
+- NGO and university legal-aid partnerships
+
+---
+
+## 👥 Team CodeNova
 
 | Name | Institution |
 |---|---|
@@ -168,6 +399,12 @@ If any further pivots occur before the next submission stage (e.g. a change in A
 | Wickramaarachchi D S | SLIIT |
 | Jenitha J M | SLIIT |
 
-## Important Note
+---
 
-LawBridge does not replace lawyers. It provides safe legal awareness and first-step guidance before users seek professional legal advice.
+## ⚠️ Disclaimer
+
+LawBridge does not replace lawyers. Its purpose is to improve legal awareness by helping citizens understand legal issues, identify relevant legal information, and take the correct first step before consulting a qualified legal professional.
+
+---
+
+*Developed by Team CodeNova for the IDEALIZE 2026 Open Category Prototype Submission — organized by AIESEC in University of Moratuwa.*
