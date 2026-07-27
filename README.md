@@ -65,6 +65,11 @@ The full application UI — not just AI answers — supports English, Sinhala, a
 
 ## 🏗️ System Architecture
 
+![LawBridge system architecture](docs/architecture.png)
+
+<details>
+<summary>Text version</summary>
+
 ```text
                     User
                       │
@@ -98,6 +103,8 @@ The full application UI — not just AI answers — supports English, Sinhala, a
 ```
 
 Two separate PostgreSQL databases are used: `LawBridge` (users, chats, documents, categories) and `LawBridgeRAG` (pgvector store for legal chunk embeddings).
+
+</details>
 
 ---
 
@@ -407,4 +414,4 @@ LawBridge does not replace lawyers. Its purpose is to improve legal awareness by
 
 ---
 
-*Developed by Team CodeNova for the IDEALIZE 2026 Open Category Prototype Submission — organized by AIESEC in University of Moratuwa.*
+*Developed by Team CodeNova for the IDEALIZE 2026 Open Category *
