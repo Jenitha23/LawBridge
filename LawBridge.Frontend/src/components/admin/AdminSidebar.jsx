@@ -63,6 +63,16 @@ const NAV_GROUPS = [
                         <path d="M3.3 19c.8-3.2 3-4.8 5.7-4.8s4.9 1.6 5.7 4.8M15.3 9.3a2.6 2.6 0 1 0 0-5.2M17.6 14.6c2 .5 3.3 1.9 3.8 4.4" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
                     </svg>
                 )
+            },
+            {
+                label: "Profile",
+                path: "/admin/profile",
+                icon: (
+                    <svg width="19" height="19" viewBox="0 0 24 24" fill="none">
+                        <circle cx="9" cy="8.3" r="3" stroke="currentColor" strokeWidth="1.7" />
+                        <path d="M3.3 19c.8-3.2 3-4.8 5.7-4.8s4.9 1.6 5.7 4.8M15.3 9.3a2.6 2.6 0 1 0 0-5.2M17.6 14.6c2 .5 3.3 1.9 3.8 4.4" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
+                    </svg>
+                )
             }
 
         ]
@@ -92,36 +102,11 @@ const NAV_GROUPS = [
                 )
             },
 
-            {
-                label: "Feedback",
-                path: "/admin/feedback",
-                icon: (
-                    <svg width="19" height="19" viewBox="0 0 24 24" fill="none">
-                        <path d="M6.5 4h11a1 1 0 0 1 1 1v15l-6.5-4-6.5 4V5a1 1 0 0 1 1-1Z" stroke="currentColor" strokeWidth="1.7" strokeLinejoin="round" />
-                    </svg>
-                )
-            }
 
         ]
     },
 
-    {
-        heading: "System",
-        items: [
-
-            {
-                label: "Settings",
-                path: "/admin/settings",
-                icon: (
-                    <svg width="19" height="19" viewBox="0 0 24 24" fill="none">
-                        <circle cx="12" cy="12" r="2.8" stroke="currentColor" strokeWidth="1.7" />
-                        <path d="M12 4.5v2M12 17.5v2M19.5 12h-2M6.5 12h-2M17.3 6.7l-1.4 1.4M8.1 15.9l-1.4 1.4M17.3 17.3l-1.4-1.4M8.1 8.1 6.7 6.7" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
-                    </svg>
-                )
-            }
-
-        ]
-    }
+  
 
 ];
 
