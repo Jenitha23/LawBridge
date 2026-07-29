@@ -65,7 +65,7 @@ function Register()
             );
 
 
-            navigate("/profile");
+            navigate("/login");
 
 
         }
