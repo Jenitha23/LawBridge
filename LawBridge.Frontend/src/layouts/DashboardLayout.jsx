@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import Sidebar from "../components/Sidebar";
 import Topbar from "../components/Topbar";
 import { getProfile } from "../services/userService";
-import { useLanguage } from "../context/LanguageContext";
+import { useLanguage, hasChosenLanguage } from "../context/LanguageContext";
 import "./DashboardLayout.css";
 
 
@@ -33,7 +33,11 @@ function DashboardLayout({ title, subtitle, children })
 
             setError("");
 
-            if (data?.preferredLanguage)
+            // Only fall back to the saved profile language on a genuinely
+            // fresh session. If the user already picked a language (landing
+            // page, login, or earlier in the dashboard), keep that instead
+            // of letting this overwrite it on every page load.
+            if (data?.preferredLanguage && !hasChosenLanguage())
             {
                 setLanguage(data.preferredLanguage);
             }

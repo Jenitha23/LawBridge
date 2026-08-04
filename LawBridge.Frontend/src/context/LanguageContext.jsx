@@ -60,3 +60,14 @@ export function useLanguage()
     return context;
 
 }
+
+
+// True once the user has actively picked a language in this browser
+// (landing page, login, settings, ...). Lets pages avoid overwriting
+// an already-made choice with a stale server-side default.
+export function hasChosenLanguage()
+{
+
+    return Boolean(localStorage.getItem(STORAGE_KEY));
+
+}

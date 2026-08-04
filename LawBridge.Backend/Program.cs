@@ -139,7 +139,15 @@ builder.Services.AddControllers();
 
 builder.Services.AddEndpointsApiExplorer();
 
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(options =>
+{
+    // Several DTOs (e.g. UpdateProfileDto, ChangePasswordDto) exist once
+    // under DTOs/Admin and once under DTOs/User. Swashbuckle's default
+    // schema id is just the class name, so these collide and throw when
+    // swagger.json is generated ("Conflicting schemaIds"). Using the
+    // full type name keeps Admin/User variants distinct.
+    options.CustomSchemaIds(type => type.FullName);
+});
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 
 DotNetEnv.Env.Load();

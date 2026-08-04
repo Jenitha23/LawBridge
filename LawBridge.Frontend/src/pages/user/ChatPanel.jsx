@@ -203,7 +203,7 @@ function ChatPanel({ historyId, user })
 
     const navigate = useNavigate();
 
-    const { t } = useLanguage();
+    const { t, language } = useLanguage();
 
     const [messages, setMessages] = useState([]);
 
@@ -211,7 +211,16 @@ function ChatPanel({ historyId, user })
 
     const [question, setQuestion] = useState("");
 
-    const [answerLanguage, setAnswerLanguage] = useState("English");
+    // Defaults to (and stays synced with) the site-wide language selected
+    // in the dashboard/topbar. The dropdown below still lets the user
+    // override it for a single question without changing the whole site.
+    const [answerLanguage, setAnswerLanguage] = useState(language);
+
+    useEffect(() =>
+    {
+        setAnswerLanguage(language);
+
+    }, [language]);
 
     const [asking, setAsking] = useState(false);
 
