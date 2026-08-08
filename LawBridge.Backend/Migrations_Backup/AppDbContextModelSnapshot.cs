@@ -17,6 +17,7 @@ namespace LawBridge.Backend.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
+                .HasDefaultSchema("app")
                 .HasAnnotation("ProductVersion", "9.0.0")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
@@ -89,7 +90,7 @@ namespace LawBridge.Backend.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("ChatMessages");
+                    b.ToTable("ChatMessages", "app");
                 });
 
             modelBuilder.Entity("LawBridge.Backend.Models.LegalCategory", b =>
@@ -122,7 +123,7 @@ namespace LawBridge.Backend.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("LegalCategories");
+                    b.ToTable("LegalCategories", "app");
                 });
 
             modelBuilder.Entity("LawBridge.Backend.Models.LegalDocument", b =>
@@ -162,7 +163,7 @@ namespace LawBridge.Backend.Migrations
 
                     b.HasIndex("CategoryId");
 
-                    b.ToTable("LegalDocuments");
+                    b.ToTable("LegalDocuments", "app");
                 });
 
             modelBuilder.Entity("LawBridge.Backend.Models.RefreshToken", b =>
@@ -188,7 +189,7 @@ namespace LawBridge.Backend.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("RefreshTokens");
+                    b.ToTable("RefreshTokens", "app");
                 });
 
             modelBuilder.Entity("LawBridge.Backend.Models.User", b =>
@@ -244,7 +245,7 @@ namespace LawBridge.Backend.Migrations
                     b.HasIndex("Email")
                         .IsUnique();
 
-                    b.ToTable("Users");
+                    b.ToTable("Users", "app");
                 });
 
             modelBuilder.Entity("LawBridge.Backend.Models.UserDocument", b =>
@@ -298,7 +299,7 @@ namespace LawBridge.Backend.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("UserDocuments");
+                    b.ToTable("UserDocuments", "app");
                 });
 
             modelBuilder.Entity("LawBridge.Backend.Models.LegalDocument", b =>

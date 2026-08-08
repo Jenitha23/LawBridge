@@ -23,22 +23,32 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<AppDbContext>(options =>
 {
     options.UseNpgsql(
-        builder.Configuration
-        .GetConnectionString("DefaultConnection")
+        builder.Configuration.GetConnectionString("DefaultConnection"),
+        npgsqlOptions =>
+        {
+            npgsqlOptions.MigrationsHistoryTable(
+                "__EFMigrationsHistory",
+                "app"
+            );
+        }
     );
 });
 
 builder.Services.AddDbContext<RagDbContext>(options =>
 {
     options.UseNpgsql(
-        builder.Configuration
-        .GetConnectionString("RagConnection"),
+        builder.Configuration.GetConnectionString("RagConnection"),
         npgsqlOptions =>
         {
             npgsqlOptions.UseVector();
-        });
-});
 
+            npgsqlOptions.MigrationsHistoryTable(
+                "__EFMigrationsHistory",
+                "rag"
+            );
+        }
+    );
+});
 
 // ===============================
 // CORS Configuration

@@ -17,6 +17,7 @@ namespace LawBridge.Backend.Migrations.RagDb
         {
 #pragma warning disable 612, 618
             modelBuilder
+                .HasDefaultSchema("rag")
                 .HasAnnotation("ProductVersion", "9.0.0")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
@@ -43,7 +44,7 @@ namespace LawBridge.Backend.Migrations.RagDb
 
                     b.HasKey("Id");
 
-                    b.ToTable("LegalChunks");
+                    b.ToTable("LegalChunks", "rag");
                 });
 #pragma warning restore 612, 618
         }
