@@ -157,6 +157,12 @@ builder.Services.AddScoped<BlobStorageService>();
 
 builder.Services.AddScoped<EmbeddingService>();
 
+builder.Services.AddScoped<AiChatService>();
+
+builder.Services.AddScoped<LegalSearchService>();
+
+builder.Services.AddScoped<OcrService>();
+
 builder.Services.AddScoped<UserDocumentService>();
 
 builder.Services.AddScoped<LegalChatService>();
