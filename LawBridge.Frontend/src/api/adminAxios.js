@@ -7,7 +7,7 @@ import axios from "axios";
 // session can co-exist in the same browser without overwriting each other.
 const adminApi = axios.create({
 
-    baseURL:"http://localhost:5176/api",
+    baseURL:"https://lawbridge-backend-djghg8b9fna6f4a2.southeastasia-01.azurewebsites.net/api",
 
     headers:{
         "Content-Type":"application/json"
