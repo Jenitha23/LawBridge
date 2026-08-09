@@ -63,7 +63,7 @@ builder.Services.AddCors(options =>
             policy
             .WithOrigins(
                 "https://law-bridge-nt2a1ysej-jenitha23s-projects.vercel.app",
-                "https://lawbridge.vercel.app",
+                "https://lawbridge.vercel.app"
             )
             .AllowAnyHeader()
             .AllowAnyMethod();
