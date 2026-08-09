@@ -6,14 +6,18 @@ import api from "../api/axios";
 // through an authenticated endpoint (api/users/profile-image/{fileName} or
 // api/admin/profile/image/{fileName}) — there is no public URL for them.
 // A plain <img src="..."> can't attach the JWT the endpoint requires, so we
-// fetch it ourselves through the shared axios instance (which does attach
-// the token) and hand the <img> a local object URL instead.
+// fetch it ourselves through the appropriate axios instance (which does
+// attach the token) and hand the <img> a local object URL instead.
 //
 // fileName: the blob filename stored on the user (e.g. user.profileImage)
 // endpoint: the API path (relative to the "/api" base) that serves it,
 //           e.g. "/users/profile-image" or "/admin/profile/image"
+// client:   the axios instance to use — defaults to the regular user
+//           instance (reads "token"). Admin screens must pass adminApi
+//           (reads "adminToken") since it's a separate auth session and
+//           the admin endpoint requires the Admin-role JWT specifically.
 
-export function useProfileImageUrl(fileName, endpoint)
+export function useProfileImageUrl(fileName, endpoint, client = api)
 {
     const [url, setUrl] = useState(null);
 
@@ -28,7 +32,7 @@ export function useProfileImageUrl(fileName, endpoint)
         let objectUrl = null;
         let cancelled = false;
 
-        api.get(`${endpoint}/${fileName}`, { responseType: "blob" })
+        client.get(`${endpoint}/${fileName}`, { responseType: "blob" })
             .then((res) =>
             {
                 if (cancelled) return;
@@ -51,7 +55,7 @@ export function useProfileImageUrl(fileName, endpoint)
             }
         };
 
-    }, [fileName, endpoint]);
+    }, [fileName, endpoint, client]);
 
     return url;
 }

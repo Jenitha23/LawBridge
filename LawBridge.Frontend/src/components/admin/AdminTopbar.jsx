@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { adminLogout } from "../../services/adminAuthService";
 import { useProfileImageUrl } from "../../hooks/useProfileImageUrl";
+import adminApi from "../../api/adminAxios";
 import "./AdminTopbar.css";
 
 
@@ -40,7 +41,7 @@ function AdminTopbar({ title, user, onMenuClick })
     };
 
 
-    const avatarUrl = useProfileImageUrl(user?.profileImage, "/admin/profile/image");
+    const avatarUrl = useProfileImageUrl(user?.profileImage, "/admin/profile/image", adminApi);
 
     const initials = user?.name
         ? user.name.split(" ").map((p) => p[0]).slice(0, 2).join("").toUpperCase()

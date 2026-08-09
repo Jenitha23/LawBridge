@@ -2,6 +2,7 @@ import { useRef, useState } from "react";
 import AdminDashboardLayout from "../../layouts/AdminDashboardLayout";
 import { updateAdminProfile, uploadAdminProfileImage, changeAdminPassword } from "../../services/adminService";
 import { useProfileImageUrl } from "../../hooks/useProfileImageUrl";
+import adminApi from "../../api/adminAxios";
 import "../user/Profile.css";
 
 
@@ -214,7 +215,7 @@ function AdminProfileContent({ user, refreshUser })
     };
 
 
-    const avatarUrl = useProfileImageUrl(user.profileImage, "/admin/profile/image");
+    const avatarUrl = useProfileImageUrl(user.profileImage, "/admin/profile/image", adminApi);
 
     const initials = user.name
         ? user.name.split(" ").map((p) => p[0]).slice(0, 2).join("").toUpperCase()
