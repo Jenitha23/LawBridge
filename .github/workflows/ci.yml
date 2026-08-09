@@ -1,0 +1,57 @@
+name: LawBridge Backend CI
+
+on:
+  push:
+    branches:
+      - main
+
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-push:
+    name: Build and Push Docker Image
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checkout repository
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Setup .NET 8
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      # Restore dependencies
+      - name: Restore dependencies
+        run: dotnet restore LawBridge.Backend/LawBridge.Backend.csproj
+
+      # Build backend
+      - name: Build backend
+        run: dotnet build LawBridge.Backend/LawBridge.Backend.csproj --configuration Release --no-restore
+
+      # Login to Docker Hub
+      - name: Login to Docker Hub
+        if: github.event_name == 'push'
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      # Build and push Docker image
+      - name: Build and push Docker image
+        if: github.event_name == 'push'
+        uses: docker/build-push-action@v6
+        with:
+          context: ./LawBridge.Backend
+          file: ./LawBridge.Backend/Dockerfile
+          push: true
+          tags: |
+            jenithamaxi23/lawbridge-backend:${{ github.sha }}
+            jenithamaxi23/lawbridge-backend:latest
