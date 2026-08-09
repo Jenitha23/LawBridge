@@ -64,3 +64,5 @@ Thumbs.db
 
 # Uploaded user files
 Storage/ProfileImages/*
+
+wwwroot/uploads/documents/*
