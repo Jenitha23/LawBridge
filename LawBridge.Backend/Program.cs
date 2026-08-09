@@ -19,14 +19,10 @@ var builder = WebApplication.CreateBuilder(args);
 DotNetEnv.Env.Load();
 
 // ============================================================
-// Database Configuration
-// ============================================================
-
-// ============================================================
 // Main Application Database
 // ============================================================
 
-builder.Services.AddDbContext(options =>
+builder.Services.AddDbContext<AppDbContext>(options =>
 {
     options.UseNpgsql(
         builder.Configuration.GetConnectionString("DefaultConnection"),
@@ -44,7 +40,7 @@ builder.Services.AddDbContext(options =>
 // RAG / Vector Database
 // ============================================================
 
-builder.Services.AddDbContext(options =>
+builder.Services.AddDbContext<RagDbContext>(options =>
 {
     options.UseNpgsql(
         builder.Configuration.GetConnectionString("RagConnection"),
@@ -61,7 +57,7 @@ builder.Services.AddDbContext(options =>
 });
 
 // ============================================================
-// CORS Configuration
+// CORS
 // TEMPORARY: Allow all origins for testing
 // ============================================================
 
@@ -116,21 +112,27 @@ builder.Services
 // Dependency Injection
 // ============================================================
 
-// ------------------------------------------------------------
+// -------------------------
 // Repositories
-// ------------------------------------------------------------
+// -------------------------
 
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 
-builder.Services.AddScoped<ILegalDocumentRepository, LegalDocumentRepository>();
+builder.Services.AddScoped<
+    ILegalDocumentRepository,
+    LegalDocumentRepository
+>();
 
 builder.Services.AddScoped<IChatRepository, ChatRepository>();
 
-builder.Services.AddScoped<IUserDocumentRepository, UserDocumentRepository>();
+builder.Services.AddScoped<
+    IUserDocumentRepository,
+    UserDocumentRepository
+>();
 
-// ------------------------------------------------------------
-// Authentication / Admin Services
-// ------------------------------------------------------------
+// -------------------------
+// Authentication / Admin
+// -------------------------
 
 builder.Services.AddScoped<IAuthService, AuthService>();
 
@@ -138,17 +140,20 @@ builder.Services.AddScoped<IJwtService, JwtService>();
 
 builder.Services.AddScoped<IAdminService, AdminService>();
 
-builder.Services.AddScoped<IAdminDashboardService, AdminDashboardService>();
+builder.Services.AddScoped<
+    IAdminDashboardService,
+    AdminDashboardService
+>();
 
-// ------------------------------------------------------------
+// -------------------------
 // Azure Blob Storage
-// ------------------------------------------------------------
+// -------------------------
 
 builder.Services.AddScoped<BlobStorageService>();
 
-// ------------------------------------------------------------
+// -------------------------
 // AI / RAG / Document Services
-// ------------------------------------------------------------
+// -------------------------
 
 builder.Services.AddScoped<EmbeddingService>();
 
@@ -158,9 +163,9 @@ builder.Services.AddScoped<LegalChatService>();
 
 builder.Services.AddScoped<PdfService>();
 
-// ------------------------------------------------------------
+// ============================================================
 // HTTP Client
-// ------------------------------------------------------------
+// ============================================================
 
 builder.Services.AddHttpClient();
 
@@ -178,8 +183,6 @@ builder.Services.AddEndpointsApiExplorer();
 
 builder.Services.AddSwaggerGen(options =>
 {
-    // Prevent Swagger schema conflicts when different namespaces
-    // contain DTOs with the same class name.
     options.CustomSchemaIds(type => type.FullName);
 });
 
