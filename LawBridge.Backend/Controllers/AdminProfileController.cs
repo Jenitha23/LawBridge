@@ -145,7 +145,7 @@ public class AdminProfileController : ControllerBase
             });
         }
 
-        bool passwordValid =
+        var passwordValid =
             BCrypt.Net.BCrypt.Verify(
                 dto.CurrentPassword,
                 user.PasswordHash
@@ -191,7 +191,10 @@ public class AdminProfileController : ControllerBase
             });
         }
 
+        // -----------------------------------------------------
         // Validate file size
+        // -----------------------------------------------------
+
         if (image.Length > 5 * 1024 * 1024)
         {
             return BadRequest(new
@@ -200,19 +203,21 @@ public class AdminProfileController : ControllerBase
             });
         }
 
-        // Validate file extension
+        // -----------------------------------------------------
+        // Validate extension
+        // -----------------------------------------------------
+
         var extension =
             Path.GetExtension(image.FileName)
                 .ToLowerInvariant();
 
-        var allowedExtensions =
-            new[]
-            {
-                ".jpg",
-                ".jpeg",
-                ".png",
-                ".webp"
-            };
+        var allowedExtensions = new[]
+        {
+            ".jpg",
+            ".jpeg",
+            ".png",
+            ".webp"
+        };
 
         if (!allowedExtensions.Contains(extension))
         {
@@ -222,6 +227,10 @@ public class AdminProfileController : ControllerBase
                     "Only JPG, JPEG, PNG and WEBP images are allowed."
             });
         }
+
+        // -----------------------------------------------------
+        // Get current admin
+        // -----------------------------------------------------
 
         var email = User.Claims
             .FirstOrDefault(x => x.Type.Contains("email"))
@@ -246,16 +255,28 @@ public class AdminProfileController : ControllerBase
             });
         }
 
-        // =====================================================
-        // Generate unique blob name
-        // =====================================================
+        // -----------------------------------------------------
+        // Delete old profile image
+        // -----------------------------------------------------
+
+        if (!string.IsNullOrWhiteSpace(user.ProfileImage))
+        {
+            await _blobStorageService
+                .DeleteProfileImageAsync(
+                    user.ProfileImage
+                );
+        }
+
+        // -----------------------------------------------------
+        // Generate unique blob filename
+        // -----------------------------------------------------
 
         var fileName =
             $"{Guid.NewGuid()}{extension}";
 
-        // =====================================================
+        // -----------------------------------------------------
         // Upload to Azure Blob Storage
-        // =====================================================
+        // -----------------------------------------------------
 
         using var stream =
             image.OpenReadStream();
@@ -265,65 +286,95 @@ public class AdminProfileController : ControllerBase
                 .UploadProfileImageAsync(
                     stream,
                     fileName,
-                    image.ContentType
+                    string.IsNullOrWhiteSpace(image.ContentType)
+                        ? GetContentType(extension)
+                        : image.ContentType
                 );
 
-        // =====================================================
-        // Save blob name in database
-        // =====================================================
+        // -----------------------------------------------------
+        // Store ONLY blob filename in database
+        // -----------------------------------------------------
 
         user.ProfileImage = blobName;
         user.UpdatedAt = DateTime.UtcNow;
 
         await _userRepository.Update(user);
 
+        // -----------------------------------------------------
+        // Return backend image endpoint
+        // -----------------------------------------------------
+
         return Ok(new
         {
             message =
                 "Profile image updated successfully",
 
-            imageUrl = blobName
+            imageUrl =
+                $"/api/admin/profile/image/{blobName}"
         });
     }
 
     // =========================================================
     // GET: api/admin/profile/image/{fileName}
-    // Download Admin Profile Image
+    // Serve Admin Profile Image from Azure Blob Storage
     // =========================================================
 
     [HttpGet("image/{fileName}")]
     public async Task<IActionResult> GetProfileImage(
         string fileName)
     {
+        if (string.IsNullOrWhiteSpace(fileName))
+        {
+            return BadRequest(new
+            {
+                message = "Invalid file name."
+            });
+        }
+
         try
         {
-            var stream =
+            var result =
                 await _blobStorageService
-                    .DownloadProfileImageAsync(fileName);
-
-            var extension =
-                Path.GetExtension(fileName)
-                    .ToLowerInvariant();
-
-            var contentType = extension switch
-            {
-                ".jpg" or ".jpeg" => "image/jpeg",
-                ".png" => "image/png",
-                ".webp" => "image/webp",
-                _ => "application/octet-stream"
-            };
+                    .DownloadProfileImageAsync(
+                        fileName
+                    );
 
             return File(
-                stream,
-                contentType
+                result.Stream,
+                result.ContentType
             );
         }
-        catch
+        catch (FileNotFoundException)
         {
             return NotFound(new
             {
                 message = "Profile image not found."
             });
         }
+        catch
+        {
+            return StatusCode(500, new
+            {
+                message =
+                    "Unable to retrieve profile image."
+            });
+        }
+    }
+
+    // =========================================================
+    // Helper: Content Type
+    // =========================================================
+
+    private static string GetContentType(
+        string extension)
+    {
+        return extension switch
+        {
+            ".jpg" => "image/jpeg",
+            ".jpeg" => "image/jpeg",
+            ".png" => "image/png",
+            ".webp" => "image/webp",
+            _ => "application/octet-stream"
+        };
     }
 }

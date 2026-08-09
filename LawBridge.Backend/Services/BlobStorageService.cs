@@ -7,6 +7,7 @@ namespace LawBridge.Backend.Services;
 public class BlobStorageService
 {
     private readonly BlobServiceClient _blobServiceClient;
+
     private readonly string _documentsContainer;
     private readonly string _profileImagesContainer;
 
@@ -96,6 +97,7 @@ public class BlobStorageService
 
     // ============================================================
     // Download Document
+    // Used when processing documents temporarily
     // ============================================================
 
     public async Task<Stream> DownloadDocumentAsync(
@@ -108,6 +110,13 @@ public class BlobStorageService
         var blobClient =
             containerClient.GetBlobClient(fileName);
 
+        if (!await blobClient.ExistsAsync())
+        {
+            throw new FileNotFoundException(
+                "Document not found.",
+                fileName);
+        }
+
         var response =
             await blobClient.DownloadStreamingAsync();
 
@@ -116,9 +125,13 @@ public class BlobStorageService
 
     // ============================================================
     // Download Profile Image
+    // Used by UserController and AdminProfileController
     // ============================================================
 
-    public async Task<Stream> DownloadProfileImageAsync(
+    public async Task<(
+        Stream Stream,
+        string ContentType
+    )> DownloadProfileImageAsync(
         string fileName)
     {
         var containerClient =
@@ -128,10 +141,29 @@ public class BlobStorageService
         var blobClient =
             containerClient.GetBlobClient(fileName);
 
+        if (!await blobClient.ExistsAsync())
+        {
+            throw new FileNotFoundException(
+                "Profile image not found.",
+                fileName);
+        }
+
         var response =
             await blobClient.DownloadStreamingAsync();
 
-        return response.Value.Content;
+        var contentType =
+            response.Value.Details.ContentType;
+
+        if (string.IsNullOrWhiteSpace(contentType))
+        {
+            contentType = GetContentTypeFromExtension(
+                fileName);
+        }
+
+        return (
+            response.Value.Content,
+            contentType
+        );
     }
 
     // ============================================================
@@ -141,6 +173,11 @@ public class BlobStorageService
     public async Task DeleteDocumentAsync(
         string fileName)
     {
+        if (string.IsNullOrWhiteSpace(fileName))
+        {
+            return;
+        }
+
         var containerClient =
             _blobServiceClient.GetBlobContainerClient(
                 _documentsContainer);
@@ -158,6 +195,11 @@ public class BlobStorageService
     public async Task DeleteProfileImageAsync(
         string fileName)
     {
+        if (string.IsNullOrWhiteSpace(fileName))
+        {
+            return;
+        }
+
         var containerClient =
             _blobServiceClient.GetBlobContainerClient(
                 _profileImagesContainer);
@@ -166,5 +208,27 @@ public class BlobStorageService
             containerClient.GetBlobClient(fileName);
 
         await blobClient.DeleteIfExistsAsync();
+    }
+
+    // ============================================================
+    // Content Type Helper
+    // ============================================================
+
+    private static string GetContentTypeFromExtension(
+        string fileName)
+    {
+        var extension =
+            Path.GetExtension(fileName)
+                .ToLowerInvariant();
+
+        return extension switch
+        {
+            ".jpg" => "image/jpeg",
+            ".jpeg" => "image/jpeg",
+            ".png" => "image/png",
+            ".webp" => "image/webp",
+            ".pdf" => "application/pdf",
+            _ => "application/octet-stream"
+        };
     }
 }

@@ -23,10 +23,11 @@ public class UserController : ControllerBase
         _blobStorageService = blobStorageService;
     }
 
-    // ===========================
+    // ============================================================
     // GET: api/users/profile
     // View Profile
-    // ===========================
+    // ============================================================
+
     [Authorize]
     [HttpGet("profile")]
     public async Task<IActionResult> Profile()
@@ -66,10 +67,11 @@ public class UserController : ControllerBase
         return Ok(userDto);
     }
 
-    // ===========================
+    // ============================================================
     // PUT: api/users/profile
     // Update Profile
-    // ===========================
+    // ============================================================
+
     [Authorize]
     [HttpPut("profile")]
     public async Task<IActionResult> UpdateProfile(
@@ -110,10 +112,11 @@ public class UserController : ControllerBase
         });
     }
 
-    // ===========================
+    // ============================================================
     // POST: api/users/profile-picture
-    // Upload Profile Picture
-    // ===========================
+    // Upload Profile Picture to Azure Blob Storage
+    // ============================================================
+
     [Authorize]
     [HttpPost("profile-picture")]
     public async Task<IActionResult> UploadProfilePicture(
@@ -127,7 +130,7 @@ public class UserController : ControllerBase
             });
         }
 
-        // Validate file type
+        // Allowed image extensions
         var allowedExtensions = new[]
         {
             ".jpg",
@@ -137,22 +140,25 @@ public class UserController : ControllerBase
         };
 
         var extension =
-            Path.GetExtension(file.FileName).ToLowerInvariant();
+            Path.GetExtension(file.FileName)
+                .ToLowerInvariant();
 
         if (!allowedExtensions.Contains(extension))
         {
             return BadRequest(new
             {
-                message = "Only JPG, JPEG, PNG and WEBP images are allowed."
+                message =
+                    "Only JPG, JPEG, PNG and WEBP images are allowed."
             });
         }
 
-        // Optional file size limit: 5 MB
+        // Maximum 5 MB
         if (file.Length > 5 * 1024 * 1024)
         {
             return BadRequest(new
             {
-                message = "Profile image must be less than 5 MB."
+                message =
+                    "Profile image must be less than 5 MB."
             });
         }
 
@@ -176,11 +182,27 @@ public class UserController : ControllerBase
             });
         }
 
+        // --------------------------------------------------------
+        // Delete old profile image if one exists
+        // --------------------------------------------------------
+
+        if (!string.IsNullOrWhiteSpace(user.ProfileImage))
+        {
+            await _blobStorageService.DeleteProfileImageAsync(
+                user.ProfileImage);
+        }
+
+        // --------------------------------------------------------
         // Generate unique blob name
+        // --------------------------------------------------------
+
         var fileName =
             $"{Guid.NewGuid()}{extension}";
 
+        // --------------------------------------------------------
         // Upload to Azure Blob Storage
+        // --------------------------------------------------------
+
         using var stream = file.OpenReadStream();
 
         var blobName =
@@ -190,7 +212,10 @@ public class UserController : ControllerBase
                 file.ContentType
             );
 
-        // Store blob name/path in database
+        // --------------------------------------------------------
+        // Store ONLY blob filename in database
+        // --------------------------------------------------------
+
         user.ProfileImage = blobName;
         user.UpdatedAt = DateTime.UtcNow;
 
@@ -199,15 +224,57 @@ public class UserController : ControllerBase
 
         return Ok(new
         {
-            message = "Profile picture uploaded successfully.",
-            imageUrl = blobName
+            message =
+                "Profile picture uploaded successfully.",
+
+            imageUrl =
+                $"/api/users/profile-image/{blobName}"
         });
     }
 
-    // ===========================
+    // ============================================================
+    // GET: api/users/profile-image/{fileName}
+    // Serve Profile Image from Private Azure Blob Storage
+    // ============================================================
+
+    [Authorize]
+    [HttpGet("profile-image/{fileName}")]
+    public async Task<IActionResult> GetProfileImage(
+        string fileName)
+    {
+        if (string.IsNullOrWhiteSpace(fileName))
+        {
+            return BadRequest(new
+            {
+                message = "Invalid file name."
+            });
+        }
+
+        try
+        {
+            var result =
+                await _blobStorageService
+                    .DownloadProfileImageAsync(fileName);
+
+            return File(
+                result.Stream,
+                result.ContentType
+            );
+        }
+        catch (FileNotFoundException)
+        {
+            return NotFound(new
+            {
+                message = "Profile image not found."
+            });
+        }
+    }
+
+    // ============================================================
     // PUT: api/users/change-password
     // Change Password
-    // ===========================
+    // ============================================================
+
     [Authorize]
     [HttpPut("change-password")]
     public async Task<IActionResult> ChangePassword(
@@ -239,12 +306,14 @@ public class UserController : ControllerBase
         {
             return BadRequest(new
             {
-                message = "Current password is incorrect."
+                message =
+                    "Current password is incorrect."
             });
         }
 
         user.PasswordHash =
-            PasswordHelper.HashPassword(dto.NewPassword);
+            PasswordHelper.HashPassword(
+                dto.NewPassword);
 
         user.UpdatedAt = DateTime.UtcNow;
 
@@ -253,7 +322,8 @@ public class UserController : ControllerBase
 
         return Ok(new
         {
-            message = "Password changed successfully."
+            message =
+                "Password changed successfully."
         });
     }
 }
