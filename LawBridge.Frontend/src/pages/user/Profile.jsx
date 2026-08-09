@@ -1,7 +1,7 @@
 import { useRef, useState } from "react";
 import DashboardLayout from "../../layouts/DashboardLayout";
 import { updateProfile, uploadProfilePicture, changePassword } from "../../services/userService";
-import { getAssetUrl } from "../../utils/imageUrl";
+import { useProfileImageUrl } from "../../hooks/useProfileImageUrl";
 import { useLanguage } from "../../context/LanguageContext";
 import "./Profile.css";
 
@@ -226,7 +226,7 @@ function ProfileContent({ user, refreshUser })
     };
 
 
-    const avatarUrl = getAssetUrl(user.profileImage);
+    const avatarUrl = useProfileImageUrl(user.profileImage, "/users/profile-image");
 
     const initials = user.name
         ? user.name.split(" ").map((p) => p[0]).slice(0, 2).join("").toUpperCase()

@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { logout } from "../services/authService";
-import { getAssetUrl } from "../utils/imageUrl";
+import { useProfileImageUrl } from "../hooks/useProfileImageUrl";
 import { useLanguage } from "../context/LanguageContext";
 import "./Topbar.css";
 
@@ -43,7 +43,7 @@ function Topbar({ title, subtitle, user, onMenuClick })
     };
 
 
-    const avatarUrl = getAssetUrl(user?.profileImage);
+    const avatarUrl = useProfileImageUrl(user?.profileImage, "/users/profile-image");
 
     const initials = user?.name
         ? user.name.split(" ").map((p) => p[0]).slice(0, 2).join("").toUpperCase()

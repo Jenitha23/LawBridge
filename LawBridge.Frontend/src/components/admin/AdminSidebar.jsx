@@ -1,7 +1,7 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import logo from "../../assets/logo.png";
 import { adminLogout } from "../../services/adminAuthService";
-import { getAssetUrl } from "../../utils/imageUrl";
+import { useProfileImageUrl } from "../../hooks/useProfileImageUrl";
 import "./AdminSidebar.css";
 
 
@@ -130,7 +130,7 @@ function AdminSidebar({ open, user })
     };
 
 
-    const avatarUrl = getAssetUrl(user?.profileImage);
+    const avatarUrl = useProfileImageUrl(user?.profileImage, "/admin/profile/image");
 
     const initials = user?.name
         ? user.name.split(" ").map((p) => p[0]).slice(0, 2).join("").toUpperCase()
