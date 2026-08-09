@@ -62,7 +62,7 @@ builder.Services.AddCors(options =>
         {
             policy
             .WithOrigins(
-                "http://localhost:5173"
+                "https://law-bridge-git-main-jenitha23s-projects.vercel.app"
             )
             .AllowAnyHeader()
             .AllowAnyMethod();
