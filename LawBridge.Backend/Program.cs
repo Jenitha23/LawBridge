@@ -132,6 +132,7 @@ builder.Services.AddScoped<IChatRepository, ChatRepository>();
 builder.Services.AddScoped<IUserDocumentRepository, UserDocumentRepository>();
 builder.Services.AddScoped<PdfService>();
 builder.Services.AddScoped<OcrService>();
+builder.Services.AddScoped<BlobStorageService>();
 builder.Services.AddScoped<ChunkService>();
 builder.Services.AddScoped<LegalSearchService>();
 builder.Services.AddScoped<LegalChatService>();
