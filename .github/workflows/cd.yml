@@ -10,6 +10,10 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: azure-deploy-lawbridge-backend
+  cancel-in-progress: true
+
 jobs:
   deploy:
     name: Deploy to Azure App Service
