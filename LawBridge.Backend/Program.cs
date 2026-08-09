@@ -7,20 +7,26 @@ using LawBridge.Backend.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+
 using Pgvector.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// ============================================================
+// Environment Variables
+// ============================================================
 
-// ===============================
+DotNetEnv.Env.Load();
+
+// ============================================================
 // Database Configuration
-// ===============================
+// ============================================================
 
-// ===============================
-// Database
-// ===============================
+// ============================================================
+// Main Application Database
+// ============================================================
 
-builder.Services.AddDbContext<AppDbContext>(options =>
+builder.Services.AddDbContext(options =>
 {
     options.UseNpgsql(
         builder.Configuration.GetConnectionString("DefaultConnection"),
@@ -34,7 +40,11 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     );
 });
 
-builder.Services.AddDbContext<RagDbContext>(options =>
+// ============================================================
+// RAG / Vector Database
+// ============================================================
+
+builder.Services.AddDbContext(options =>
 {
     options.UseNpgsql(
         builder.Configuration.GetConnectionString("RagConnection"),
@@ -50,10 +60,10 @@ builder.Services.AddDbContext<RagDbContext>(options =>
     );
 });
 
-// ===============================
+// ============================================================
 // CORS Configuration
-// Allow React Frontend
-// ===============================
+// TEMPORARY: Allow all origins for testing
+// ============================================================
 
 builder.Services.AddCors(options =>
 {
@@ -66,128 +76,138 @@ builder.Services.AddCors(options =>
     });
 });
 
-
-
-// ===============================
+// ============================================================
 // JWT Authentication
-// ===============================
+// ============================================================
 
 builder.Services
-.AddAuthentication(
-    JwtBearerDefaults.AuthenticationScheme
-)
-.AddJwtBearer(options =>
-{
-
-    options.TokenValidationParameters =
-    new TokenValidationParameters
+    .AddAuthentication(
+        JwtBearerDefaults.AuthenticationScheme
+    )
+    .AddJwtBearer(options =>
     {
+        options.TokenValidationParameters =
+            new TokenValidationParameters
+            {
+                ValidateIssuer = true,
 
-        ValidateIssuer = true,
+                ValidateAudience = true,
 
-        ValidateAudience = true,
+                ValidateLifetime = true,
 
-        ValidateLifetime = true,
+                ValidateIssuerSigningKey = true,
 
-        ValidateIssuerSigningKey = true,
+                ValidIssuer =
+                    builder.Configuration["Jwt:Issuer"],
 
+                ValidAudience =
+                    builder.Configuration["Jwt:Audience"],
 
-        ValidIssuer =
-        builder.Configuration["Jwt:Issuer"],
+                IssuerSigningKey =
+                    new SymmetricSecurityKey(
+                        Encoding.UTF8.GetBytes(
+                            builder.Configuration["Jwt:Key"]!
+                        )
+                    )
+            };
+    });
 
-
-        ValidAudience =
-        builder.Configuration["Jwt:Audience"],
-
-
-        IssuerSigningKey =
-        new SymmetricSecurityKey(
-            Encoding.UTF8.GetBytes(
-                builder.Configuration["Jwt:Key"]!
-            )
-        )
-
-    };
-
-});
-
-
-
-// ===============================
+// ============================================================
 // Dependency Injection
-// ===============================
+// ============================================================
+
+// ------------------------------------------------------------
+// Repositories
+// ------------------------------------------------------------
 
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+
+builder.Services.AddScoped<ILegalDocumentRepository, LegalDocumentRepository>();
+
+builder.Services.AddScoped<IChatRepository, ChatRepository>();
+
+builder.Services.AddScoped<IUserDocumentRepository, UserDocumentRepository>();
+
+// ------------------------------------------------------------
+// Authentication / Admin Services
+// ------------------------------------------------------------
 
 builder.Services.AddScoped<IAuthService, AuthService>();
 
 builder.Services.AddScoped<IJwtService, JwtService>();
-builder.Services.AddScoped<IAdminService, AdminService>();
-builder.Services.AddScoped<IAdminDashboardService, AdminDashboardService>();
-builder.Services.AddScoped<ILegalDocumentRepository, LegalDocumentRepository>();
-builder.Services.AddScoped<IChatRepository, ChatRepository>();
-builder.Services.AddScoped<IUserDocumentRepository, UserDocumentRepository>();
-builder.Services.AddScoped<PdfService>();
-builder.Services.AddScoped<OcrService>();
-builder.Services.AddScoped<ChunkService>();
-builder.Services.AddScoped<LegalSearchService>();
-builder.Services.AddScoped<LegalChatService>();
-builder.Services.AddScoped<UserDocumentService>();
-builder.Services.AddHttpClient<EmbeddingService>();
-builder.Services.AddHttpClient<AiChatService>();
 
-// ===============================
+builder.Services.AddScoped<IAdminService, AdminService>();
+
+builder.Services.AddScoped<IAdminDashboardService, AdminDashboardService>();
+
+// ------------------------------------------------------------
+// Azure Blob Storage
+// ------------------------------------------------------------
+
+builder.Services.AddScoped<BlobStorageService>();
+
+// ------------------------------------------------------------
+// AI / RAG / Document Services
+// ------------------------------------------------------------
+
+builder.Services.AddScoped<EmbeddingService>();
+
+builder.Services.AddScoped<UserDocumentService>();
+
+builder.Services.AddScoped<LegalChatService>();
+
+builder.Services.AddScoped<PdfService>();
+
+// ------------------------------------------------------------
+// HTTP Client
+// ------------------------------------------------------------
+
+builder.Services.AddHttpClient();
+
+// ============================================================
 // MVC Controllers
-// ===============================
+// ============================================================
 
 builder.Services.AddControllers();
 
-
+// ============================================================
+// Swagger
+// ============================================================
 
 builder.Services.AddEndpointsApiExplorer();
 
 builder.Services.AddSwaggerGen(options =>
 {
-    // Several DTOs (e.g. UpdateProfileDto, ChangePasswordDto) exist once
-    // under DTOs/Admin and once under DTOs/User. Swashbuckle's default
-    // schema id is just the class name, so these collide and throw when
-    // swagger.json is generated ("Conflicting schemaIds"). Using the
-    // full type name keeps Admin/User variants distinct.
+    // Prevent Swagger schema conflicts when different namespaces
+    // contain DTOs with the same class name.
     options.CustomSchemaIds(type => type.FullName);
 });
-builder.Services.AddScoped<IUserRepository, UserRepository>();
 
-DotNetEnv.Env.Load();
+// ============================================================
+// Build Application
+// ============================================================
+
 var app = builder.Build();
 
-// ===============================
-// Database migrations are applied by the Docker entrypoint (efbundle)
-// before this process starts — see entrypoint.sh / LawBridge.Backend.Dockerfile.
-// For local (non-Docker) development, run `dotnet ef database update`
-// manually before `dotnet run`.
-// ===============================
-
-
-
-// ===============================
+// ============================================================
 // Middleware Pipeline
-// ===============================
+// ============================================================
 
 app.UseSwagger();
 
 app.UseSwaggerUI();
 
+app.UseStaticFiles();
 
-// CORS must be before Authorization
+app.UseRouting();
+
+// CORS must be before Authentication / Authorization
 app.UseCors("LawBridgeCors");
 
-app.UseStaticFiles();
 app.UseAuthentication();
 
 app.UseAuthorization();
 
-
 app.MapControllers();
-
 
 app.Run();
