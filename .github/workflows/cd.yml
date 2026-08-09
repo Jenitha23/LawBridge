@@ -6,17 +6,35 @@ on:
       - "LawBridge Backend CI"
     types:
       - completed
-    branches:
-      - main
+
+permissions:
+  contents: read
 
 jobs:
   deploy:
     name: Deploy to Azure App Service
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
 
     steps:
-      # Deploy the exact Docker image created by CI
+      - name: Check CI result
+        run: |
+          echo "CI workflow: ${{ github.event.workflow_run.name }}"
+          echo "CI conclusion: ${{ github.event.workflow_run.conclusion }}"
+          echo "CI branch: ${{ github.event.workflow_run.head_branch }}"
+          echo "CI commit: ${{ github.event.workflow_run.head_sha }}"
+
+      - name: Verify CI succeeded
+        if: ${{ github.event.workflow_run.conclusion != 'success' }}
+        run: |
+          echo "CI failed. Deployment cancelled."
+          exit 1
+
+      - name: Verify main branch
+        if: ${{ github.event.workflow_run.head_branch != 'main' }}
+        run: |
+          echo "CI was not run from main. Deployment cancelled."
+          exit 1
+
       - name: Deploy Docker image to Azure
         uses: azure/webapps-deploy@v3
         with:
