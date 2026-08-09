@@ -3,7 +3,7 @@ import axios from "axios";
 
 const api = axios.create({
 
-    baseURL:"https://lawbridge-backend-djghg8b9fna6f4a2.southeastasia-01.azurewebsites.net/api",
+    baseURL:"/api",
 
     headers:{
         "Content-Type":"application/json"
