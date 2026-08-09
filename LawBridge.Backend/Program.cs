@@ -57,12 +57,13 @@ builder.Services.AddDbContext<RagDbContext>(options =>
 
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowFrontend",
+    options.AddPolicy("LawBridgeCors",
         policy =>
         {
             policy
             .WithOrigins(
-                "https://law-bridge-git-main-jenitha23s-projects.vercel.app"
+                "https://law-bridge-nt2a1ysej-jenitha23s-projects.vercel.app",
+                "https://lawbridge.vercel.app",
             )
             .AllowAnyHeader()
             .AllowAnyMethod();
@@ -183,7 +184,7 @@ app.UseSwaggerUI();
 
 
 // CORS must be before Authorization
-app.UseCors("AllowFrontend");
+app.UseCors("LawBridgeCors");
 
 app.UseStaticFiles();
 app.UseAuthentication();
