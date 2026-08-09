@@ -115,6 +115,26 @@ public class BlobStorageService
     }
 
     // ============================================================
+    // Download Profile Image
+    // ============================================================
+
+    public async Task<Stream> DownloadProfileImageAsync(
+        string fileName)
+    {
+        var containerClient =
+            _blobServiceClient.GetBlobContainerClient(
+                _profileImagesContainer);
+
+        var blobClient =
+            containerClient.GetBlobClient(fileName);
+
+        var response =
+            await blobClient.DownloadStreamingAsync();
+
+        return response.Value.Content;
+    }
+
+    // ============================================================
     // Delete Document
     // ============================================================
 
@@ -124,6 +144,23 @@ public class BlobStorageService
         var containerClient =
             _blobServiceClient.GetBlobContainerClient(
                 _documentsContainer);
+
+        var blobClient =
+            containerClient.GetBlobClient(fileName);
+
+        await blobClient.DeleteIfExistsAsync();
+    }
+
+    // ============================================================
+    // Delete Profile Image
+    // ============================================================
+
+    public async Task DeleteProfileImageAsync(
+        string fileName)
+    {
+        var containerClient =
+            _blobServiceClient.GetBlobContainerClient(
+                _profileImagesContainer);
 
         var blobClient =
             containerClient.GetBlobClient(fileName);

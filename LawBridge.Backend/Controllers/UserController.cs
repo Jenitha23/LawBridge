@@ -1,6 +1,7 @@
 using LawBridge.Backend.DTOs.User;
 using LawBridge.Backend.Helpers;
 using LawBridge.Backend.Interfaces;
+using LawBridge.Backend.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
@@ -12,10 +13,14 @@ namespace LawBridge.Backend.Controllers;
 public class UserController : ControllerBase
 {
     private readonly IUserRepository _repository;
+    private readonly BlobStorageService _blobStorageService;
 
-    public UserController(IUserRepository repository)
+    public UserController(
+        IUserRepository repository,
+        BlobStorageService blobStorageService)
     {
         _repository = repository;
+        _blobStorageService = blobStorageService;
     }
 
     // ===========================
@@ -67,7 +72,8 @@ public class UserController : ControllerBase
     // ===========================
     [Authorize]
     [HttpPut("profile")]
-    public async Task<IActionResult> UpdateProfile([FromBody] UpdateProfileDto dto)
+    public async Task<IActionResult> UpdateProfile(
+        [FromBody] UpdateProfileDto dto)
     {
         var email = User.FindFirst(ClaimTypes.Email)?.Value;
 
@@ -110,7 +116,8 @@ public class UserController : ControllerBase
     // ===========================
     [Authorize]
     [HttpPost("profile-picture")]
-    public async Task<IActionResult> UploadProfilePicture(IFormFile file)
+    public async Task<IActionResult> UploadProfilePicture(
+        IFormFile file)
     {
         if (file == null || file.Length == 0)
         {
@@ -120,6 +127,35 @@ public class UserController : ControllerBase
             });
         }
 
+        // Validate file type
+        var allowedExtensions = new[]
+        {
+            ".jpg",
+            ".jpeg",
+            ".png",
+            ".webp"
+        };
+
+        var extension =
+            Path.GetExtension(file.FileName).ToLowerInvariant();
+
+        if (!allowedExtensions.Contains(extension))
+        {
+            return BadRequest(new
+            {
+                message = "Only JPG, JPEG, PNG and WEBP images are allowed."
+            });
+        }
+
+        // Optional file size limit: 5 MB
+        if (file.Length > 5 * 1024 * 1024)
+        {
+            return BadRequest(new
+            {
+                message = "Profile image must be less than 5 MB."
+            });
+        }
+
         var email = User.FindFirst(ClaimTypes.Email)?.Value;
 
         if (string.IsNullOrEmpty(email))
@@ -140,26 +176,22 @@ public class UserController : ControllerBase
             });
         }
 
-        var uploadsFolder = Path.Combine(
-            Directory.GetCurrentDirectory(),
-            "wwwroot",
-            "profile-images");
+        // Generate unique blob name
+        var fileName =
+            $"{Guid.NewGuid()}{extension}";
 
-        if (!Directory.Exists(uploadsFolder))
-        {
-            Directory.CreateDirectory(uploadsFolder);
-        }
+        // Upload to Azure Blob Storage
+        using var stream = file.OpenReadStream();
 
-        var extension = Path.GetExtension(file.FileName);
-        var fileName = $"{Guid.NewGuid()}{extension}";
-        var filePath = Path.Combine(uploadsFolder, fileName);
+        var blobName =
+            await _blobStorageService.UploadProfileImageAsync(
+                stream,
+                fileName,
+                file.ContentType
+            );
 
-        using (var stream = new FileStream(filePath, FileMode.Create))
-        {
-            await file.CopyToAsync(stream);
-        }
-
-        user.ProfileImage = $"profile-images/{fileName}";
+        // Store blob name/path in database
+        user.ProfileImage = blobName;
         user.UpdatedAt = DateTime.UtcNow;
 
         await _repository.UpdateAsync(user);
@@ -168,7 +200,7 @@ public class UserController : ControllerBase
         return Ok(new
         {
             message = "Profile picture uploaded successfully.",
-            imageUrl = user.ProfileImage
+            imageUrl = blobName
         });
     }
 
@@ -178,7 +210,8 @@ public class UserController : ControllerBase
     // ===========================
     [Authorize]
     [HttpPut("change-password")]
-    public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordDto dto)
+    public async Task<IActionResult> ChangePassword(
+        [FromBody] ChangePasswordDto dto)
     {
         var email = User.FindFirst(ClaimTypes.Email)?.Value;
 
@@ -200,7 +233,9 @@ public class UserController : ControllerBase
             });
         }
 
-        if (!PasswordHelper.VerifyPassword(dto.CurrentPassword, user.PasswordHash))
+        if (!PasswordHelper.VerifyPassword(
+                dto.CurrentPassword,
+                user.PasswordHash))
         {
             return BadRequest(new
             {
@@ -208,7 +243,9 @@ public class UserController : ControllerBase
             });
         }
 
-        user.PasswordHash = PasswordHelper.HashPassword(dto.NewPassword);
+        user.PasswordHash =
+            PasswordHelper.HashPassword(dto.NewPassword);
+
         user.UpdatedAt = DateTime.UtcNow;
 
         await _repository.UpdateAsync(user);

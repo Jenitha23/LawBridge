@@ -2,52 +2,57 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using LawBridge.Backend.Interfaces;
 using LawBridge.Backend.DTOs.Admin;
+using LawBridge.Backend.Services;
 using BCrypt.Net;
-namespace LawBridge.Backend.Controllers;
 
+namespace LawBridge.Backend.Controllers;
 
 [ApiController]
 [Route("api/admin/profile")]
-[Authorize(Roles="Admin")]
+[Authorize(Roles = "Admin")]
 public class AdminProfileController : ControllerBase
 {
-
-
     private readonly IUserRepository _userRepository;
-
-
+    private readonly BlobStorageService _blobStorageService;
 
     public AdminProfileController(
-        IUserRepository userRepository
-    )
+        IUserRepository userRepository,
+        BlobStorageService blobStorageService)
     {
         _userRepository = userRepository;
+        _blobStorageService = blobStorageService;
     }
 
-
+    // =========================================================
+    // GET: api/admin/profile
+    // Get Admin Profile
+    // =========================================================
 
     [HttpGet]
     public async Task<IActionResult> GetProfile()
     {
+        var email = User.Claims
+            .FirstOrDefault(x => x.Type.Contains("email"))
+            ?.Value;
 
-        var email =
-        User.Claims
-        .First(x => x.Type.Contains("email"))
-        .Value;
-
-
-
-        var user =
-        await _userRepository.GetByEmail(email);
-
-
-
-        if(user == null)
+        if (string.IsNullOrEmpty(email))
         {
-            return NotFound();
+            return Unauthorized(new
+            {
+                message = "Invalid token."
+            });
         }
 
+        var user =
+            await _userRepository.GetByEmail(email);
 
+        if (user == null)
+        {
+            return NotFound(new
+            {
+                message = "Admin not found."
+            });
+        }
 
         return Ok(new
         {
@@ -60,244 +65,265 @@ public class AdminProfileController : ControllerBase
             user.PreferredLanguage,
             user.Role
         });
-
     }
+
+    // =========================================================
+    // PUT: api/admin/profile
+    // Update Admin Profile
+    // =========================================================
+
     [HttpPut]
-public async Task<IActionResult> UpdateProfile(
-    UpdateProfileDto dto
-)
-{
-
-    var email =
-        User.Claims
-        .First(x => x.Type.Contains("email"))
-        .Value;
-
-
-
-    var user =
-        await _userRepository.GetByEmail(email);
-
-
-
-    if(user == null)
+    public async Task<IActionResult> UpdateProfile(
+        [FromBody] UpdateProfileDto dto)
     {
-        return NotFound();
-    }
+        var email = User.Claims
+            .FirstOrDefault(x => x.Type.Contains("email"))
+            ?.Value;
 
-
-
-    user.Name = dto.Name;
-
-    user.PhoneNumber = dto.PhoneNumber;
-
-    user.Address = dto.Address;
-
-    user.PreferredLanguage = dto.PreferredLanguage;
-
-
-    await _userRepository.Update(user);
-
-
-
-    return Ok(new
-    {
-        message = "Admin profile updated successfully"
-    });
-
-}
-[HttpPut("password")]
-public async Task<IActionResult> ChangePassword(
-    ChangePasswordDto dto
-)
-{
-
-    var email =
-        User.Claims
-        .First(x => x.Type.Contains("email"))
-        .Value;
-
-
-
-    var user =
-        await _userRepository.GetByEmail(email);
-
-
-
-    if(user == null)
-    {
-        return NotFound();
-    }
-
-
-
-    bool passwordValid =
-        BCrypt.Net.BCrypt.Verify(
-            dto.CurrentPassword,
-            user.PasswordHash
-        );
-
-
-
-    if(!passwordValid)
-    {
-        return BadRequest(new
+        if (string.IsNullOrEmpty(email))
         {
-            message = "Current password is incorrect"
+            return Unauthorized(new
+            {
+                message = "Invalid token."
+            });
+        }
+
+        var user =
+            await _userRepository.GetByEmail(email);
+
+        if (user == null)
+        {
+            return NotFound(new
+            {
+                message = "Admin not found."
+            });
+        }
+
+        user.Name = dto.Name;
+        user.PhoneNumber = dto.PhoneNumber;
+        user.Address = dto.Address;
+        user.PreferredLanguage = dto.PreferredLanguage;
+        user.UpdatedAt = DateTime.UtcNow;
+
+        await _userRepository.Update(user);
+
+        return Ok(new
+        {
+            message = "Admin profile updated successfully"
         });
     }
 
+    // =========================================================
+    // PUT: api/admin/profile/password
+    // Change Admin Password
+    // =========================================================
 
-
-    user.PasswordHash =
-        BCrypt.Net.BCrypt.HashPassword(
-            dto.NewPassword
-        );
-
-
-
-    user.UpdatedAt = DateTime.UtcNow;
-
-
-
-    await _userRepository.Update(user);
-
-
-
-    return Ok(new
+    [HttpPut("password")]
+    public async Task<IActionResult> ChangePassword(
+        [FromBody] ChangePasswordDto dto)
     {
-        message = "Password changed successfully"
-    });
+        var email = User.Claims
+            .FirstOrDefault(x => x.Type.Contains("email"))
+            ?.Value;
 
-}
-[HttpPost("image")]
-public async Task<IActionResult> UploadProfileImage(
-    IFormFile image
-)
-{
-
-    var email =
-        User.Claims
-        .First(x => x.Type.Contains("email"))
-        .Value;
-
-
-
-    var user =
-        await _userRepository.GetByEmail(email);
-
-
-
-    if(user == null)
-    {
-        return NotFound();
-    }
-
-
-
-    if(image == null || image.Length == 0)
-    {
-        return BadRequest(new
+        if (string.IsNullOrEmpty(email))
         {
-            message="Image is required"
+            return Unauthorized(new
+            {
+                message = "Invalid token."
+            });
+        }
+
+        var user =
+            await _userRepository.GetByEmail(email);
+
+        if (user == null)
+        {
+            return NotFound(new
+            {
+                message = "Admin not found."
+            });
+        }
+
+        bool passwordValid =
+            BCrypt.Net.BCrypt.Verify(
+                dto.CurrentPassword,
+                user.PasswordHash
+            );
+
+        if (!passwordValid)
+        {
+            return BadRequest(new
+            {
+                message = "Current password is incorrect"
+            });
+        }
+
+        user.PasswordHash =
+            BCrypt.Net.BCrypt.HashPassword(
+                dto.NewPassword
+            );
+
+        user.UpdatedAt = DateTime.UtcNow;
+
+        await _userRepository.Update(user);
+
+        return Ok(new
+        {
+            message = "Password changed successfully"
         });
     }
 
+    // =========================================================
+    // POST: api/admin/profile/image
+    // Upload Admin Profile Image
+    // =========================================================
 
-
-    var extension =
-        Path.GetExtension(image.FileName);
-
-
-
-    var allowedExtensions =
-        new[]
-        {
-            ".jpg",
-            ".jpeg",
-            ".png"
-        };
-
-
-
-    if(!allowedExtensions.Contains(
-        extension.ToLower()
-    ))
+    [HttpPost("image")]
+    public async Task<IActionResult> UploadProfileImage(
+        IFormFile image)
     {
-        return BadRequest(new
+        if (image == null || image.Length == 0)
         {
-            message="Only JPG and PNG allowed"
+            return BadRequest(new
+            {
+                message = "Image is required"
+            });
+        }
+
+        // Validate file size
+        if (image.Length > 5 * 1024 * 1024)
+        {
+            return BadRequest(new
+            {
+                message = "Image must be less than 5 MB."
+            });
+        }
+
+        // Validate file extension
+        var extension =
+            Path.GetExtension(image.FileName)
+                .ToLowerInvariant();
+
+        var allowedExtensions =
+            new[]
+            {
+                ".jpg",
+                ".jpeg",
+                ".png",
+                ".webp"
+            };
+
+        if (!allowedExtensions.Contains(extension))
+        {
+            return BadRequest(new
+            {
+                message =
+                    "Only JPG, JPEG, PNG and WEBP images are allowed."
+            });
+        }
+
+        var email = User.Claims
+            .FirstOrDefault(x => x.Type.Contains("email"))
+            ?.Value;
+
+        if (string.IsNullOrEmpty(email))
+        {
+            return Unauthorized(new
+            {
+                message = "Invalid token."
+            });
+        }
+
+        var user =
+            await _userRepository.GetByEmail(email);
+
+        if (user == null)
+        {
+            return NotFound(new
+            {
+                message = "Admin not found."
+            });
+        }
+
+        // =====================================================
+        // Generate unique blob name
+        // =====================================================
+
+        var fileName =
+            $"{Guid.NewGuid()}{extension}";
+
+        // =====================================================
+        // Upload to Azure Blob Storage
+        // =====================================================
+
+        using var stream =
+            image.OpenReadStream();
+
+        var blobName =
+            await _blobStorageService
+                .UploadProfileImageAsync(
+                    stream,
+                    fileName,
+                    image.ContentType
+                );
+
+        // =====================================================
+        // Save blob name in database
+        // =====================================================
+
+        user.ProfileImage = blobName;
+        user.UpdatedAt = DateTime.UtcNow;
+
+        await _userRepository.Update(user);
+
+        return Ok(new
+        {
+            message =
+                "Profile image updated successfully",
+
+            imageUrl = blobName
         });
     }
 
+    // =========================================================
+    // GET: api/admin/profile/image/{fileName}
+    // Download Admin Profile Image
+    // =========================================================
 
-
-
-    var fileName =
-        Guid.NewGuid().ToString()
-        + extension;
-
-
-
-    var folderPath =
-        Path.Combine(
-            Directory.GetCurrentDirectory(),
-            "wwwroot",
-            "uploads",
-            "profiles"
-        );
-
-
-
-    if(!Directory.Exists(folderPath))
+    [HttpGet("image/{fileName}")]
+    public async Task<IActionResult> GetProfileImage(
+        string fileName)
     {
-        Directory.CreateDirectory(folderPath);
+        try
+        {
+            var stream =
+                await _blobStorageService
+                    .DownloadProfileImageAsync(fileName);
+
+            var extension =
+                Path.GetExtension(fileName)
+                    .ToLowerInvariant();
+
+            var contentType = extension switch
+            {
+                ".jpg" or ".jpeg" => "image/jpeg",
+                ".png" => "image/png",
+                ".webp" => "image/webp",
+                _ => "application/octet-stream"
+            };
+
+            return File(
+                stream,
+                contentType
+            );
+        }
+        catch
+        {
+            return NotFound(new
+            {
+                message = "Profile image not found."
+            });
+        }
     }
-
-
-
-    var filePath =
-        Path.Combine(
-            folderPath,
-            fileName
-        );
-
-
-
-    using(var stream =
-        new FileStream(
-            filePath,
-            FileMode.Create
-        ))
-    {
-
-        await image.CopyToAsync(stream);
-
-    }
-
-
-
-    user.ProfileImage =
-        "/uploads/profiles/" + fileName;
-
-
-
-    user.UpdatedAt =
-        DateTime.UtcNow;
-
-
-
-    await _userRepository.Update(user);
-
-
-
-    return Ok(new
-    {
-        message="Profile image updated successfully",
-        imageUrl=user.ProfileImage
-    });
-
-}
-
-
 }
