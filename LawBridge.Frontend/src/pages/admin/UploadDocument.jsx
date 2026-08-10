@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import AdminDashboardLayout from "../../layouts/AdminDashboardLayout";
-import { getAssetUrl } from "../../utils/imageUrl";
+import { openDocumentFile } from "../../utils/openDocumentFile";
+import adminApi from "../../api/adminAxios";
 import {
     getDocuments,
     getDocumentById,
@@ -624,15 +625,13 @@ function UploadDocument()
                                                                     <EditIcon />
                                                                 </button>
 
-                                                                <a
-                                                                    href={getAssetUrl(d.source.replace(/^\//, ""))}
-                                                                    target="_blank"
-                                                                    rel="noreferrer"
+                                                                <button
+                                                                    onClick={() => openDocumentFile(d.source.replace(/^\//, ""), adminApi)}
                                                                     className="upload-icon-btn"
                                                                     title="Open PDF"
                                                                 >
                                                                     <ViewIcon />
-                                                                </a>
+                                                                </button>
 
                                                                 <button
                                                                     className="upload-icon-btn danger"

@@ -272,6 +272,43 @@ public class DocumentController : ControllerBase
     }
 
     // ============================================================
+    // GET: api/documents/file/{fileName}
+    //
+    // Streams the original uploaded file back so it can be viewed.
+    // Documents moved to private Blob Storage (see Upload above —
+    // only the Blob filename is stored, not a public path), so
+    // there was previously no way to actually fetch this content;
+    // the frontend's getAssetUrl() pointed at a file that was never
+    // reachable by URL. This endpoint (same auth model as the
+    // existing profile-image download endpoints) fixes that.
+    //
+    // Shared with LegalDocument.Source, which is stored the same
+    // way in the same Blob container — any authenticated user can
+    // view either their own uploaded document or a legal reference
+    // document by filename.
+    // ============================================================
+
+    [HttpGet("file/{fileName}")]
+    public async Task<IActionResult> GetFile(string fileName)
+    {
+        try
+        {
+            var (stream, contentType) =
+                await _blobStorageService
+                    .DownloadDocumentWithContentTypeAsync(fileName);
+
+            return File(stream, contentType);
+        }
+        catch (FileNotFoundException)
+        {
+            return NotFound(new
+            {
+                message = "File not found."
+            });
+        }
+    }
+
+    // ============================================================
     // GET: api/documents
     // FR-12
     // ============================================================

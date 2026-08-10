@@ -7,7 +7,7 @@ import {
     searchTopics
 } from "../../services/topicsService";
 import { useLanguage } from "../../context/LanguageContext";
-import { getAssetUrl } from "../../utils/imageUrl";
+import { openDocumentFile } from "../../utils/openDocumentFile";
 import "./MyDocuments.css";
 import "./LegalTopics.css";
 
@@ -353,7 +353,7 @@ function LegalTopics()
                                             <span>{formatDate(viewingTopic.createdAt)}</span>
 
                                             {viewingTopic.source && (
-                                                <a href={getAssetUrl(viewingTopic.source.replace(/^\//, ""))} target="_blank" rel="noreferrer">
+                                                <a href="#" onClick={(e) => { e.preventDefault(); openDocumentFile(viewingTopic.source.replace(/^\//, "")); }}>
                                                     {t("docs_open_original")}
                                                 </a>
                                             )}
