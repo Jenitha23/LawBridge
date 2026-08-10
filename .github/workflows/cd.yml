@@ -1,47 +1,59 @@
 name: LawBridge Backend CD
 
 on:
-  workflow_run:
-    workflows:
-      - "LawBridge Backend CI"
-    types:
-      - completed
+  push:
+    branches:
+      - main
 
 permissions:
   contents: read
 
 concurrency:
-  group: azure-deploy-lawbridge-backend
+  group: lawbridge-backend-deployment
   cancel-in-progress: true
 
 jobs:
   deploy:
-    name: Deploy to Azure App Service
+    name: Build and Deploy Backend
     runs-on: ubuntu-latest
 
     steps:
-      - name: Check CI result
-        run: |
-          echo "CI workflow: ${{ github.event.workflow_run.name }}"
-          echo "CI conclusion: ${{ github.event.workflow_run.conclusion }}"
-          echo "CI branch: ${{ github.event.workflow_run.head_branch }}"
-          echo "CI commit: ${{ github.event.workflow_run.head_sha }}"
 
-      - name: Verify CI succeeded
-        if: ${{ github.event.workflow_run.conclusion != 'success' }}
-        run: |
-          echo "CI failed. Deployment cancelled."
-          exit 1
+      # Checkout the merged main code
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-      - name: Verify main branch
-        if: ${{ github.event.workflow_run.head_branch != 'main' }}
-        run: |
-          echo "CI was not run from main. Deployment cancelled."
-          exit 1
+      # Login to Docker Hub
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Deploy Docker image to Azure
+      # Build Docker image
+      - name: Build Docker image
+        run: |
+          docker build \
+            -t jenithamaxi23/lawbridge-backend:latest \
+            -t jenithamaxi23/lawbridge-backend:${{ github.sha }} \
+            -f LawBridge.Backend/Dockerfile \
+            LawBridge.Backend
+
+      # Push Docker image
+      - name: Push Docker image
+        run: |
+          docker push jenithamaxi23/lawbridge-backend:latest
+          docker push jenithamaxi23/lawbridge-backend:${{ github.sha }}
+
+      # Login to Azure
+      - name: Login to Azure
+        uses: azure/login@v2
+        with:
+          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+
+      # Deploy latest image to Azure Web App
+      - name: Deploy Docker image to Azure Web App
         uses: azure/webapps-deploy@v3
         with:
           app-name: lawbridge-backend
-          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
-          images: docker.io/jenithamaxi23/lawbridge-backend:${{ github.event.workflow_run.head_sha }}
+          images: docker.io/jenithamaxi23/lawbridge-backend:latest
