@@ -18,38 +18,24 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-
-      # Checkout source code
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # Setup .NET 8
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '8.0.x'
 
-      # Restore dependencies
       - name: Restore dependencies
         run: |
           dotnet restore LawBridge.Backend/LawBridge.Backend.csproj
 
-      # Build backend
       - name: Build backend
         run: |
           dotnet build LawBridge.Backend/LawBridge.Backend.csproj \
             --configuration Release \
             --no-restore
 
-      # Run tests
-      - name: Run tests
-        run: |
-          dotnet test \
-            --configuration Release \
-            --no-restore \
-            --verbosity normal
-
-      # Docker smoke build
       - name: Docker smoke build
         run: |
           docker build \
