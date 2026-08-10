@@ -3,7 +3,7 @@ name: LawBridge Backend CI
 on:
   push:
     branches:
-      - main
+      - '**'
 
   pull_request:
     branches:
@@ -13,12 +13,13 @@ permissions:
   contents: read
 
 jobs:
-  build-and-push:
-    name: Build and Push Docker Image
+  build-test:
+    name: Build and Test
     runs-on: ubuntu-latest
 
     steps:
-      # Checkout repository
+
+      # Checkout source code
       - name: Checkout repository
         uses: actions/checkout@v4
 
@@ -30,28 +31,28 @@ jobs:
 
       # Restore dependencies
       - name: Restore dependencies
-        run: dotnet restore LawBridge.Backend/LawBridge.Backend.csproj
+        run: |
+          dotnet restore LawBridge.Backend/LawBridge.Backend.csproj
 
       # Build backend
       - name: Build backend
-        run: dotnet build LawBridge.Backend/LawBridge.Backend.csproj --configuration Release --no-restore
+        run: |
+          dotnet build LawBridge.Backend/LawBridge.Backend.csproj \
+            --configuration Release \
+            --no-restore
 
-      # Login to Docker Hub
-      - name: Login to Docker Hub
-        if: github.event_name == 'push'
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      # Run tests
+      - name: Run tests
+        run: |
+          dotnet test \
+            --configuration Release \
+            --no-restore \
+            --verbosity normal
 
-      # Build and push Docker image
-      - name: Build and push Docker image
-        if: github.event_name == 'push'
-        uses: docker/build-push-action@v6
-        with:
-          context: ./LawBridge.Backend
-          file: ./LawBridge.Backend/Dockerfile
-          push: true
-          tags: |
-            jenithamaxi23/lawbridge-backend:${{ github.sha }}
-            jenithamaxi23/lawbridge-backend:latest
+      # Docker smoke build
+      - name: Docker smoke build
+        run: |
+          docker build \
+            -t lawbridge-backend-ci:latest \
+            -f LawBridge.Backend/Dockerfile \
+            LawBridge.Backend
