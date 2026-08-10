@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import DashboardLayout from "../../layouts/DashboardLayout";
-import { getAssetUrl } from "../../utils/imageUrl";
+import { openDocumentFile } from "../../utils/openDocumentFile";
 import {
     uploadUserDocument,
     getUserDocuments,
@@ -474,7 +474,7 @@ function MyDocuments()
                                             <span>{formatDate(viewingDoc.createdAt)}</span>
 
                                             {viewingDoc.filePath && (
-                                                <a href={getAssetUrl(viewingDoc.filePath.replace(/^\//, ""))} target="_blank" rel="noreferrer">
+                                                <a href="#" onClick={(e) => { e.preventDefault(); openDocumentFile(viewingDoc.filePath.replace(/^\//, "")); }}>
                                                     {t("docs_open_original")}
                                                 </a>
                                             )}

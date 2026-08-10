@@ -124,6 +124,49 @@ public class BlobStorageService
     }
 
     // ============================================================
+    // Download Document (with content type)
+    // Used to stream the original file back for viewing — mirrors
+    // DownloadProfileImageAsync below.
+    // ============================================================
+
+    public async Task<(
+        Stream Stream,
+        string ContentType
+    )> DownloadDocumentWithContentTypeAsync(
+        string fileName)
+    {
+        var containerClient =
+            _blobServiceClient.GetBlobContainerClient(
+                _documentsContainer);
+
+        var blobClient =
+            containerClient.GetBlobClient(fileName);
+
+        if (!await blobClient.ExistsAsync())
+        {
+            throw new FileNotFoundException(
+                "Document not found.",
+                fileName);
+        }
+
+        var response =
+            await blobClient.DownloadStreamingAsync();
+
+        var contentType =
+            response.Value.Details.ContentType;
+
+        if (string.IsNullOrWhiteSpace(contentType))
+        {
+            contentType = GetContentTypeFromExtension(fileName);
+        }
+
+        return (
+            response.Value.Content,
+            contentType
+        );
+    }
+
+    // ============================================================
     // Download Profile Image
     // Used by UserController and AdminProfileController
     // ============================================================
