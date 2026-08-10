@@ -169,6 +169,8 @@ builder.Services.AddScoped<LegalChatService>();
 
 builder.Services.AddScoped<PdfService>();
 
+builder.Services.AddScoped<ChunkService>();
+
 // ============================================================
 // HTTP Client
 // ============================================================
