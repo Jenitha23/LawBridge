@@ -19,15 +19,90 @@ jobs:
 
     steps:
 
+      # ==========================================
+      # 1. Checkout source code
+      # ==========================================
       - name: Checkout repository
         uses: actions/checkout@v4
 
+
+      # ==========================================
+      # 2. Setup .NET 8
+      # ==========================================
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+
+      # ==========================================
+      # 3. Restore dependencies
+      # ==========================================
+      - name: Restore dependencies
+        run: |
+          dotnet restore LawBridge.Backend/LawBridge.Backend.csproj
+
+
+      # ==========================================
+      # 4. Install EF Core CLI 9
+      # ==========================================
+      - name: Install EF Core CLI
+        run: |
+          dotnet tool install --global dotnet-ef --version 9.0.0
+          echo "$HOME/.dotnet/tools" >> "$GITHUB_PATH"
+
+
+      # ==========================================
+      # 5. Build backend
+      # ==========================================
+      - name: Build backend
+        run: |
+          dotnet build LawBridge.Backend/LawBridge.Backend.csproj \
+            --configuration Release \
+            --no-restore
+
+
+      # ==========================================
+      # 6. Run App Database Migration
+      # ==========================================
+      - name: Run App Database Migration
+        env:
+          ConnectionStrings__DefaultConnection: ${{ secrets.CONNECTIONSTRINGS__DEFAULTCONNECTION }}
+          ConnectionStrings__RagConnection: ${{ secrets.CONNECTIONSTRINGS__RAGCONNECTION }}
+        run: |
+          dotnet ef database update \
+            --project LawBridge.Backend/LawBridge.Backend.csproj \
+            --startup-project LawBridge.Backend/LawBridge.Backend.csproj \
+            --context AppDbContext
+
+
+      # ==========================================
+      # 7. Run RAG / Vector Database Migration
+      # ==========================================
+      - name: Run RAG Database Migration
+        env:
+          ConnectionStrings__DefaultConnection: ${{ secrets.CONNECTIONSTRINGS__DEFAULTCONNECTION }}
+          ConnectionStrings__RagConnection: ${{ secrets.CONNECTIONSTRINGS__RAGCONNECTION }}
+        run: |
+          dotnet ef database update \
+            --project LawBridge.Backend/LawBridge.Backend.csproj \
+            --startup-project LawBridge.Backend/LawBridge.Backend.csproj \
+            --context RagDbContext
+
+
+      # ==========================================
+      # 8. Login to Docker Hub
+      # ==========================================
       - name: Login to Docker Hub
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
+
+      # ==========================================
+      # 9. Build Docker image
+      # ==========================================
       - name: Build Docker image
         run: |
           docker build \
@@ -36,11 +111,19 @@ jobs:
             -f LawBridge.Backend/Dockerfile \
             LawBridge.Backend
 
+
+      # ==========================================
+      # 10. Push Docker image to Docker Hub
+      # ==========================================
       - name: Push Docker image
         run: |
           docker push jenithamaxi23/lawbridge-backend:latest
           docker push jenithamaxi23/lawbridge-backend:${{ github.sha }}
 
+
+      # ==========================================
+      # 11. Deploy Docker image to Azure
+      # ==========================================
       - name: Deploy Docker image to Azure Web App
         uses: azure/webapps-deploy@v3
         with:
